@@ -24,17 +24,42 @@ namespace Almond.IntegrationTest
     [TestClass]
     public class BasicFeatures
     {
-        /// <summary>
-        /// Connection string for the server to run tests against
-        /// </summary>
+        #region Connection Strings
         private const string connectionString =
-                "Hostname=localhost;Port=3306;Initial Catalog=Integration";
+            "Hostname=localhost;Port=3306;Initial Catalog=Integration";
+
+        private const string IPv4ConnectionString =
+            "Hostname=127.0.0.1;Port=3306";
+
+        private const string IPv6ConnectionString =
+            "Hostname=::1;Port=3306";
+        #endregion
 
         [TestMethod]
         public void TestConnection()
         {
             using (Connection connection =
                 new Connection(connectionString))
+            {
+                connection.Open();
+            }
+        }
+
+        [TestMethod]
+        public void TestIPv4Connection()
+        {
+            using (Connection connection =
+                new Connection(IPv4ConnectionString))
+            {
+                connection.Open();
+            }
+        }
+
+        [TestMethod]
+        public void TestIPv6Connection()
+        {
+            using (Connection connection =
+                new Connection(IPv6ConnectionString))
             {
                 connection.Open();
             }
