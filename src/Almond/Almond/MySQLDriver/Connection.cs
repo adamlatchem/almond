@@ -19,15 +19,30 @@ using System.Data;
 
 namespace Almond.MySQLDriver
 {
+    /// <summary>
+    /// A class used to connect to a MySQL instance given a connection string
+    /// </summary>
     public class Connection : IDbConnection, IDisposable
     {
+        #region Members
+        /// <summary>
+        /// Used to manage the connection string in a strongly typed fashion.
+        /// </summary>
+        private ConnectionStringBuilder connectionStringBuilder = new ConnectionStringBuilder();
+
+        /// <summary>
+        /// The line driver used to communicate with the server.
+        /// </summary>
+        private AsyncLineDriver lineDriver;
+        #endregion
+
         /// <summary>
         /// Connect to MySQL using the connection string provided.
         /// </summary>
         /// <param name="connectionString"></param>
         public Connection(string connectionString)
         {
-            throw new NotImplementedException();
+            this.ConnectionString = connectionString;
         }
 
         #region IDbConnection
@@ -35,12 +50,12 @@ namespace Almond.MySQLDriver
         {
             get
             {
-                throw new NotImplementedException();
+                return connectionStringBuilder.ConnectionString;
             }
 
             set
             {
-                throw new NotImplementedException();
+                connectionStringBuilder.ConnectionString = value;
             }
         }
 
@@ -95,14 +110,18 @@ namespace Almond.MySQLDriver
 
         public void Open()
         {
-            throw new NotImplementedException();
+            lineDriver = new AsyncLineDriver(connectionStringBuilder);
         }
         #endregion
 
         #region IDisposable
         public void Dispose()
         {
-            throw new NotImplementedException();
+            if (lineDriver != null)
+            {
+                lineDriver.Close();
+                lineDriver = null;
+            }
         }
         #endregion
     }

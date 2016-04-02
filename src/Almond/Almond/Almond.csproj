@@ -35,8 +35,10 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="MySQLDriver\AsyncLineDriver.cs" />
     <Compile Include="MySQLDriver\Command.cs" />
     <Compile Include="MySQLDriver\Connection.cs" />
+    <Compile Include="MySQLDriver\ConnectionStringBuilder.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
