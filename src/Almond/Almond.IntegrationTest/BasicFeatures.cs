@@ -28,7 +28,7 @@ namespace Almond.IntegrationTest
         /// Connection string for the server to run tests against
         /// </summary>
         private const string connectionString =
-                "Data Source=localhost;Initial Catalog=Integration;";
+                "Hostname=localhost;Port=3306;Initial Catalog=Integration";
 
         [TestMethod]
         public void TestConnection()

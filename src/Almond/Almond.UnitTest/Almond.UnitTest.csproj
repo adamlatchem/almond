@@ -54,7 +54,9 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="MySQLDrvier\AsyncLineDriverUnitTest.cs" />
     <Compile Include="MySQLDrvier\CommandUnitTest.cs" />
+    <Compile Include="MySQLDrvier\ConnectionStringBuilderUnitTest.cs" />
     <Compile Include="MySQLDrvier\ConnectionUnitTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

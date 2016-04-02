@@ -19,6 +19,9 @@ using System.Data;
 
 namespace Almond.MySQLDriver
 {
+    /// <summary>
+    /// An IDbCommand implementation for MySQL.
+    /// </summary>
     public class Command : IDbCommand
     {
         public Command(String queryString, IDbConnection connection)
