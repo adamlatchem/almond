@@ -25,21 +25,20 @@ namespace Almond.IntegrationTest
     public class BasicFeatures
     {
         #region Connection Strings
-        private const string connectionString =
+        private const string CONNECTION_STRING =
             "Hostname=localhost;Port=3306;Initial Catalog=Integration";
 
-        private const string IPv4ConnectionString =
+        private const string IPv4_CONNECTION_STRING =
             "Hostname=127.0.0.1;Port=3306";
 
-        private const string IPv6ConnectionString =
+        private const string IPv6_CONNECTION_STRING =
             "Hostname=::1;Port=3306";
         #endregion
 
         [TestMethod]
         public void TestConnection()
         {
-            using (Connection connection =
-                new Connection(connectionString))
+            using (Connection connection = new Connection(CONNECTION_STRING))
             {
                 connection.Open();
             }
@@ -49,7 +48,7 @@ namespace Almond.IntegrationTest
         public void TestIPv4Connection()
         {
             using (Connection connection =
-                new Connection(IPv4ConnectionString))
+                new Connection(IPv4_CONNECTION_STRING))
             {
                 connection.Open();
             }
@@ -59,7 +58,7 @@ namespace Almond.IntegrationTest
         public void TestIPv6Connection()
         {
             using (Connection connection =
-                new Connection(IPv6ConnectionString))
+                new Connection(IPv6_CONNECTION_STRING))
             {
                 connection.Open();
             }
@@ -71,7 +70,7 @@ namespace Almond.IntegrationTest
             string queryString = "SELECT Value FROM Integration.BasicFeatures";
 
             using (Connection connection =
-                new Connection(connectionString))
+                new Connection(CONNECTION_STRING))
             {
                 Command command = new Command(queryString, connection);
 

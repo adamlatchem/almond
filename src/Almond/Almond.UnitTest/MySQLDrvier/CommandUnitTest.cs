@@ -27,71 +27,71 @@ namespace Almond.UnitTest
         /// <summary>
         /// Connection used for the unit test
         /// </summary>
-        public static Connection connection;
+        public static Connection _connection;
 
         /// <summary>
         /// Command under test
         /// </summary>
-        public static Command command;
+        public static Command _command;
 
         [ClassInitialize]
         public static void ClassInitialize(TestContext context)
         {
             // Create the objects to unit test
-            connection = new Connection("testing 123");
-            command = new Command(String.Empty, connection);
-            Assert.IsNotNull(command);
+            _connection = new Connection("testing 123");
+            _command = new Command(String.Empty, _connection);
+            Assert.IsNotNull(_command);
         }
 
         [ClassCleanup]
         public static void ClassCleanup()
         {
-            command = null;
-            connection.Dispose();
-            connection = null;
+            _command = null;
+            _connection.Dispose();
+            _connection = null;
         }
 
         [TestMethod]
         public void CommandText()
         {
             string commandText = "testing 123";
-            command.CommandText = commandText;
-            Assert.AreEqual(commandText, command.CommandText);
+            _command.CommandText = commandText;
+            Assert.AreEqual(commandText, _command.CommandText);
         }
 
         [TestMethod]
         public void CommandTimeout()
         {
             int commandTimeout = 42;
-            command.CommandTimeout = commandTimeout;
-            Assert.AreEqual(commandTimeout, command.CommandTimeout);
+            _command.CommandTimeout = commandTimeout;
+            Assert.AreEqual(commandTimeout, _command.CommandTimeout);
         }
 
         [TestMethod]
         public void CommandType()
         {
             CommandType commandType = System.Data.CommandType.Text;
-            command.CommandType = commandType;
-            Assert.AreEqual(commandType, command.CommandType);
+            _command.CommandType = commandType;
+            Assert.AreEqual(commandType, _command.CommandType);
         }
 
         [TestMethod]
         public void Connection()
         {
-            Assert.AreEqual(connection, command.Connection);
+            Assert.AreEqual(_connection, _command.Connection);
         }
 
         [TestMethod]
         public void Parameters()
         {
-            Assert.IsNotNull(command.Parameters);
+            Assert.IsNotNull(_command.Parameters);
         }
 
         [TestMethod]
         public void Transaction()
         {
-            IDbTransaction transaction = connection.BeginTransaction();
-            Assert.AreEqual(transaction, command.Transaction);
+            IDbTransaction transaction = _connection.BeginTransaction();
+            Assert.AreEqual(transaction, _command.Transaction);
             transaction.Rollback();
         }
 
@@ -99,70 +99,70 @@ namespace Almond.UnitTest
         public void UpdatedRowSource()
         {
             UpdateRowSource rowSource = System.Data.UpdateRowSource.None;
-            command.UpdatedRowSource = rowSource;
-            Assert.AreEqual(rowSource, command.UpdatedRowSource);
+            _command.UpdatedRowSource = rowSource;
+            Assert.AreEqual(rowSource, _command.UpdatedRowSource);
         }
 
         [TestMethod]
         public void Cancel()
         {
-            command.Cancel();
+            _command.Cancel();
         }
 
         [TestMethod]
         public void CreateParameter()
         {
-            IDbDataParameter parameter = command.CreateParameter();
+            IDbDataParameter parameter = _command.CreateParameter();
             Assert.IsNotNull(parameter);
         }
 
         [TestMethod]
         public void Dispose()
         {
-            Command testCommand = new Command(string.Empty, connection);
+            Command testCommand = new Command(string.Empty, _connection);
             testCommand.Dispose();
         }
 
         [TestMethod]
         public void ExecuteNonQuery()
         {
-            int result = command.ExecuteNonQuery();
+            int result = _command.ExecuteNonQuery();
             Assert.AreEqual(-42, result);
         }
 
         [TestMethod]
         public void ExecuteReader()
         {
-            IDataReader dataReader = command.ExecuteReader();
+            IDataReader dataReader = _command.ExecuteReader();
             Assert.IsNotNull(dataReader);
 
-            dataReader = command.ExecuteReader(CommandBehavior.CloseConnection);
+            dataReader = _command.ExecuteReader(CommandBehavior.CloseConnection);
             Assert.IsNotNull(dataReader);
-            dataReader = command.ExecuteReader(CommandBehavior.Default);
+            dataReader = _command.ExecuteReader(CommandBehavior.Default);
             Assert.IsNotNull(dataReader);
-            dataReader = command.ExecuteReader(CommandBehavior.KeyInfo);
+            dataReader = _command.ExecuteReader(CommandBehavior.KeyInfo);
             Assert.IsNotNull(dataReader);
-            dataReader = command.ExecuteReader(CommandBehavior.SchemaOnly);
+            dataReader = _command.ExecuteReader(CommandBehavior.SchemaOnly);
             Assert.IsNotNull(dataReader);
-            dataReader = command.ExecuteReader(CommandBehavior.SequentialAccess);
+            dataReader = _command.ExecuteReader(CommandBehavior.SequentialAccess);
             Assert.IsNotNull(dataReader);
-            dataReader = command.ExecuteReader(CommandBehavior.SingleResult);
+            dataReader = _command.ExecuteReader(CommandBehavior.SingleResult);
             Assert.IsNotNull(dataReader);
-            dataReader = command.ExecuteReader(CommandBehavior.SingleRow);
+            dataReader = _command.ExecuteReader(CommandBehavior.SingleRow);
             Assert.IsNotNull(dataReader);
         }
 
         [TestMethod]
         public void ExecuteScalar()
         {
-            object result = command.ExecuteScalar();
+            object result = _command.ExecuteScalar();
             Assert.AreEqual(result, "fix this");
         }
 
         [TestMethod]
         public void Prepare()
         {
-            command.Prepare();
+            _command.Prepare();
         }
     }
 }

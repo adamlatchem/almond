@@ -14,6 +14,7 @@
 //    limitations under the License. 
 //
 #endregion
+using Almond.LineDriver;
 using System;
 using System.Data;
 
@@ -28,12 +29,12 @@ namespace Almond.MySQLDriver
         /// <summary>
         /// Used to manage the connection string in a strongly typed fashion.
         /// </summary>
-        private ConnectionStringBuilder connectionStringBuilder = new ConnectionStringBuilder();
+        private ConnectionStringBuilder _connectionStringBuilder = new ConnectionStringBuilder();
 
         /// <summary>
         /// The line driver used to communicate with the server.
         /// </summary>
-        private AsyncLineDriver lineDriver;
+        private AsyncLineDriver _lineDriver;
         #endregion
 
         /// <summary>
@@ -50,12 +51,12 @@ namespace Almond.MySQLDriver
         {
             get
             {
-                return connectionStringBuilder.ConnectionString;
+                return _connectionStringBuilder.ConnectionString;
             }
 
             set
             {
-                connectionStringBuilder.ConnectionString = value;
+                _connectionStringBuilder.ConnectionString = value;
             }
         }
 
@@ -110,17 +111,17 @@ namespace Almond.MySQLDriver
 
         public void Open()
         {
-            lineDriver = new AsyncLineDriver(connectionStringBuilder);
+            _lineDriver = new AsyncLineDriver(_connectionStringBuilder);
         }
         #endregion
 
         #region IDisposable
         public void Dispose()
         {
-            if (lineDriver != null)
+            if (_lineDriver != null)
             {
-                lineDriver.Close();
-                lineDriver = null;
+                _lineDriver.Dispose();
+                _lineDriver = null;
             }
         }
         #endregion

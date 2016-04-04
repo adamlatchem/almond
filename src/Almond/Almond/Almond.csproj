@@ -35,7 +35,7 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="MySQLDriver\AsyncLineDriver.cs" />
+    <Compile Include="LineDriver\AsyncLineDriver.cs" />
     <Compile Include="MySQLDriver\Command.cs" />
     <Compile Include="MySQLDriver\Connection.cs" />
     <Compile Include="MySQLDriver\ConnectionStringBuilder.cs" />
@@ -44,6 +44,7 @@
     <Reference Include="System" />
     <Reference Include="System.Data" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

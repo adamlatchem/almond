@@ -26,92 +26,92 @@ namespace Almond.UnitTest
         /// <summary>
         /// The object under test
         /// </summary>
-        public static Connection connection;
+        public static Connection _connection;
 
         [ClassInitialize]
         public static void ClassInitialize(TestContext context)
         {
-            connection = new Connection("testing 123");
-            Assert.IsNotNull(connection);
+            _connection = new Connection("testing 123");
+            Assert.IsNotNull(_connection);
         }
 
         [ClassCleanup]
         public static void ClassCleanup()
         {
-            connection.Dispose();
-            connection = null;
+            _connection.Dispose();
+            _connection = null;
         }
 
         [TestMethod]
         public void ConnectionString()
         {
             string connectionString = "testing 123";
-            connection.ConnectionString = connectionString;
-            Assert.AreEqual(connectionString, connection.ConnectionString);
+            _connection.ConnectionString = connectionString;
+            Assert.AreEqual(connectionString, _connection.ConnectionString);
         }
 
         [TestMethod]
         public void ConnectionTimeout()
         {
-            Assert.AreEqual(30, connection.ConnectionTimeout);
+            Assert.AreEqual(30, _connection.ConnectionTimeout);
         }
 
         [TestMethod]
         public void Database()
         {
-            Assert.AreEqual("test", connection.Database);
+            Assert.AreEqual("test", _connection.Database);
         }
 
         [TestMethod]
         public void State()
         {
-            Assert.AreEqual(ConnectionState.Broken, connection.State);
+            Assert.AreEqual(ConnectionState.Broken, _connection.State);
         }
 
         [TestMethod]
         public void BeginTransaction()
         {
-            IDbTransaction transaction = connection.BeginTransaction();
+            IDbTransaction transaction = _connection.BeginTransaction();
             transaction.Rollback();
-            transaction = connection.BeginTransaction(IsolationLevel.Chaos);
+            transaction = _connection.BeginTransaction(IsolationLevel.Chaos);
             transaction.Rollback();
-            transaction = connection.BeginTransaction(IsolationLevel.ReadCommitted);
+            transaction = _connection.BeginTransaction(IsolationLevel.ReadCommitted);
             transaction.Rollback();
-            transaction = connection.BeginTransaction(IsolationLevel.ReadUncommitted);
+            transaction = _connection.BeginTransaction(IsolationLevel.ReadUncommitted);
             transaction.Rollback();
-            transaction = connection.BeginTransaction(IsolationLevel.RepeatableRead);
+            transaction = _connection.BeginTransaction(IsolationLevel.RepeatableRead);
             transaction.Rollback();
-            transaction = connection.BeginTransaction(IsolationLevel.Serializable);
+            transaction = _connection.BeginTransaction(IsolationLevel.Serializable);
             transaction.Rollback();
-            transaction = connection.BeginTransaction(IsolationLevel.Snapshot);
+            transaction = _connection.BeginTransaction(IsolationLevel.Snapshot);
             transaction.Rollback();
-            transaction = connection.BeginTransaction(IsolationLevel.Unspecified);
+            transaction = _connection.BeginTransaction(IsolationLevel.Unspecified);
             transaction.Rollback();
         }
 
         [TestMethod]
         public void ChangeDatabase()
         {
-            connection.ChangeDatabase("UnitTest");
+            _connection.ChangeDatabase("UnitTest");
         }
 
         [TestMethod]
         public void Close()
         {
-            connection.Close();
+            _connection.Close();
         }
 
         [TestMethod]
         public void CreateCommand()
         {
-            IDbCommand command = connection.CreateCommand();
+            IDbCommand command = _connection.CreateCommand();
             Assert.IsNotNull(command);
         }
 
         [TestMethod]
         public void Open()
         {
-            connection.Open();
+            _connection.Open();
         }
 
         [TestMethod]

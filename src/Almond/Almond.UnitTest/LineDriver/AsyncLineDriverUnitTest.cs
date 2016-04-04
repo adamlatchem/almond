@@ -14,36 +14,48 @@
 //    limitations under the License. 
 //
 #endregion
+using Almond.LineDriver;
 using Almond.MySQLDriver;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Almond.UnitTest.MySQLDrvier
+namespace Almond.UnitTest.LineDriver
 {
     [TestClass]
     public class AsyncLineDriverUnitTest
     {
-        private static AsyncLineDriver lineDriver;
+        private static ConnectionStringBuilder _connectionStringBuilder;
+        private static AsyncLineDriver _lineDriver;
 
         [ClassInitialize]
         public static void ClassInitialize(TestContext context)
         {
-            ConnectionStringBuilder connectionStringBuilder = new ConnectionStringBuilder();
-            connectionStringBuilder.ConnectionString = "hostname=localhost;port=3306";
-            lineDriver = new AsyncLineDriver(connectionStringBuilder);
-            Assert.IsNotNull(lineDriver);
+            _connectionStringBuilder = new ConnectionStringBuilder();
+            _connectionStringBuilder.ConnectionString = "hostname=localhost;port=3306";
+            _lineDriver = new AsyncLineDriver(_connectionStringBuilder);
+            Assert.IsNotNull(_lineDriver);
         }
 
         [ClassCleanup]
         public static void ClassCleanup()
         {
-            lineDriver.Close();
-            lineDriver = null;
+            _lineDriver.Dispose();
+            _lineDriver = null;
         }
 
         [TestMethod]
-        public void Close()
+        public void SoakTestConnection()
         {
-            lineDriver.Close();
+            for (int i = 0; i < 100; i++)
+            {
+                AsyncLineDriver connection = new AsyncLineDriver(_connectionStringBuilder);
+                connection.Dispose();
+            }
+        }
+
+        [TestMethod]
+        public void Dispose()
+        {
+            _lineDriver.Dispose();
         }
     }
 }

@@ -26,43 +26,43 @@ namespace Almond.UnitTest.MySQLDrvier
         /// <summary>
         /// The ConnectionStringBuilder under test
         /// </summary>
-        private static ConnectionStringBuilder connectionStringBuilder;
+        private static ConnectionStringBuilder _connectionStringBuilder;
 
         [ClassInitialize]
         public static void ClassInitialize(TestContext context)
         {
-            connectionStringBuilder = new ConnectionStringBuilder();
-            Assert.IsNotNull(connectionStringBuilder);
+            _connectionStringBuilder = new ConnectionStringBuilder();
+            Assert.IsNotNull(_connectionStringBuilder);
         }
 
         [ClassCleanup]
         public static void ClassCleanup()
         {
-            connectionStringBuilder = null;
+            _connectionStringBuilder = null;
         }
 
         #region DbConnectionStringBuilder
         [TestMethod]
         public void TestNullConnectionString()
         {
-            connectionStringBuilder.ConnectionString = null;
-            Assert.AreEqual(String.Empty, connectionStringBuilder.ConnectionString);
+            _connectionStringBuilder.ConnectionString = null;
+            Assert.AreEqual(String.Empty, _connectionStringBuilder.ConnectionString);
         }
 
         [TestMethod]
         public void TestSimpleConnectionString()
         {
             string connectionString = "hostname=local";
-            connectionStringBuilder.ConnectionString = connectionString;
-            Assert.AreEqual(connectionString, connectionStringBuilder.ConnectionString);
+            _connectionStringBuilder.ConnectionString = connectionString;
+            Assert.AreEqual(connectionString, _connectionStringBuilder.ConnectionString);
         }
 
         [TestMethod]
         public void TestConnectionStringCleanup()
         {
             string connectionString = "HOStname= local;";
-            connectionStringBuilder.ConnectionString = connectionString;
-            Assert.AreEqual("hostname=local", connectionStringBuilder.ConnectionString);
+            _connectionStringBuilder.ConnectionString = connectionString;
+            Assert.AreEqual("hostname=local", _connectionStringBuilder.ConnectionString);
         }
 
         [TestMethod]
@@ -70,7 +70,7 @@ namespace Almond.UnitTest.MySQLDrvier
         public void TestBadConnectionStringThrowsException()
         {
             string connectionString = "This will fail";
-            connectionStringBuilder.ConnectionString = connectionString;
+            _connectionStringBuilder.ConnectionString = connectionString;
         }
         #endregion
 
@@ -78,16 +78,16 @@ namespace Almond.UnitTest.MySQLDrvier
         public void TestHostname()
         {
             string hostname = "localhost.localdomain";
-            connectionStringBuilder.Hostname = hostname;
-            Assert.AreEqual(hostname, connectionStringBuilder.Hostname);
+            _connectionStringBuilder.Hostname = hostname;
+            Assert.AreEqual(hostname, _connectionStringBuilder.Hostname);
         }
 
         [TestMethod]
         public void TestPort()
         {
             int port = 1234;
-            connectionStringBuilder.Port = port;
-            Assert.AreEqual(port, connectionStringBuilder.Port);
+            _connectionStringBuilder.Port = port;
+            Assert.AreEqual(port, _connectionStringBuilder.Port);
         }
     }
 }
