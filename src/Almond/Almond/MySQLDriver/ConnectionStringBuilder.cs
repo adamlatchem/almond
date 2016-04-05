@@ -28,7 +28,12 @@ namespace Almond.MySQLDriver
         /// </summary>
         public string Hostname
         {
-            get { return (string)this["hostname"]; }
+            get
+            {
+                if (!this.ContainsKey("hostname"))
+                    Hostname = "localhost";
+                return (string)this["hostname"];
+            }
             set { this["hostname"] = value; }
         }
 
@@ -37,7 +42,12 @@ namespace Almond.MySQLDriver
         /// </summary>
         public int Port
         {
-            get { return int.Parse((string)this["port"]); }
+            get
+            {
+                if (!this.ContainsKey("port"))
+                    Port = 3306;
+                return int.Parse((string)this["port"]);
+            }
             set { this["port"] = value; }
         }
     }

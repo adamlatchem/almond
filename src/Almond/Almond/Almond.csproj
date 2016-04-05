@@ -35,10 +35,19 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="LineDriver\AsyncLineDriver.cs" />
+    <Compile Include="AssemblyInfo.cs" />
+    <Compile Include="LineDriver\Extensions.cs" />
+    <Compile Include="LineDriver\IPacketFactory.cs" />
+    <Compile Include="LineDriver\TCPLineDriver.cs" />
+    <Compile Include="LineDriver\IPacket.cs" />
     <Compile Include="MySQLDriver\Command.cs" />
     <Compile Include="MySQLDriver\Connection.cs" />
     <Compile Include="MySQLDriver\ConnectionStringBuilder.cs" />
+    <Compile Include="ProtocolDriver\ERRPacket.cs" />
+    <Compile Include="ProtocolDriver\GenericPacket.cs" />
+    <Compile Include="ProtocolDriver\InitialHandshakePacket.cs" />
+    <Compile Include="ProtocolDriver\ProtocolDriver.cs" />
+    <Compile Include="ProtocolDriver\ProtocolErrorException.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />

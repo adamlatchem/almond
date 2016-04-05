@@ -29,9 +29,18 @@ namespace Almond.LineDriver
     /// The Line Driver connects using TCP to the MySQL server and transfers byte arrays
     /// from packets to the server and converts bytes arrays from the server to packets.
     /// </summary>
-    public class AsyncLineDriver : IDisposable
+    public class TCPLineDriver : IDisposable
     {
         #region Members
+
+        /// <summary>
+        /// Capabilities used to build packets
+        /// </summary>
+        public Capability Capabilities
+        {
+            get; set;
+        }
+
         /// <summary>
         /// Signalled when the connection is succesfully made.
         /// </summary>
@@ -56,7 +65,7 @@ namespace Almond.LineDriver
         /// <summary>
         /// Once a byte[] arrives it is placed in this queue.
         /// </summary>
-        private BlockingCollection<MemoryStream> _receiveQueue;
+        private BlockingCollection<BinaryReader> _receiveQueue;
         #endregion
 
         /// <summary>
@@ -64,10 +73,10 @@ namespace Almond.LineDriver
         /// initiates reading and returns synchronously.
         /// </summary>
         /// <param name="connectionStringBuilder"></param>
-        public AsyncLineDriver(ConnectionStringBuilder connectionStringBuilder)
+        public TCPLineDriver(ConnectionStringBuilder connectionStringBuilder)
         {
             _connectedSignal.Reset();
-            _receiveQueue = new BlockingCollection<MemoryStream>();
+            _receiveQueue = new BlockingCollection<BinaryReader>();
 
             IPHostEntry ipHostInfo = Dns.GetHostEntry(connectionStringBuilder.Hostname);
             IPAddress ipAddress = ipHostInfo.AddressList[0];
@@ -78,6 +87,20 @@ namespace Almond.LineDriver
                 new AsyncCallback(OnConnect), _serverSocket);
 
             _connectedSignal.WaitOne();
+        }
+
+        /// <summary>
+        /// Blocks until the next packet is read from the socket.
+        /// </summary>
+        /// <param name="factory"></param>
+        /// <returns></returns>
+        public IPacket ReadPacket(IPacketFactory factory)
+        {
+            BinaryReader chunk = _receiveQueue.Take();
+            IPacket result = factory.CreatePacket(chunk);
+            while (!result.FromReader(chunk, Capabilities))
+                chunk = _receiveQueue.Take();
+            return result;
         }
 
         /// <summary>
@@ -128,7 +151,9 @@ namespace Almond.LineDriver
 
                 byte[] receivedBuffer = (byte[])ar.AsyncState;
                 int bytesRecieved = _serverSocket.EndReceive(ar);
-                _receiveQueue.Add(new MemoryStream(receivedBuffer, 0, bytesRecieved));
+                MemoryStream memoryStream = new MemoryStream(receivedBuffer, 0, bytesRecieved);
+                BinaryReader binaryReader = new BinaryReader(memoryStream);
+                _receiveQueue.Add(binaryReader);
 
                 BeginReceive_Locked();
             }

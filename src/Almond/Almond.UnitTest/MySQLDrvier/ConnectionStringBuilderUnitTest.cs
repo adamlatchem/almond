@@ -89,5 +89,13 @@ namespace Almond.UnitTest.MySQLDrvier
             _connectionStringBuilder.Port = port;
             Assert.AreEqual(port, _connectionStringBuilder.Port);
         }
+
+        [TestMethod]
+        public void TestDefaults()
+        {
+            _connectionStringBuilder = new ConnectionStringBuilder();
+            Assert.AreEqual("localhost", _connectionStringBuilder.Hostname);
+            Assert.AreEqual(3306, _connectionStringBuilder.Port);
+        }
     }
 }

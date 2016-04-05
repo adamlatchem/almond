@@ -31,7 +31,7 @@ namespace Almond.UnitTest
         [ClassInitialize]
         public static void ClassInitialize(TestContext context)
         {
-            _connection = new Connection("testing 123");
+            _connection = new Connection("hostname=localhost");
             Assert.IsNotNull(_connection);
         }
 

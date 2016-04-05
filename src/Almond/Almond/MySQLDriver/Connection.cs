@@ -34,7 +34,7 @@ namespace Almond.MySQLDriver
         /// <summary>
         /// The line driver used to communicate with the server.
         /// </summary>
-        private AsyncLineDriver _lineDriver;
+        private ProtocolDriver.ProtocolDriver _protocolDriver;
         #endregion
 
         /// <summary>
@@ -111,17 +111,17 @@ namespace Almond.MySQLDriver
 
         public void Open()
         {
-            _lineDriver = new AsyncLineDriver(_connectionStringBuilder);
+            _protocolDriver = new ProtocolDriver.ProtocolDriver(_connectionStringBuilder);
         }
         #endregion
 
         #region IDisposable
         public void Dispose()
         {
-            if (_lineDriver != null)
+            if (_protocolDriver != null)
             {
-                _lineDriver.Dispose();
-                _lineDriver = null;
+                _protocolDriver.Dispose();
+                _protocolDriver = null;
             }
         }
         #endregion

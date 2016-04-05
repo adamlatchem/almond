@@ -17,45 +17,50 @@
 using Almond.LineDriver;
 using Almond.MySQLDriver;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.IO;
 
-namespace Almond.UnitTest.LineDriver
+namespace Almond.UnitTest.ProtocolDriver
 {
     [TestClass]
-    public class AsyncLineDriverUnitTest
+    public class ProtocolDriverUnitTest
     {
         private static ConnectionStringBuilder _connectionStringBuilder;
-        private static AsyncLineDriver _lineDriver;
+        private static Almond.ProtocolDriver.ProtocolDriver _protocolDriver;
 
         [ClassInitialize]
         public static void ClassInitialize(TestContext context)
         {
             _connectionStringBuilder = new ConnectionStringBuilder();
             _connectionStringBuilder.ConnectionString = "hostname=localhost;port=3306";
-            _lineDriver = new AsyncLineDriver(_connectionStringBuilder);
-            Assert.IsNotNull(_lineDriver);
+            _protocolDriver = new Almond.ProtocolDriver.ProtocolDriver(_connectionStringBuilder);
+            Assert.IsNotNull(_protocolDriver);
         }
 
         [ClassCleanup]
         public static void ClassCleanup()
         {
-            _lineDriver.Dispose();
-            _lineDriver = null;
+            _protocolDriver.Dispose();
+            _protocolDriver = null;
         }
 
         [TestMethod]
-        public void SoakTestConnection()
+        public void CreatePacket()
         {
-            for (int i = 0; i < 100; i++)
-            {
-                AsyncLineDriver connection = new AsyncLineDriver(_connectionStringBuilder);
-                connection.Dispose();
-            }
+            // COM_QUIT
+            byte[] byteArrya = new byte[] { 01, 00, 00, 01, 01 };
+            MemoryStream memoryStream = new MemoryStream(byteArrya);
+            BinaryReader binaryReader = new BinaryReader(memoryStream);
+            IPacket result = _protocolDriver.CreatePacket(binaryReader);
+
+            Assert.AreNotEqual(null, result);
+            Assert.AreEqual(1, result.SequenceNumber);
+            Assert.AreEqual(1, result.Length);
         }
 
         [TestMethod]
         public void Dispose()
         {
-            _lineDriver.Dispose();
+            _protocolDriver.Dispose();
         }
     }
 }
