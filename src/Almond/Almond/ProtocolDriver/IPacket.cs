@@ -17,7 +17,7 @@
 using System;
 using System.IO;
 
-namespace Almond.LineDriver
+namespace Almond.ProtocolDriver
 {
     /// <summary>
     /// Packets have optional functionality based on available capabilities

@@ -57,7 +57,7 @@
   </Choose>
   <ItemGroup>
     <Compile Include="LineDriver\TCPLineDriverUnitTest.cs" />
-    <Compile Include="LineDriver\Extensions.cs" />
+    <Compile Include="ProtocolDriver\Extensions.cs" />
     <Compile Include="MySQLDrvier\CommandUnitTest.cs" />
     <Compile Include="MySQLDrvier\ConnectionStringBuilderUnitTest.cs" />
     <Compile Include="MySQLDrvier\ConnectionUnitTest.cs" />

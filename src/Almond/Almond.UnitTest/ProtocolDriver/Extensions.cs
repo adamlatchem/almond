@@ -18,7 +18,7 @@ using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
 
-namespace Almond.UnitTest.LineDriver
+namespace Almond.UnitTest.ProtocolDriver
 {
     [TestClass]
     public class Extensions

@@ -24,7 +24,7 @@ namespace Almond.ProtocolDriver
     /// <summary>
     /// Defines packets and state machine for the MySQL Client/Server protocol.
     /// </summary>
-    internal class ProtocolDriver : IPacketFactory, IDisposable
+    internal class ProtocolDriver : IDisposable
     {
         #region Members
         /// <summary>
@@ -36,6 +36,14 @@ namespace Almond.ProtocolDriver
         /// The expected sequence Id of the next packet.
         /// </summary>
         private byte _expectedSequenceNumber;
+
+        /// <summary>
+        /// Capabilities used to build packets
+        /// </summary>
+        public Capability Capabilities
+        {
+            get; set;
+        }
         #endregion
 
         /// <summary>
@@ -46,7 +54,7 @@ namespace Almond.ProtocolDriver
         public ProtocolDriver(ConnectionStringBuilder connectionStringBuilder)
         {
             _lineDriver = new TCPLineDriver(connectionStringBuilder);
-            IPacket initialPacket = _lineDriver.ReadPacket(this);
+            IPacket initialPacket = NextPacket();
             if (!(initialPacket is InitialHandshakePacket))
             {
                 if (initialPacket is ERRPacket)
@@ -57,7 +65,29 @@ namespace Almond.ProtocolDriver
             throw new NotImplementedException();
         }
 
-        #region IPacketFactory
+        /// <summary>
+        /// Blocks until the next packet is completly read from the socket.
+        /// </summary>
+        /// <returns></returns>
+        public IPacket NextPacket()
+        {
+            MemoryStream memoryStream = _lineDriver.NextChunk();
+            BinaryReader chunk = new BinaryReader(memoryStream);
+            IPacket result = CreatePacket(chunk);
+
+            while (!result.FromReader(chunk, Capabilities))
+            {
+                memoryStream = _lineDriver.NextChunk();
+                chunk = new BinaryReader(memoryStream);
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Packet factory method
+        /// </summary>
+        /// <param name="packetHeader"></param>
+        /// <returns></returns>
         public IPacket CreatePacket(BinaryReader packetHeader)
         {
             Int32 payloadLength = packetHeader.ReadMyInt3();
@@ -89,7 +119,6 @@ namespace Almond.ProtocolDriver
             result.Length = payloadLength;
             return result;
         }
-        #endregion
 
         #region IDisposable
         public void Dispose()

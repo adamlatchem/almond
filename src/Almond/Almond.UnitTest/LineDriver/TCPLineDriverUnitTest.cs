@@ -16,14 +16,13 @@
 #endregion
 using Almond.LineDriver;
 using Almond.MySQLDriver;
-using Almond.ProtocolDriver;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
 
 namespace Almond.UnitTest.LineDriver
 {
     [TestClass]
-    public class TCPLineDriverUnitTest : IPacketFactory
+    public class TCPLineDriverUnitTest
     {
         private static ConnectionStringBuilder _connectionStringBuilder;
         private static TCPLineDriver _lineDriver;
@@ -57,9 +56,8 @@ namespace Almond.UnitTest.LineDriver
         [TestMethod]
         public void ReadPacket()
         {
-            IPacket packet = _lineDriver.ReadPacket(this);
-            Assert.AreNotEqual(null, packet);
-            Assert.AreEqual(42, packet.SequenceNumber);
+            MemoryStream chunk = _lineDriver.NextChunk();
+            Assert.AreNotEqual(null, chunk);
         }
 
         [TestMethod]
@@ -67,15 +65,5 @@ namespace Almond.UnitTest.LineDriver
         {
             _lineDriver.Dispose();
         }
-
-        #region IPacketFactory
-        public IPacket CreatePacket(BinaryReader packetHeader)
-        {
-            IPacket result = new GenericPacket();
-            result.SequenceNumber = 42;
-            result.Length = 0;
-            return result;
-        }
-        #endregion
     }
 }
