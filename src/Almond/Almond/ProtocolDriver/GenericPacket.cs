@@ -26,8 +26,6 @@ namespace Almond.ProtocolDriver
     /// </summary>
     public class GenericPacket : IPacket
     {
-        private Int32 _readSoFar;
-
         #region IPacket
         public Int32 Length
         {
@@ -39,10 +37,9 @@ namespace Almond.ProtocolDriver
             get; set;
         }
 
-        public bool FromReader(BinaryReader buffer, Capability capabilities)
+        public void FromReader(ChunkReader reader, Capability capabilities)
         {
-            buffer.ReadMyStringFix(Length, ref _readSoFar);
-            return Length == _readSoFar;
+            reader.ReadMyStringFix(Length);
         }
 
         public bool ToWriter(BinaryWriter buffer, Capability capabilities)

@@ -14,6 +14,7 @@
 //    limitations under the License. 
 //
 #endregion
+using Almond.LineDriver;
 using System;
 using System.IO;
 
@@ -57,11 +58,11 @@ namespace Almond.ProtocolDriver
         #endregion
 
         /// <summary>
-        /// Incrementally read the packet from a buffer.
+        /// Parse packet from chunkReader stream
         /// </summary>
         /// <returns>is packet complete</returns>
         /// <param name="buffer"></param>
-        bool FromReader(BinaryReader buffer, Capability capabilities);
+        void FromReader(ChunkReader reader, Capability capabilities);
 
         /// <summary>
         /// Incrementally write packet to a buffer.

@@ -17,7 +17,6 @@
 using Almond.LineDriver;
 using Almond.MySQLDriver;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.IO;
 
 namespace Almond.UnitTest.LineDriver
 {
@@ -54,10 +53,10 @@ namespace Almond.UnitTest.LineDriver
         }
 
         [TestMethod]
-        public void ReadPacket()
+        public void ChunkReader()
         {
-            MemoryStream chunk = _lineDriver.NextChunk();
-            Assert.AreNotEqual(null, chunk);
+            ChunkReader chunkReader = _lineDriver.ChunkReader;
+            Assert.AreNotEqual(null, chunkReader);
         }
 
         [TestMethod]

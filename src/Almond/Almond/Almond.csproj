@@ -36,7 +36,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
-    <Compile Include="ProtocolDriver\Extensions.cs" />
+    <Compile Include="LineDriver\ChunkReader.cs" />
     <Compile Include="LineDriver\TCPLineDriver.cs" />
     <Compile Include="ProtocolDriver\IPacket.cs" />
     <Compile Include="MySQLDriver\Command.cs" />

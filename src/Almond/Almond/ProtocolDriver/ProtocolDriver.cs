@@ -17,7 +17,6 @@
 using Almond.LineDriver;
 using Almond.MySQLDriver;
 using System;
-using System.IO;
 
 namespace Almond.ProtocolDriver
 {
@@ -71,27 +70,21 @@ namespace Almond.ProtocolDriver
         /// <returns></returns>
         public IPacket NextPacket()
         {
-            MemoryStream memoryStream = _lineDriver.NextChunk();
-            BinaryReader chunk = new BinaryReader(memoryStream);
-            IPacket result = CreatePacket(chunk);
-
-            while (!result.FromReader(chunk, Capabilities))
-            {
-                memoryStream = _lineDriver.NextChunk();
-                chunk = new BinaryReader(memoryStream);
-            }
+            ChunkReader chunkReader = _lineDriver.ChunkReader;
+            IPacket result = CreatePacket(chunkReader);
+            result.FromReader(chunkReader, Capabilities);
             return result;
         }
 
         /// <summary>
         /// Packet factory method
         /// </summary>
-        /// <param name="packetHeader"></param>
+        /// <param name="reader"></param>
         /// <returns></returns>
-        public IPacket CreatePacket(BinaryReader packetHeader)
+        public IPacket CreatePacket(ChunkReader reader)
         {
-            Int32 payloadLength = packetHeader.ReadMyInt3();
-            byte sequenceNumber = packetHeader.ReadMyInt1();
+            Int32 payloadLength = reader.ReadMyInt3();
+            byte sequenceNumber = reader.ReadMyInt1();
             if (sequenceNumber != _expectedSequenceNumber)
                 throw new ProtocolErrorException(
                     String.Format(
@@ -101,7 +94,7 @@ namespace Almond.ProtocolDriver
             _expectedSequenceNumber++;
 
             IPacket result = null;
-            switch (packetHeader.PeekByte())
+            switch (reader.PeekByte())
             {
                 case 9:
                 case 10:

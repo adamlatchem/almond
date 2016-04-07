@@ -41,10 +41,9 @@ namespace Almond.ProtocolDriver
             get; set;
         }
 
-        public bool FromReader(BinaryReader buffer, Capability capabilities)
+        public void FromReader(ChunkReader reader, Capability capabilities)
         {
-            ProtocolVersion = buffer.ReadMyInt1();
-            return true;
+            ProtocolVersion = reader.ReadMyInt1();
         }
 
         public bool ToWriter(BinaryWriter buffer, Capability capabilities)

@@ -16,32 +16,28 @@
 #endregion
 using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.IO;
+using Almond.LineDriver;
 
-namespace Almond.UnitTest.ProtocolDriver
+namespace Almond.UnitTest.LineDriver
 {
     [TestClass]
-    public class Extensions
+    public class ChunkReaderUnitTest
     {
         private static byte[] _byteArray;
-        private static MemoryStream _memoryStream;
-        private static BinaryReader _binaryReader;
+        private static ChunkReader _chunkReader;
 
         [ClassInitialize]
         public static void ClassInitialize(TestContext context)
         {
             _byteArray = new byte[] { };
-            _memoryStream = new MemoryStream(_byteArray);
-            _binaryReader = new BinaryReader(_memoryStream);
+            _chunkReader = new ChunkReader();
+            _chunkReader.AddChunk(new ArraySegment<byte>(_byteArray, 0, 0));
         }
 
         [ClassCleanup]
         public static void ClassCleanup()
         {
-            _binaryReader.Dispose();
-            _binaryReader = null;
-            _memoryStream.Dispose();
-            _memoryStream = null;
+            _chunkReader = null;
             _byteArray = null;
         }
 

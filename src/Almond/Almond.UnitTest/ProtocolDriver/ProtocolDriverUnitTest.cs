@@ -14,10 +14,11 @@
 //    limitations under the License. 
 //
 #endregion
+using Almond.LineDriver;
 using Almond.MySQLDriver;
 using Almond.ProtocolDriver;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.IO;
+using System;
 
 namespace Almond.UnitTest.ProtocolDriver
 {
@@ -47,10 +48,10 @@ namespace Almond.UnitTest.ProtocolDriver
         public void CreatePacket()
         {
             // COM_QUIT
-            byte[] byteArrya = new byte[] { 01, 00, 00, 01, 01 };
-            MemoryStream memoryStream = new MemoryStream(byteArrya);
-            BinaryReader binaryReader = new BinaryReader(memoryStream);
-            IPacket result = _protocolDriver.CreatePacket(binaryReader);
+            byte[] byteArray = new byte[] { 01, 00, 00, 01, 01 };
+            ChunkReader chunkReader = new ChunkReader();
+            chunkReader.AddChunk(new ArraySegment<byte>(byteArray, 0, byteArray.Length));
+            IPacket result = _protocolDriver.CreatePacket(chunkReader);
 
             Assert.AreNotEqual(null, result);
             Assert.AreEqual(1, result.SequenceNumber);

@@ -16,9 +16,6 @@
 #endregion
 using Almond.LineDriver;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.IO;
 
 namespace Almond.ProtocolDriver
@@ -48,20 +45,17 @@ namespace Almond.ProtocolDriver
             get; set;
         }
 
-        private int _readSoFar;
-
-        public bool FromReader(BinaryReader buffer, Capability capabilities)
+        public void FromReader(ChunkReader reader, Capability capabilities)
         {
-            byte header = buffer.ReadMyInt1();
-            ErrorCode = buffer.ReadMyInt2();
+            byte header = reader.ReadMyInt1();
+            ErrorCode = reader.ReadMyInt2();
+            int stringLength = Length - 3;
             if (capabilities.HasFlag(Capability.CLIENT_PROTOCOL_41))
             {
                 throw new NotImplementedException();
             }
-            _readSoFar = 0;
-            byte[] errorMessage = buffer.ReadMyStringFix(Length, ref _readSoFar);
+            byte[] errorMessage = reader.ReadMyStringFix(stringLength);
             ErrorMessage = System.Text.Encoding.ASCII.GetString(errorMessage);
-            return true;
         }
 
         public bool ToWriter(BinaryWriter buffer, Capability capabilities)

@@ -16,9 +16,7 @@
 #endregion
 using Almond.MySQLDriver;
 using System;
-using System.Collections.Concurrent;
 using System.Diagnostics;
-using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
@@ -55,9 +53,12 @@ namespace Almond.LineDriver
         private int _chunkSize = 64 * 1024;
 
         /// <summary>
-        /// Once a byte[] arrives it is placed in this queue.
+        /// Used to stream chunks read by the line driver.
         /// </summary>
-        private BlockingCollection<MemoryStream> _receiveQueue;
+        public ChunkReader ChunkReader
+        {
+            get; private set;
+        }
         #endregion
 
         /// <summary>
@@ -68,7 +69,7 @@ namespace Almond.LineDriver
         public TCPLineDriver(ConnectionStringBuilder connectionStringBuilder)
         {
             _connectedSignal.Reset();
-            _receiveQueue = new BlockingCollection<MemoryStream>();
+            ChunkReader = new ChunkReader();
 
             IPHostEntry ipHostInfo = Dns.GetHostEntry(connectionStringBuilder.Hostname);
             IPAddress ipAddress = ipHostInfo.AddressList[0];
@@ -79,15 +80,6 @@ namespace Almond.LineDriver
                 new AsyncCallback(OnConnect), _serverSocket);
 
             _connectedSignal.WaitOne();
-        }
-
-        /// <summary>
-        /// Blocks until the next chunk is read from the socket.
-        /// </summary>
-        /// <returns></returns>
-        public MemoryStream NextChunk()
-        {
-            return _receiveQueue.Take();
         }
 
         /// <summary>
@@ -138,8 +130,8 @@ namespace Almond.LineDriver
 
                 byte[] receivedBuffer = (byte[])ar.AsyncState;
                 int bytesRecieved = _serverSocket.EndReceive(ar);
-                MemoryStream memoryStream = new MemoryStream(receivedBuffer, 0, bytesRecieved);
-                _receiveQueue.Add(memoryStream);
+                ArraySegment<byte> arraySegment = new ArraySegment<byte>(receivedBuffer, 0, bytesRecieved);
+                ChunkReader.AddChunk(arraySegment);
 
                 BeginReceive_Locked();
             }
