@@ -20,10 +20,10 @@ using System.IO;
 
 namespace Almond.ProtocolDriver
 {
-    public class ERRPacket : IPacket
+    public class ERRPacket : IServerPacket
     {
         #region Members
-        public Int32 ErrorCode
+        public UInt32 ErrorCode
         {
             get; set;
         }
@@ -34,13 +34,13 @@ namespace Almond.ProtocolDriver
         }
         #endregion
 
-        #region IPacket
-        public int Length
+        #region IServerPacket
+        public UInt32 Length
         {
             get; set;
         }
 
-        public int SequenceNumber
+        public byte SequenceNumber
         {
             get; set;
         }
@@ -49,20 +49,13 @@ namespace Almond.ProtocolDriver
         {
             byte header = reader.ReadMyInt1();
             ErrorCode = reader.ReadMyInt2();
-            int stringLength = Length - 3;
+            UInt32 stringLength = Length - 3;
             if (capabilities.HasFlag(Capability.CLIENT_PROTOCOL_41))
             {
                 throw new NotImplementedException();
             }
-            byte[] errorMessage = reader.ReadMyStringFix(stringLength);
-            ErrorMessage = System.Text.Encoding.ASCII.GetString(errorMessage);
+            ErrorMessage = reader.ReadStringFix(stringLength);
         }
-
-        public bool ToWriter(BinaryWriter buffer, Capability capabilities)
-        {
-            throw new NotImplementedException();
-        }
-
         #endregion
     }
 }

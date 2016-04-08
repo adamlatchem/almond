@@ -20,23 +20,67 @@ using System.IO;
 
 namespace Almond.ProtocolDriver
 {
-    public class InitialHandshakePacket : IPacket
+    public class InitialHandshakePacket : IServerPacket
     {
         #region members
-
         public int ProtocolVersion
+        {
+            get; set;
+        }
+
+        public string ServerVersion
+        {
+            get; set;
+        }
+
+        public UInt32 ConnectionId
+        {
+            get; set;
+        }
+
+        public string AuthPluginDataPart1
+        {
+            get; set;
+        }
+
+        public string AuthPluginDataPart2
+        {
+            get; set;
+        }
+
+        public Capability Capabilities
+        {
+            get; set;
+        }
+
+        public byte CharacterSet
+        {
+            get; set;
+        }
+
+        public UInt32 StatusFlags
+        {
+            get; set;
+        }
+
+        public byte LengthOfAuthPluginData
+        {
+            get; set;
+        }
+
+        public string AuthPluginName
         {
             get; set;
         }
         #endregion
 
-        #region IPacket
-        public int Length
+        #region IServerPacket
+        public UInt32 Length
         {
             get; set;
         }
 
-        public int SequenceNumber
+        public byte SequenceNumber
         {
             get; set;
         }
@@ -44,11 +88,34 @@ namespace Almond.ProtocolDriver
         public void FromReader(ChunkReader reader, Capability capabilities)
         {
             ProtocolVersion = reader.ReadMyInt1();
-        }
+            if (ProtocolVersion == 10)
+            {
+                ServerVersion = reader.ReadStringNull();
+                ConnectionId = reader.ReadMyInt4();
+                AuthPluginDataPart1 = reader.ReadStringFix(8);
+                reader.Skip(1);
+                Capabilities = (Capability)reader.ReadMyInt2();
+                if (17 + ServerVersion.Length < Length)
+                {
+                    CharacterSet = reader.ReadMyInt1();
+                    StatusFlags = reader.ReadMyInt2();
+                    Capabilities = (Capability)((UInt32)Capabilities | (reader.ReadMyInt2() << 16));
+                    if (Capabilities.HasFlag(Capability.CLIENT_PLUGIN_AUTH))
+                        LengthOfAuthPluginData = reader.ReadMyInt1();
+                    else
+                        reader.Skip(1);
+                    reader.Skip(10);
 
-        public bool ToWriter(BinaryWriter buffer, Capability capabilities)
-        {
-            throw new NotImplementedException();
+                    if (Capabilities.HasFlag(Capability.CLIENT_SECURE_CONNECTION))
+                        AuthPluginDataPart2 = reader.ReadStringFix((byte)Math.Max(13, LengthOfAuthPluginData - 8));
+                    if (Capabilities.HasFlag(Capability.CLIENT_PLUGIN_AUTH))
+                        AuthPluginName = reader.ReadStringNull();
+                }
+            }
+            else
+            {
+                throw new NotImplementedException();
+            }
         }
         #endregion
     }

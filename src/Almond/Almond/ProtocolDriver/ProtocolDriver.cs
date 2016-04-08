@@ -53,7 +53,7 @@ namespace Almond.ProtocolDriver
         public ProtocolDriver(ConnectionStringBuilder connectionStringBuilder)
         {
             _lineDriver = new TCPLineDriver(connectionStringBuilder);
-            IPacket initialPacket = NextPacket();
+            IServerPacket initialPacket = NextPacket();
             if (!(initialPacket is InitialHandshakePacket))
             {
                 if (initialPacket is ERRPacket)
@@ -68,10 +68,10 @@ namespace Almond.ProtocolDriver
         /// Blocks until the next packet is completly read from the socket.
         /// </summary>
         /// <returns></returns>
-        public IPacket NextPacket()
+        public IServerPacket NextPacket()
         {
             ChunkReader chunkReader = _lineDriver.ChunkReader;
-            IPacket result = CreatePacket(chunkReader);
+            IServerPacket result = CreatePacket(chunkReader);
             result.FromReader(chunkReader, Capabilities);
             return result;
         }
@@ -81,9 +81,9 @@ namespace Almond.ProtocolDriver
         /// </summary>
         /// <param name="reader"></param>
         /// <returns></returns>
-        public IPacket CreatePacket(ChunkReader reader)
+        public IServerPacket CreatePacket(ChunkReader reader)
         {
-            Int32 payloadLength = reader.ReadMyInt3();
+            UInt32 payloadLength = reader.ReadMyInt3();
             byte sequenceNumber = reader.ReadMyInt1();
             if (sequenceNumber != _expectedSequenceNumber)
                 throw new ProtocolErrorException(
@@ -93,7 +93,7 @@ namespace Almond.ProtocolDriver
                         sequenceNumber));
             _expectedSequenceNumber++;
 
-            IPacket result = null;
+            IServerPacket result = null;
             switch (reader.PeekByte())
             {
                 case 9:

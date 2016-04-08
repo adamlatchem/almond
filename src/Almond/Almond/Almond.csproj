@@ -38,7 +38,7 @@
     <Compile Include="AssemblyInfo.cs" />
     <Compile Include="LineDriver\ChunkReader.cs" />
     <Compile Include="LineDriver\TCPLineDriver.cs" />
-    <Compile Include="ProtocolDriver\IPacket.cs" />
+    <Compile Include="ProtocolDriver\IServerPacket.cs" />
     <Compile Include="MySQLDriver\Command.cs" />
     <Compile Include="MySQLDriver\Connection.cs" />
     <Compile Include="MySQLDriver\ConnectionStringBuilder.cs" />

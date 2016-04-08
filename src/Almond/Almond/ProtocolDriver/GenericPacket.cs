@@ -24,15 +24,15 @@ namespace Almond.ProtocolDriver
     /// Will count data upto expected length from the buffer. Useful as
     /// a placeholder for unknown packets in the packet stream.
     /// </summary>
-    public class GenericPacket : IPacket
+    public class GenericPacket : IServerPacket
     {
-        #region IPacket
-        public Int32 Length
+        #region IServerPacket
+        public UInt32 Length
         {
             get; set;
         }
 
-        public Int32 SequenceNumber
+        public byte SequenceNumber
         {
             get; set;
         }
@@ -40,11 +40,6 @@ namespace Almond.ProtocolDriver
         public void FromReader(ChunkReader reader, Capability capabilities)
         {
             reader.ReadMyStringFix(Length);
-        }
-
-        public bool ToWriter(BinaryWriter buffer, Capability capabilities)
-        {
-            throw new NotImplementedException();
         }
         #endregion
     }

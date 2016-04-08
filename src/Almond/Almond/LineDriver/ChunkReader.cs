@@ -16,6 +16,7 @@
 #endregion
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 
 namespace Almond.LineDriver
 {
@@ -37,7 +38,8 @@ namespace Almond.LineDriver
         private ArraySegment<byte> _currentChunk;
 
         /// <summary>
-        /// Position in the _currentChunk
+        /// Position in the _currentChunk - technically a uint however to save unnecessary
+        /// casting throughout the code use an int.
         /// </summary>
         private int _position;
         #endregion
@@ -67,7 +69,7 @@ namespace Almond.LineDriver
         /// </summary>
         private void AdvanceCurrentChunk()
         {
-            if (_currentChunk.Array == null || _currentChunk.Offset + _currentChunk.Count < _position)
+            if (_currentChunk.Array == null || _currentChunk.Offset + _currentChunk.Count <= _position)
             {
                 _currentChunk = _queue.Take();
                 _position = _currentChunk.Offset;
@@ -93,6 +95,44 @@ namespace Almond.LineDriver
             AdvanceCurrentChunk();
             return _currentChunk.Array[_position];
         }
+
+        /// <summary>
+        /// Read a MySQL string<fix> value.
+        /// </summary>
+        /// <param name="count"></param>
+        /// <returns>value read</returns>
+        public byte[] ReadMyStringFix(UInt32 count)
+        {
+            byte[] array = new byte[count];
+            long position = 0;
+            while (position < count)
+            {
+                AdvanceCurrentChunk();
+                long length = Math.Min(_currentChunk.Count - _position, count-position);
+
+                Array.Copy(_currentChunk.Array, _position, array, position, length);
+
+                _position += (int)(length);
+                position += length;
+            }
+            return array;
+        }
+
+        /// <summary>
+        /// Skip bytes in the stream
+        /// </summary>
+        /// <param name="count"></param>
+        public void Skip(UInt32 count)
+        {
+            long position = 0;
+            while (position < count)
+            {
+                AdvanceCurrentChunk();
+                long length = Math.Min(_currentChunk.Count - _position, count - position);
+                _position += (int)(length);
+                position += length;
+            }
+        }
         #endregion
 
         #region Compounds
@@ -102,17 +142,17 @@ namespace Almond.LineDriver
         /// <returns>value read</returns>
         public byte ReadMyInt1()
         {
-            return this.ReadByte();
+            return ReadByte();
         }
 
         /// <summary>
         /// Read a MySQL int<2> value
         /// </summary>
         /// <returns>value read</returns>
-        public Int32 ReadMyInt2()
+        public UInt32 ReadMyInt2()
         {
-            Int32 result = this.ReadByte();
-            result |= (this.ReadByte() << 8);
+            UInt32 result = ReadByte();
+            result |= ((UInt32)ReadByte() << 8);
             return result;
         }
 
@@ -120,25 +160,71 @@ namespace Almond.LineDriver
         /// Read a MySQL int<3> value
         /// </summary>
         /// <returns>value read</returns>
-        public Int32 ReadMyInt3()
+        public UInt32 ReadMyInt3()
         {
-            Int32 result = this.ReadByte();
-            result |= (this.ReadByte() << 8);
-            result |= (this.ReadByte() << 16);
+            UInt32 result = ReadByte();
+            result |= ((UInt32)ReadByte() << 8);
+            result |= ((UInt32)ReadByte() << 16);
             return result;
         }
 
         /// <summary>
-        /// Read a MySQL string<fix> value.
+        /// Read a MySQL int<4> value
+        /// </summary>
+        /// <returns>value read</returns>
+        public UInt32 ReadMyInt4()
+        {
+            UInt32 result = this.ReadByte();
+            result |= ((UInt32)ReadByte() << 8);
+            result |= ((UInt32)ReadByte() << 16);
+            result |= ((UInt32)ReadByte() << 24);
+            return result;
+        }
+
+        /// <summary>
+        /// Extract a null terminated byte array
+        /// </summary>
+        /// <returns></returns>
+        public byte[] ReadMyStringNull()
+        {
+            List<byte> result = new List<byte>();
+            while (true)
+            {
+                byte next = ReadByte();
+                if (next == 0)
+                    break;
+                result.Add(next);
+            }
+            return result.ToArray();
+        }
+
+        /// <summary>
+        /// Convert byte array to a string
+        /// </summary>
+        /// <param name="bytes"></param>
+        /// <returns></returns>
+        public string BytesToString(byte[] bytes)
+        {
+            return System.Text.Encoding.ASCII.GetString(bytes);
+        }
+
+        /// <summary>
+        /// Return a MyStringFix as a string
         /// </summary>
         /// <param name="length"></param>
-        /// <returns>value read</returns>
-        public byte[] ReadMyStringFix(Int32 length)
+        /// <returns></returns>
+        public string ReadStringFix(UInt32 length)
         {
-            byte[] array = new byte[length];
-            for (int i = 0; i < length; ++i)
-                array[i] = ReadByte();
-            return array;
+            return BytesToString(ReadMyStringFix(length));
+        }
+
+        /// <summary>
+        /// Return a MyStringNull as a string
+        /// </summary>
+        /// <returns></returns>
+        public string ReadStringNull()
+        {
+            return BytesToString(ReadMyStringNull());
         }
         #endregion
     }

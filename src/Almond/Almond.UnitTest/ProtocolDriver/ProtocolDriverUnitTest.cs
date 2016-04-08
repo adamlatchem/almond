@@ -51,7 +51,7 @@ namespace Almond.UnitTest.ProtocolDriver
             byte[] byteArray = new byte[] { 01, 00, 00, 01, 01 };
             ChunkReader chunkReader = new ChunkReader();
             chunkReader.AddChunk(new ArraySegment<byte>(byteArray, 0, byteArray.Length));
-            IPacket result = _protocolDriver.CreatePacket(chunkReader);
+            IServerPacket result = _protocolDriver.CreatePacket(chunkReader);
 
             Assert.AreNotEqual(null, result);
             Assert.AreEqual(1, result.SequenceNumber);
