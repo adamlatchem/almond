@@ -36,17 +36,25 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
+    <Compile Include="LineDriver\ChunkWriter.cs" />
     <Compile Include="LineDriver\ChunkReader.cs" />
+    <Compile Include="LineDriver\LineDriverException.cs" />
     <Compile Include="LineDriver\TCPLineDriver.cs" />
-    <Compile Include="ProtocolDriver\IServerPacket.cs" />
-    <Compile Include="MySQLDriver\Command.cs" />
-    <Compile Include="MySQLDriver\Connection.cs" />
-    <Compile Include="MySQLDriver\ConnectionStringBuilder.cs" />
-    <Compile Include="ProtocolDriver\ERRPacket.cs" />
-    <Compile Include="ProtocolDriver\GenericPacket.cs" />
-    <Compile Include="ProtocolDriver\InitialHandshakePacket.cs" />
+    <Compile Include="ProtocolDriver\Status.cs" />
+    <Compile Include="SQLDriver\MySQLDriverException.cs" />
+    <Compile Include="ProtocolDriver\Packets\OK.cs" />
+    <Compile Include="ProtocolDriver\Packets\HandshakeResponse.cs" />
+    <Compile Include="ProtocolDriver\Capability.cs" />
+    <Compile Include="ProtocolDriver\Packets\IClientPacket.cs" />
+    <Compile Include="ProtocolDriver\Packets\IServerPacket.cs" />
+    <Compile Include="SQLDriver\Command.cs" />
+    <Compile Include="SQLDriver\Connection.cs" />
+    <Compile Include="SQLDriver\ConnectionStringBuilder.cs" />
+    <Compile Include="ProtocolDriver\Packets\ERR.cs" />
+    <Compile Include="ProtocolDriver\Packets\Generic.cs" />
+    <Compile Include="ProtocolDriver\Packets\ServerHandshake.cs" />
     <Compile Include="ProtocolDriver\ProtocolDriver.cs" />
-    <Compile Include="ProtocolDriver\ProtocolErrorException.cs" />
+    <Compile Include="ProtocolDriver\ProtocolException.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />

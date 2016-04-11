@@ -5,9 +5,9 @@ VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Almond", "Almond\Almond.csproj", "{1E734131-377C-48FB-AF4A-B724CA5959BD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Almond.UnitTest", "Almond.UnitTest\Almond.UnitTest.csproj", "{A1049BAB-D500-426C-B206-8E12CD6C74DC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlmondTests", "AlmondTests\AlmondTests.csproj", "{A1049BAB-D500-426C-B206-8E12CD6C74DC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Almond.IntegrationTest", "Almond.IntegrationTest\Almond.IntegrationTest.csproj", "{9C320D35-63B4-4570-AE6A-528E2AEFE07B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlmondIntegrationTests", "AlmondIntegrationTests\AlmondIntegrationTests.csproj", "{9C320D35-63B4-4570-AE6A-528E2AEFE07B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -14,7 +14,7 @@
 //    limitations under the License. 
 //
 #endregion
-using Almond.MySQLDriver;
+using Almond.SQLDriver;
 using System;
 using System.Diagnostics;
 using System.Net;
@@ -59,6 +59,14 @@ namespace Almond.LineDriver
         {
             get; private set;
         }
+
+        /// <summary>
+        /// Used to stream chunks written by the line driver.
+        /// </summary>
+        public ChunkWriter ChunkWriter
+        {
+            get; private set;
+        }
         #endregion
 
         /// <summary>
@@ -70,6 +78,7 @@ namespace Almond.LineDriver
         {
             _connectedSignal.Reset();
             ChunkReader = new ChunkReader();
+            ChunkWriter = new ChunkWriter();
 
             IPHostEntry ipHostInfo = Dns.GetHostEntry(connectionStringBuilder.Hostname);
             IPAddress ipAddress = ipHostInfo.AddressList[0];
@@ -80,6 +89,26 @@ namespace Almond.LineDriver
                 new AsyncCallback(OnConnect), _serverSocket);
 
             _connectedSignal.WaitOne();
+        }
+
+        /// <summary>
+        /// Used to send ChunkWriters chunk to the server
+        /// </summary>
+        public void SendChunk()
+        {
+            ArraySegment<byte> chunk = ChunkWriter.ExportChunk();
+            if (chunk != null && chunk.Array != null)
+            {
+                lock (this)
+                {
+                    SocketError errorCode;
+                    int bytesSent = _serverSocket.Send(chunk.Array, chunk.Offset, chunk.Count, SocketFlags.None, out errorCode);
+                    if (bytesSent != chunk.Count)
+                        throw new LineDriverException("Not all bytes were sent by the server socket.");
+                    if (errorCode != SocketError.Success)
+                        throw new LineDriverException("Unable to send data due to server socket error " + errorCode.ToString());
+                };
+            }
         }
 
         /// <summary>

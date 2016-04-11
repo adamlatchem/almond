@@ -38,7 +38,7 @@ using System.Runtime.InteropServices;
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid("abac7978-6741-406b-97e8-6ad9a2b91ae0")]
 
-[assembly: InternalsVisibleTo("Almond.UnitTest")]
+[assembly: InternalsVisibleTo("AlmondTests")]
 
 // Version information for an assembly consists of the following four values:
 //
