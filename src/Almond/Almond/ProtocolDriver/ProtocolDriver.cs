@@ -202,6 +202,7 @@ namespace Almond.ProtocolDriver
         {
             if (_lineDriver != null)
             {
+                SendPacket(new COM_QUIT());
                 _lineDriver.Dispose();
                 _lineDriver = null;
             }

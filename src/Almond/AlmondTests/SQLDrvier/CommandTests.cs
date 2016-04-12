@@ -38,7 +38,7 @@ namespace Almond.SQLDrvier.Tests
         public static void ClassInitialize(TestContext context)
         {
             // Create the objects to unit test
-            _connection = new Connection("testing 123");
+            _connection = new Connection("hostname=localhost;username=test;password=test");
             _command = new Command(String.Empty, _connection);
             Assert.IsNotNull(_command);
         }
@@ -54,7 +54,7 @@ namespace Almond.SQLDrvier.Tests
         [TestMethod]
         public void CommandTextTest()
         {
-            string commandText = "testing 123";
+            string commandText = "SELECT 1";
             _command.CommandText = commandText;
             Assert.AreEqual(commandText, _command.CommandText);
         }

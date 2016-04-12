@@ -43,9 +43,9 @@ namespace Almond.SQLDriver.Tests
         }
 
         [TestMethod]
-        public void Connecti2nStringTest()
+        public void ConnectionStringTest()
         {
-            string connectionString = "testing 123";
+            string connectionString = "hostname=localhost;username=test;password=test";
             _connection.ConnectionString = connectionString;
             Assert.AreEqual(connectionString, _connection.ConnectionString);
         }
@@ -117,7 +117,7 @@ namespace Almond.SQLDriver.Tests
         [TestMethod]
         public void DisposeTest()
         {
-            Connection testConnection = new Connection("this is a test");
+            Connection testConnection = new Connection("hostname=byefornow");
             testConnection.Dispose();
         }
     }

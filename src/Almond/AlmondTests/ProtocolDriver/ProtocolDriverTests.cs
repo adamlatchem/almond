@@ -32,7 +32,7 @@ namespace Almond.ProtocolDriver.Tests
         public static void ClassInitialize(TestContext context)
         {
             _connectionStringBuilder = new ConnectionStringBuilder();
-            _connectionStringBuilder.ConnectionString = "hostname=localhost;port=3306";
+            _connectionStringBuilder.ConnectionString = "hostname=localhost;port=3306;username=test;password=test";
             _protocolDriver = new Almond.ProtocolDriver.ProtocolDriver(_connectionStringBuilder);
             Assert.IsNotNull(_protocolDriver);
         }
@@ -48,7 +48,7 @@ namespace Almond.ProtocolDriver.Tests
         public void CreatePacketTest()
         {
             // COM_QUIT
-            byte[] byteArray = new byte[] { 01, 00, 00, 01, 01 };
+            byte[] byteArray = new byte[] { 01, 00, 00, 03, 01 };
             ChunkReader chunkReader = new ChunkReader();
             chunkReader.AddChunk(new ArraySegment<byte>(byteArray, 0, byteArray.Length));
             IServerPacket result = _protocolDriver.CreatePacket(chunkReader);
