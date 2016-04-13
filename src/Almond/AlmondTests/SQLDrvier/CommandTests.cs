@@ -76,9 +76,16 @@ namespace Almond.SQLDrvier.Tests
         }
 
         [TestMethod]
-        public void ConnectionTest()
+        public void ConnectionTest0()
         {
             Assert.AreEqual(_connection, _command.Connection);
+        }
+
+        [ExpectedException(typeof(SQLDriverException))]
+        [TestMethod]
+        public void ConnectionTest1()
+        {
+            _command.Connection = new System.Data.SqlClient.SqlConnection("");
         }
 
         [TestMethod]

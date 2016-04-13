@@ -18,6 +18,7 @@ using Almond.LineDriver;
 using Almond.ProtocolDriver.Packets;
 using Almond.SQLDriver;
 using System;
+using System.Collections.Generic;
 using System.Text;
 
 namespace Almond.ProtocolDriver
@@ -98,6 +99,7 @@ namespace Almond.ProtocolDriver
             ClientCapability =
                 Capability.CLIENT_PROTOCOL_41 |
                 Capability.CLIENT_SECURE_CONNECTION |
+                Capability.CLIENT_DEPRECATE_EOF |
                 Capability.CLIENT_PLUGIN_AUTH;
 
             ClientEncoding = System.Text.Encoding.ASCII;
@@ -182,8 +184,10 @@ namespace Almond.ProtocolDriver
                     result = new ServerHandshake();
                     break;
                 case 0:
-                case 0xFE:
                     result = new OK();
+                    break;
+                case 0xFE:
+                    result = new EOF();
                     break;
                 case 0xFF:
                     result = new ERR();
@@ -197,12 +201,56 @@ namespace Almond.ProtocolDriver
             return result;
         }
 
+        /// <summary>
+        /// Execute the given query text on the server and return the result.
+        /// 
+        /// Will throw if an error occurs or an unexpected packet is sent.
+        /// Will return null if an OK response is sent.
+        /// </summary>
+        /// <param name="queryText"></param>
+        /// <returns></returns>
+        public IList<IServerPacket> ExecuteQuery(string queryText)
+        {
+            _sequenceNumber = 0;
+            COM_QUERY packet = new COM_QUERY();
+            packet.QueryText = queryText;
+            SendPacket(packet);
+
+            IServerPacket response = ReceivePacket();
+            Expect<IServerPacket>(response);
+            if (response is OK)
+                return null;
+
+            byte columns = ((Generic)response).Payload[0];
+            IList<IServerPacket> result = new List<IServerPacket>();
+            result.Add(response);
+            for (int i = 0; i < columns; i++)
+                result.Add(ReceivePacket());
+
+            if (!ClientCapability.HasFlag(Capability.CLIENT_DEPRECATE_EOF))
+            {
+                response = ReceivePacket();
+                Expect<EOF>(response);
+            }
+
+            while (true)
+            {
+                response = ReceivePacket();
+                Expect<IServerPacket>(response);
+
+                if (response is EOF)
+                    return result;
+
+                result.Add(response);
+            }
+        }
+
         #region IDisposable
         public void Dispose()
         {
             if (_lineDriver != null)
             {
-                SendPacket(new COM_QUIT());
+                SendPacket(new COM_QUERY());
                 _lineDriver.Dispose();
                 _lineDriver = null;
             }

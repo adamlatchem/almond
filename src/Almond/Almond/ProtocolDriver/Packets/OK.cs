@@ -16,6 +16,7 @@
 #endregion
 using Almond.LineDriver;
 using System;
+using System.Diagnostics;
 using System.Text;
 
 namespace Almond.ProtocolDriver.Packets
@@ -63,6 +64,7 @@ namespace Almond.ProtocolDriver.Packets
         public void FromReader(ChunkReader reader, UInt32 payloadLength, Capability clientCapability, Encoding clientEncoding)
         {
             Header = reader.ReadMyInt1();
+            Debug.Assert(Header == 0);
             AffectedRows = reader.ReadMyIntLenEnc();
             LastInsertId = reader.ReadMyIntLenEnc();
 

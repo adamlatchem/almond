@@ -21,13 +21,13 @@ namespace Almond.SQLDriver
     /// <summary>
     /// Represents an error encountered in the MySQLDriver
     /// </summary>
-    public class MySQLDriverException : Exception
+    public class SQLDriverException : Exception
     {
-        public MySQLDriverException(string message) :
+        public SQLDriverException(string message) :
             base(message)
         { }
 
-        public MySQLDriverException(string message, Exception innerException) :
+        public SQLDriverException(string message, Exception innerException) :
             base(message, innerException)
         { }
     }

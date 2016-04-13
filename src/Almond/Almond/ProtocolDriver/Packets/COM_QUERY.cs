@@ -19,11 +19,19 @@ using System.Text;
 
 namespace Almond.ProtocolDriver.Packets
 {
-    public class COM_QUIT : IClientPacket
+    public class COM_QUERY : IClientPacket
     {
+        #region Members
+        public string QueryText
+        {
+            get; set;
+        }
+        #endregion
+
         public void ToWriter(ChunkWriter writer, Capability clientCapability, Encoding clientEncoding)
         {
-            writer.WriteMyInt1(1);
+            writer.WriteMyInt1(3);
+            writer.WriteTextFix(QueryText, clientEncoding);
         }
     }
 }

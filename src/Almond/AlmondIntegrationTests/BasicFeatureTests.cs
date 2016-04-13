@@ -67,12 +67,13 @@ namespace Almond.IntegrationTests
         [TestMethod]
         public void SelectStatementTest()
         {
-            string queryString = "SELECT Value FROM Integration.BasicFeatures";
+            string queryString = "SELECT * FROM information_schema.USER_PRIVILEGES WHERE GRANTEE LIKE '\\'test\\'%'";
 
             using (Connection connection =
                 new Connection(CONNECTION_STRING))
             {
-                Command command = new Command(queryString, connection);
+                IDbCommand command = connection.CreateCommand();
+                command.CommandText = queryString;
 
                 connection.Open();
                 IDataReader reader = command.ExecuteReader();

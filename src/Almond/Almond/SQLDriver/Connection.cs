@@ -15,7 +15,9 @@
 //
 #endregion
 using Almond.LineDriver;
+using Almond.ProtocolDriver.Packets;
 using System;
+using System.Collections.Generic;
 using System.Data;
 
 namespace Almond.SQLDriver
@@ -106,7 +108,7 @@ namespace Almond.SQLDriver
 
         public IDbCommand CreateCommand()
         {
-            throw new NotImplementedException();
+            return new Command(String.Empty, this);
         }
 
         public void Open()
@@ -114,6 +116,17 @@ namespace Almond.SQLDriver
             _protocolDriver = new ProtocolDriver.ProtocolDriver(_connectionStringBuilder);
         }
         #endregion
+
+        /// <summary>
+        /// Execute the given command on the server and return the results.
+        /// </summary>
+        /// <param name="command"></param>
+        /// <returns></returns>
+        internal IDataReader ExecuteReader(Command command)
+        {
+            IList<IServerPacket> resultset = _protocolDriver.ExecuteQuery(command.CommandText);
+            throw new NotImplementedException();
+        }
 
         #region IDisposable
         public void Dispose()

@@ -75,7 +75,7 @@ namespace Almond.SQLDriver
             get
             {
                 if (!this.ContainsKey("username"))
-                    throw new MySQLDriverException("Connection string must include a username");
+                    throw new SQLDriverException("Connection string must include a username");
                 return (string)this["username"];
             }
             set { this["username"] = value; }
@@ -89,7 +89,7 @@ namespace Almond.SQLDriver
             get
             {
                 if (!this.ContainsKey("password"))
-                    throw new MySQLDriverException("Connection string must include a password");
+                    throw new SQLDriverException("Connection string must include a password");
                 return (string)this["password"];
             }
             set { this["password"] = value; }

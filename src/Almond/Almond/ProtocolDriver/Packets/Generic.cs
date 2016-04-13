@@ -16,7 +16,6 @@
 #endregion
 using Almond.LineDriver;
 using System;
-using System.IO;
 using System.Text;
 
 namespace Almond.ProtocolDriver.Packets
@@ -27,16 +26,46 @@ namespace Almond.ProtocolDriver.Packets
     /// </summary>
     public class Generic : IServerPacket, IClientPacket
     {
+        #region Members
+        public UInt32 PayloadLength
+        {
+            get; set;
+        }
+
+        public byte[] Payload
+        {
+            get; set;
+        }
+
+        #region Debug helpers
+        public Encoding ClientEncoding
+        {
+            get; set;
+        }
+
+        public string PayloadAsString
+        {
+            get
+            {
+                return ChunkReader.BytesToString(Payload, ClientEncoding);
+            }
+        }
+        #endregion
+        #endregion
+
         #region IServerPacket
         public void FromReader(ChunkReader reader, UInt32 payloadLength, Capability clientCapability, Encoding clientEncoding)
         {
-            reader.ReadMyStringFix(payloadLength);
+            PayloadLength = payloadLength;
+            ClientEncoding = clientEncoding;
+            Payload = reader.ReadMyStringFix(payloadLength);
         }
         #endregion
 
         #region IClientPacket
         public void ToWriter(ChunkWriter writer, Capability clientCapability, Encoding clientEncoding)
         {
+            throw new NotImplementedException();
         }
         #endregion
     }

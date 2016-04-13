@@ -16,6 +16,7 @@
 #endregion
 using Almond.SQLDriver;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Data;
 
 namespace Almond.SQLDriver.Tests
@@ -106,6 +107,7 @@ namespace Almond.SQLDriver.Tests
         {
             IDbCommand command = _connection.CreateCommand();
             Assert.IsNotNull(command);
+            Assert.AreEqual(_connection, command.Connection);
         }
 
         [TestMethod]
@@ -119,6 +121,12 @@ namespace Almond.SQLDriver.Tests
         {
             Connection testConnection = new Connection("hostname=byefornow");
             testConnection.Dispose();
+        }
+
+        [TestMethod()]
+        public void ExecuteReaderTest()
+        {
+            throw new NotImplementedException();
         }
     }
 }

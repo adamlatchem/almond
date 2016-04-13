@@ -14,16 +14,18 @@
 //    limitations under the License. 
 //
 #endregion
-using Almond.LineDriver;
-using System.Text;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 
-namespace Almond.ProtocolDriver.Packets
+namespace Almond.ProtocolDriver.Packets.Tests
 {
-    public class COM_QUIT : IClientPacket
+    [TestClass()]
+    public class COM_QUERYTests
     {
-        public void ToWriter(ChunkWriter writer, Capability clientCapability, Encoding clientEncoding)
+        [TestMethod()]
+        public void ToWriterTest()
         {
-            writer.WriteMyInt1(1);
+            throw new NotImplementedException();
         }
     }
 }

@@ -59,11 +59,16 @@ namespace Almond.LineDriver
         }
 
         /// <summary>
-        /// Reset the total byte count and abandon the current chunk.
+        /// Reset the total byte count for the packet. This must be called
+        /// only when the buffer position really is the start of a new packet
+        /// as it then checks if we need to read a new chunk of data. The
+        /// packets may span several chunks and several packets may be contained
+        /// in one chunk.
         /// </summary>
         public void StartNewPacket()
         {
-            _currentChunk = new ArraySegment<byte>(new byte[0]);
+            if (_position >= _currentChunk.Offset + _currentChunk.Count)
+                _currentChunk = new ArraySegment<byte>(new byte[0]);
             _previousChunks = 0;
         }
 
@@ -273,7 +278,10 @@ namespace Almond.LineDriver
         /// <returns></returns>
         public byte[] ReadMyStringEOF(UInt32 packetLength)
         {
-            return ReadMyStringFix(packetLength - ReadSoFar());
+            UInt32 readSofar = ReadSoFar();
+            if (readSofar > packetLength)
+                throw new LineDriverException("Have already read past expected packet length " + readSofar + " vs. " + packetLength);
+            return ReadMyStringFix(packetLength - readSofar);
         }
 
         /// <summary>

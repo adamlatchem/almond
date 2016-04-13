@@ -15,15 +15,38 @@
 //
 #endregion
 using Almond.LineDriver;
+using System;
+using System.Diagnostics;
 using System.Text;
 
 namespace Almond.ProtocolDriver.Packets
 {
-    public class COM_QUIT : IClientPacket
+    public class EOF : IServerPacket
     {
-        public void ToWriter(ChunkWriter writer, Capability clientCapability, Encoding clientEncoding)
+        #region Members
+        public UInt32 NumberOfWarnings
         {
-            writer.WriteMyInt1(1);
+            get; set;
         }
+
+        public Status StatusFlags
+        {
+            get; set;
+        }
+        #endregion
+
+        #region IServerPacket
+        public void FromReader(ChunkReader reader, UInt32 payloadLength, Capability clientCapability, Encoding clientEncoding)
+        {
+            byte header = reader.ReadMyInt1();
+            Debug.Assert(header == 0xFE);
+
+            if (clientCapability.HasFlag(Capability.CLIENT_PROTOCOL_41))
+            {
+                NumberOfWarnings = reader.ReadMyInt2();
+                StatusFlags = (Status)reader.ReadMyInt2();
+            }
+        }
+        #endregion
     }
 }

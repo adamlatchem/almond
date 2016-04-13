@@ -24,23 +24,16 @@ namespace Almond.SQLDriver
     /// </summary>
     public class Command : IDbCommand
     {
-        public Command(String queryString, IDbConnection connection)
+        internal Command(String commandText, IDbConnection connection)
         {
-            throw new NotImplementedException();
+            CommandText = commandText;
+            Connection = connection;
         }
 
         #region IDbCommand
         public string CommandText
         {
-            get
-            {
-                throw new NotImplementedException();
-            }
-
-            set
-            {
-                throw new NotImplementedException();
-            }
+            get; set;
         }
 
         public int CommandTimeout
@@ -69,16 +62,18 @@ namespace Almond.SQLDriver
             }
         }
 
+        private Connection _connection;
         public IDbConnection Connection
         {
             get
             {
-                throw new NotImplementedException();
+                return _connection;
             }
-
             set
             {
-                throw new NotImplementedException();
+                if (!(value is Connection))
+                    throw new SQLDriverException("Connection is of wrong type for this Command object");
+                _connection = value as Connection;
             }
         }
 
@@ -138,7 +133,7 @@ namespace Almond.SQLDriver
 
         public IDataReader ExecuteReader()
         {
-            throw new NotImplementedException();
+            return _connection.ExecuteReader(this);
         }
 
         public IDataReader ExecuteReader(CommandBehavior behavior)
