@@ -14,10 +14,8 @@
 //    limitations under the License. 
 //
 #endregion
-using Almond.LineDriver;
 using Almond.ProtocolDriver.Packets;
 using System;
-using System.Collections.Generic;
 using System.Data;
 
 namespace Almond.SQLDriver
@@ -37,10 +35,23 @@ namespace Almond.SQLDriver
         /// The line driver used to communicate with the server.
         /// </summary>
         private ProtocolDriver.ProtocolDriver _protocolDriver;
+            private ProtocolDriver.ProtocolDriver ProtocolDriver
+        {
+            get
+            {
+                if (_protocolDriver == null)
+                    throw new Exception("Connection is not connected - missing call to Open() or connection has been disposed.");
+                return _protocolDriver;
+            }
+            set
+            {
+                _protocolDriver = value;
+            }
+        }
         #endregion
 
         /// <summary>
-        /// Connect to MySQL using the connection string provided.
+        /// Connect to MySQL using the connection string provided when Open is called.
         /// </summary>
         /// <param name="connectionString"></param>
         public Connection(string connectionString)
@@ -103,7 +114,11 @@ namespace Almond.SQLDriver
 
         public void Close()
         {
-            throw new NotImplementedException();
+            if (_protocolDriver != null)
+            {
+                _protocolDriver.Dispose();
+                _protocolDriver = null;
+            }
         }
 
         public IDbCommand CreateCommand()
@@ -113,7 +128,7 @@ namespace Almond.SQLDriver
 
         public void Open()
         {
-            _protocolDriver = new ProtocolDriver.ProtocolDriver(_connectionStringBuilder);
+            ProtocolDriver = new ProtocolDriver.ProtocolDriver(_connectionStringBuilder);
         }
         #endregion
 
@@ -124,7 +139,7 @@ namespace Almond.SQLDriver
         /// <returns></returns>
         internal IDataReader ExecuteReader(Command command)
         {
-            IList<IServerPacket> resultset = _protocolDriver.ExecuteQuery(command.CommandText);
+            ResultSet resultset = ProtocolDriver.ExecuteQuery(command.CommandText);
             throw new NotImplementedException();
         }
 

@@ -53,6 +53,10 @@ namespace Almond.LineDriver.Tests
 
         private void SetupPacket(byte[] byteArray)
         {
+            // Empty previous packet contents.
+            if (_byteArray != null)
+                _chunkReader.ReadMyStringEOF((UInt32)_byteArray.Length);
+
             _byteArray = byteArray;
             _chunkReader.StartNewPacket();
             _chunkReader.AddChunk(new ArraySegment<byte>(_byteArray));
@@ -216,8 +220,8 @@ namespace Almond.LineDriver.Tests
         [TestMethod()]
         public void BytesToStringTest()
         {
-            _byteArray = _encoding.GetBytes("hello");
-            string value = ChunkReader.BytesToString(_byteArray, _encoding);
+            byte[] byteArray = _encoding.GetBytes("hello");
+            string value = ChunkReader.BytesToString(byteArray, _encoding);
             Assert.AreEqual("hello", value);
         }
 

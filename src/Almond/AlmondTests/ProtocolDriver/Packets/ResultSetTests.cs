@@ -14,16 +14,16 @@
 //    limitations under the License. 
 //
 #endregion
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Almond.SQLDrvier.Tests
+namespace Almond.ProtocolDriver.Packets.Tests
 {
     [TestClass]
-    public class MySQLDriverExceptionTests
+    public class ResultTests
     {
         [TestMethod]
-        public void Test()
+        public void TODO()
         {
             throw new NotImplementedException();
         }

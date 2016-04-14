@@ -28,10 +28,10 @@ namespace Almond.ProtocolDriver.Packets
         }
         #endregion
 
-        public void ToWriter(ChunkWriter writer, Capability clientCapability, Encoding clientEncoding)
+        public void ToWireFormat(ChunkWriter writer, ProtocolDriver driver)
         {
             writer.WriteMyInt1(3);
-            writer.WriteTextFix(QueryText, clientEncoding);
+            writer.WriteTextFix(QueryText, driver.ClientEncoding);
         }
     }
 }

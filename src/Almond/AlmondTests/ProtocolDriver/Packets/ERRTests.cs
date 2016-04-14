@@ -23,7 +23,7 @@ namespace Almond.ProtocolDriver.Packets.Tests
     public class ERRTests
     {
         [TestMethod]
-        public void Test()
+        public void TODO()
         {
             throw new NotImplementedException();
         }

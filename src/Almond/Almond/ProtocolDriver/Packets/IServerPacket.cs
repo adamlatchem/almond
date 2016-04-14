@@ -16,25 +16,26 @@
 #endregion
 using Almond.LineDriver;
 using System;
-using System.Text;
 
 namespace Almond.ProtocolDriver.Packets
 {
     /// <summary>
-    /// Interface for server packets - allows packets to be received by
-    /// the line driver. Packets are created incrementally as data chunks
-    /// arrive via buffers.
+    /// Interface for server packets - allows packets to be parsed from
+    /// the line driver wire format to .NET objects. Packets are created
+    /// incrementally as data chunks arrive via buffers in the ChunkReader.
+    /// The Packet may be meta - it can return itself or any type that it
+    /// determines internally should be used to represent the wire data.
     /// </summary>
     public interface IServerPacket
     {
         /// <summary>
-        /// Read a packet from the reader - the header fields have already been parsed
+        /// Read a packet from wire format chunks - the header fields have already been parsed
         /// the reader is positioned after the packet header ready for further parsing.
         /// </summary>
         /// <param name="reader">The reader of the chunk stream</param>
         /// <param name="payloadLength">length of payload excludes header</param>
-        /// <param name="clientCapability">servers capacilities as determined at the time of parsing</param>
-        /// <param name="clientEncoding">The client encoding for Text strings</param>
-        void FromReader(ChunkReader reader, UInt32 payloadLength, Capability clientCapability, Encoding clientEncoding);
+        /// <param name="driver">The driver defining client capability and default encoding</param>
+        /// <returns>An IServerPacket that was read - this allows factory packets to return different concrete types</returns>
+        IServerPacket FromWireFormat(ChunkReader reader, UInt32 payloadLength, ProtocolDriver driver);
     }
 }

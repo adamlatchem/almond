@@ -31,9 +31,8 @@ namespace Almond.ProtocolDriver.Packets
         /// for the header is passed in and the header must also be written to the
         /// chunk.
         /// </summary>
-        /// <param name="writer">The writer for the packets chunk</param>
-        /// <param name="clientCapability">Clients capabilities at this time</param>
-        /// <param name="clientEncoding">Text encoding of the client</param>
-        void ToWriter(ChunkWriter writer, Capability clientCapability, Encoding clientEncoding);
+        /// <param name="writer">the chunkwriter to build chunk for wire</param>
+        /// <param name="driver">Driver - includes client capabiity and default encoding</param>
+        void ToWireFormat(ChunkWriter writer, ProtocolDriver driver);
     }
 }

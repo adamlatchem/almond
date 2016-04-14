@@ -16,57 +16,57 @@
 #endregion
 using Almond.LineDriver;
 using System;
-using System.Diagnostics;
 using System.Text;
 
 namespace Almond.ProtocolDriver.Packets
 {
-    public class ERR : IServerPacket
+    /// <summary>
+    /// Column definition sent as part of a result set
+    /// </summary>
+    public class ColumnDefinition : IServerPacket, IClientPacket
     {
         #region Members
-        public UInt32 ErrorCode
+        public UInt32 PayloadLength
         {
             get; set;
         }
 
-        public string SQLState
+        public byte[] Payload
         {
             get; set;
         }
 
-        public string ErrorMessage
+        #region Debug helpers
+        public Encoding ClientEncoding
         {
             get; set;
         }
+
+        public string PayloadAsString
+        {
+            get
+            {
+                return ChunkReader.BytesToString(Payload, ClientEncoding);
+            }
+        }
+        #endregion
         #endregion
 
         #region IServerPacket
         public IServerPacket FromWireFormat(ChunkReader reader, UInt32 payloadLength, ProtocolDriver driver)
         {
-            byte header = reader.ReadMyInt1();
-            ErrorCode = reader.ReadMyInt2();
-            UInt32 stringLength = payloadLength - 3;
-            if (driver.ClientCapability.HasFlag(Capability.CLIENT_PROTOCOL_41) && reader.PeekByte() == '#')
-            {
-                byte hashMark = reader.ReadMyInt1();
-                Debug.Assert(hashMark == '#');
-                SQLState = reader.ReadTextFix(5, driver.ClientEncoding);
-                stringLength -= 6;
-            }
-            ErrorMessage = reader.ReadTextFix(stringLength, driver.ClientEncoding);
+            PayloadLength = payloadLength;
+            ClientEncoding = driver.ClientEncoding;
+            Payload = reader.ReadMyStringFix(payloadLength);
             return this;
         }
         #endregion
 
-        public override string ToString()
+        #region IClientPacket
+        public void ToWireFormat(ChunkWriter writer, ProtocolDriver driver)
         {
-            StringBuilder result = new StringBuilder("Server Error ");
-            result.Append(ErrorCode);
-            if (!String.IsNullOrEmpty(ErrorMessage))
-                result.Append(" : " + ErrorMessage);
-            if (!String.IsNullOrEmpty(SQLState))
-                result.Append(" # " + SQLState);
-            return result.ToString();
+            throw new NotImplementedException();
         }
+        #endregion
     }
 }

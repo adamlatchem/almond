@@ -32,14 +32,15 @@ namespace Almond.SQLDrvier.Tests
         /// <summary>
         /// Command under test
         /// </summary>
-        public static Command _command;
+        public static IDbCommand _command;
 
         [ClassInitialize]
         public static void ClassInitialize(TestContext context)
         {
             // Create the objects to unit test
             _connection = new Connection("hostname=localhost;username=test;password=test");
-            _command = new Command(String.Empty, _connection);
+            _connection.Open();
+            _command = _connection.CreateCommand();
             Assert.IsNotNull(_command);
         }
 

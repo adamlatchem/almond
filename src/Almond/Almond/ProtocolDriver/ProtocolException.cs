@@ -14,6 +14,7 @@
 //    limitations under the License. 
 //
 #endregion
+using Almond.ProtocolDriver.Packets;
 using System;
 
 namespace Almond.ProtocolDriver
@@ -29,6 +30,10 @@ namespace Almond.ProtocolDriver
 
         public ProtocolException(string message, Exception innerException) : 
             base(message, innerException)
+        { }
+
+        public ProtocolException(ERR errorPacket) :
+            base(errorPacket.ToString())
         { }
     }
 }

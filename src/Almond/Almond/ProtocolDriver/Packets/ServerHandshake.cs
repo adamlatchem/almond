@@ -75,7 +75,7 @@ namespace Almond.ProtocolDriver.Packets
         #endregion
 
         #region IServerPacket
-        public void FromReader(ChunkReader reader, UInt32 payloadLength, Capability clientCapability, Encoding clientEncoding)
+        public IServerPacket FromWireFormat(ChunkReader reader, UInt32 payloadLength, ProtocolDriver driver)
         {
             ProtocolVersion = reader.ReadMyInt1();
             if (ProtocolVersion == 10)
@@ -110,6 +110,7 @@ namespace Almond.ProtocolDriver.Packets
             {
                 throw new NotImplementedException();
             }
+            return this;
         }
         #endregion
     }

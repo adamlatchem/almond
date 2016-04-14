@@ -77,15 +77,15 @@ namespace Almond.ProtocolDriver.Packets
         #endregion
 
         #region IClientPacket
-        public void ToWriter(ChunkWriter writer, Capability clientCapability, Encoding clientEncoding)
+        public void ToWireFormat(ChunkWriter writer, ProtocolDriver driver)
         {
-            Capability = clientCapability;
+            Capability = driver.ClientCapability;
 
             writer.WriteMyInt4((UInt32)Capability);
             writer.WriteMyInt4(MaxPacketSize);
             writer.WriteMyInt1(CharacterSet);
             writer.Fill(23); // Reserved
-            writer.WriteTextNull(Username, clientEncoding);
+            writer.WriteTextNull(Username, driver.ClientEncoding);
             if (Capability.HasFlag(Capability.CLIENT_PLUGIN_AUTH_LENENC_CLIENT_DATA))
             {
                 // lenenc - int     length of auth - response
@@ -103,11 +103,11 @@ namespace Almond.ProtocolDriver.Packets
             }
             if (Capability.HasFlag(Capability.CLIENT_CONNECT_WITH_DB))
             {
-                writer.WriteTextNull(Database, clientEncoding);
+                writer.WriteTextNull(Database, driver.ClientEncoding);
             }
             if (Capability.HasFlag(Capability.CLIENT_PLUGIN_AUTH))
             {
-                writer.WriteTextNull(AuthPluginName, clientEncoding);
+                writer.WriteTextNull(AuthPluginName, driver.ClientEncoding);
             }
             if (Capability.HasFlag(Capability.CLIENT_CONNECT_ATTRS))
             {

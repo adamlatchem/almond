@@ -18,7 +18,6 @@ using Almond.LineDriver;
 using Almond.ProtocolDriver.Packets;
 using Almond.SQLDriver;
 using System;
-using System.Collections.Generic;
 using System.Text;
 
 namespace Almond.ProtocolDriver
@@ -26,7 +25,7 @@ namespace Almond.ProtocolDriver
     /// <summary>
     /// Defines packets and state machine for the MySQL Client/Server protocol.
     /// </summary>
-    internal class ProtocolDriver : IDisposable
+    public class ProtocolDriver : IDisposable, IServerPacket
     {
         #region Constants
         /// <summary>
@@ -73,10 +72,10 @@ namespace Almond.ProtocolDriver
         /// <typeparam name="T">The packet type we expect to have</typeparam>
         /// <param name="packet"></param>
         /// <returns>Packet cast to type T</returns>
-        private T Expect<T>(IServerPacket packet) where T : IServerPacket
+        public T Expect<T>(IServerPacket packet) where T : IServerPacket
         {
             if (packet is ERR)
-                throw new ProtocolException(packet.ToString());
+                throw new ProtocolException((ERR)packet);
             if (!(packet is T))
                 throw new ProtocolException(
                     String.Format(
@@ -104,7 +103,7 @@ namespace Almond.ProtocolDriver
 
             ClientEncoding = System.Text.Encoding.ASCII;
 
-            IServerPacket packet = ReceivePacket();
+            IServerPacket packet = ReceivePacket(this);
             ServerHandshake serverHandshakePacket = Expect<ServerHandshake>(packet);
             Capability serverCapability = serverHandshakePacket.Capabilities;
 
@@ -123,18 +122,41 @@ namespace Almond.ProtocolDriver
             }
             SendPacket(handshakeResponsePacket);
 
-            packet = ReceivePacket();
+            packet = ReceivePacket(this);
             OK okPacket = Expect<OK>(packet);
         }
 
         /// <summary>
-        /// Blocks until the next packet is completly read from the socket.
+        /// Parse packet header and check sequence number. Return the payload length.
+        /// </summary>
+        /// <param name="reader"></param>
+        /// <returns>Payload length from packet</returns>
+        private UInt32 StripHeader(ChunkReader reader)
+        {
+            UInt32 payloadLength = reader.ReadMyInt3();
+            byte sequenceNumber = reader.ReadMyInt1();
+            if (sequenceNumber != _sequenceNumber)
+                throw new ProtocolException(
+                    String.Format(
+                        "Expected sequence number {0} but got {1}",
+                        _sequenceNumber,
+                        sequenceNumber));
+            _sequenceNumber++;
+
+            return payloadLength;
+        }
+
+        /// <summary>
+        /// Blocks until the next packet is completely read from the socket.
         /// </summary>
         /// <returns></returns>
-        public IServerPacket ReceivePacket()
+        public IServerPacket ReceivePacket(IServerPacket factoryPacket)
         {
             ChunkReader chunkReader = _lineDriver.ChunkReader;
-            IServerPacket result = CreatePacket(chunkReader);
+            chunkReader.StartNewPacket();
+            UInt32 payloadLength = StripHeader(chunkReader);
+
+            IServerPacket result = factoryPacket.FromWireFormat(chunkReader, payloadLength, this);
             return result;
         }
 
@@ -150,7 +172,7 @@ namespace Almond.ProtocolDriver
             // populate empty length field - it is written before sending.
             chunkWriter.WriteMyInt3(0);
             chunkWriter.WriteMyInt1(_sequenceNumber);
-            packet.ToWriter(chunkWriter, ClientCapability, ClientEncoding);
+            packet.ToWireFormat(chunkWriter, this);
             int payloadLength = chunkWriter.WrittenSoFar() - PACKET_HEADER_LENGTH;
             chunkWriter.WriteMyInt3((UInt32)payloadLength, 0);
 
@@ -158,26 +180,17 @@ namespace Almond.ProtocolDriver
             _sequenceNumber++;
         }
 
+        #region IServerPacket
         /// <summary>
-        /// Packet factory method
+        /// Packet factory method - header has already been read by the chunk reader.
         /// </summary>
         /// <param name="reader"></param>
-        /// <returns></returns>
-        public IServerPacket CreatePacket(ChunkReader reader)
+        /// <returns>The packet that was read</returns>
+        public IServerPacket FromWireFormat(ChunkReader reader, UInt32 payloadLength, ProtocolDriver driver)
         {
-            reader.StartNewPacket();
-            UInt32 payloadLength = reader.ReadMyInt3();
-            byte sequenceNumber = reader.ReadMyInt1();
-            if (sequenceNumber != _sequenceNumber)
-                throw new ProtocolException(
-                    String.Format(
-                        "Expected sequence number {0} but got {1}",
-                        _sequenceNumber,
-                        sequenceNumber));
-            _sequenceNumber++;
-
             IServerPacket result = null;
-            switch (reader.PeekByte())
+            byte possiblePacketType = reader.PeekByte();
+            switch (possiblePacketType)
             {
                 case 9:
                 case 10:
@@ -197,7 +210,35 @@ namespace Almond.ProtocolDriver
                     break;
             }
 
-            result.FromReader(reader, payloadLength, ClientCapability, ClientEncoding);
+            result.FromWireFormat(reader, payloadLength, this);
+            return result;
+        }
+        #endregion
+
+        /// <summary>
+        /// Factory to handle the reply for COM_QUERY packet.
+        /// </summary>
+        /// <param name="reader"></param>
+        /// <param name="payloadLength"></param>
+        /// <returns></returns>
+        public IServerPacket CreateResultSet(ChunkReader reader, UInt32 payloadLength)
+        {
+            IServerPacket result = null;
+            byte possiblePacketType = reader.PeekByte();
+            switch (possiblePacketType)
+            {
+                case 0:
+                    result = new OK();
+                    break;
+                case 0xFF:
+                    result = new ERR();
+                    break;
+                default:
+                    result = new ResultSet();
+                    break;
+            }
+
+            result.FromWireFormat(reader, payloadLength, this);
             return result;
         }
 
@@ -209,40 +250,20 @@ namespace Almond.ProtocolDriver
         /// </summary>
         /// <param name="queryText"></param>
         /// <returns></returns>
-        public IList<IServerPacket> ExecuteQuery(string queryText)
+        public ResultSet ExecuteQuery(string queryText)
         {
             _sequenceNumber = 0;
             COM_QUERY packet = new COM_QUERY();
             packet.QueryText = queryText;
             SendPacket(packet);
 
-            IServerPacket response = ReceivePacket();
-            Expect<IServerPacket>(response);
+            ResultSet result = new ResultSet();
+            IServerPacket response = ReceivePacket(result);
             if (response is OK)
                 return null;
-
-            byte columns = ((Generic)response).Payload[0];
-            IList<IServerPacket> result = new List<IServerPacket>();
-            result.Add(response);
-            for (int i = 0; i < columns; i++)
-                result.Add(ReceivePacket());
-
-            if (!ClientCapability.HasFlag(Capability.CLIENT_DEPRECATE_EOF))
-            {
-                response = ReceivePacket();
-                Expect<EOF>(response);
-            }
-
-            while (true)
-            {
-                response = ReceivePacket();
-                Expect<IServerPacket>(response);
-
-                if (response is EOF)
-                    return result;
-
-                result.Add(response);
-            }
+            else if (response is ERR)
+                throw new ProtocolException((ERR)response);
+            return (ResultSet)response;
         }
 
         #region IDisposable
@@ -250,7 +271,7 @@ namespace Almond.ProtocolDriver
         {
             if (_lineDriver != null)
             {
-                SendPacket(new COM_QUERY());
+                SendPacket(new COM_QUIT());
                 _lineDriver.Dispose();
                 _lineDriver = null;
             }

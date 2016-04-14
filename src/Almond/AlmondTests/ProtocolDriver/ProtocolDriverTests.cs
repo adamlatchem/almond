@@ -1,5 +1,4 @@
-﻿using Almond.ProtocolDriver;
-#region License
+﻿#region License
 // Copyright 2016 Adam Latchem
 // 
 //    Licensed under the Apache License, Version 2.0 (the "License"); 
@@ -15,7 +14,6 @@
 //    limitations under the License. 
 //
 #endregion
-
 using Almond.LineDriver;
 using Almond.ProtocolDriver.Packets;
 using Almond.SQLDriver;
@@ -53,21 +51,22 @@ namespace Almond.ProtocolDriver.Tests
             byte[] byteArray = new byte[] { 01, 00, 00, 03, 01 };
             ChunkReader chunkReader = new ChunkReader();
             chunkReader.AddChunk(new ArraySegment<byte>(byteArray, 0, byteArray.Length));
-            IServerPacket result = _protocolDriver.CreatePacket(chunkReader);
+            IServerPacket result = _protocolDriver.FromWireFormat(chunkReader, 1, _protocolDriver);
 
             Assert.AreNotEqual(null, result);
+        }
+
+        [TestMethod()]
+        public void ExecuteQueryTest()
+        {
+            ResultSet result = _protocolDriver.ExecuteQuery("SELECT 1");
+            throw new NotImplementedException();
         }
 
         [TestMethod]
         public void DisposeTest()
         {
             _protocolDriver.Dispose();
-        }
-
-        [TestMethod()]
-        public void ExecuteQueryTest()
-        {
-            throw new NotImplementedException();
         }
     }
 }

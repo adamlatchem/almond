@@ -16,35 +16,56 @@
 #endregion
 using Almond.LineDriver;
 using System;
-using System.Diagnostics;
+using System.Text;
 
 namespace Almond.ProtocolDriver.Packets
 {
-    public class EOF : IServerPacket
+    /// <summary>
+    /// Represents a row paket in the result set sent by the server.
+    /// </summary>
+    public class Row : IServerPacket
     {
         #region Members
-        public UInt32 NumberOfWarnings
+        public UInt32 PayloadLength
         {
             get; set;
         }
 
-        public Status StatusFlags
+        public byte[] Payload
         {
             get; set;
         }
+
+        #region Debug helpers
+        public Encoding ClientEncoding
+        {
+            get; set;
+        }
+
+        public string PayloadAsString
+        {
+            get
+            {
+                return ChunkReader.BytesToString(Payload, ClientEncoding);
+            }
+        }
+        #endregion
         #endregion
 
         #region IServerPacket
         public IServerPacket FromWireFormat(ChunkReader reader, UInt32 payloadLength, ProtocolDriver driver)
         {
-            byte header = reader.ReadMyInt1();
-            Debug.Assert(header == 0xFE);
+            byte header = reader.PeekByte();
+            if (header == 0)
+                return (new OK()).FromWireFormat(reader, payloadLength, driver);
+            else if (header == 0xFF)
+                return (new ERR()).FromWireFormat(reader, payloadLength, driver);
+            else if (header == 0xFE)
+                return (new EOF()).FromWireFormat(reader, payloadLength, driver);
 
-            if (driver.ClientCapability.HasFlag(Capability.CLIENT_PROTOCOL_41))
-            {
-                NumberOfWarnings = reader.ReadMyInt2();
-                StatusFlags = (Status)reader.ReadMyInt2();
-            }
+            PayloadLength = payloadLength;
+            ClientEncoding = driver.ClientEncoding;
+            Payload = reader.ReadMyStringFix(payloadLength);
             return this;
         }
         #endregion

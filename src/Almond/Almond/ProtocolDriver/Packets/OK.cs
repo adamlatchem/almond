@@ -61,34 +61,35 @@ namespace Almond.ProtocolDriver.Packets
         #endregion
 
         #region IServerPacket
-        public void FromReader(ChunkReader reader, UInt32 payloadLength, Capability clientCapability, Encoding clientEncoding)
+        public IServerPacket FromWireFormat(ChunkReader reader, UInt32 payloadLength, ProtocolDriver driver)
         {
             Header = reader.ReadMyInt1();
             Debug.Assert(Header == 0);
             AffectedRows = reader.ReadMyIntLenEnc();
             LastInsertId = reader.ReadMyIntLenEnc();
 
-            if (clientCapability.HasFlag(Capability.CLIENT_PROTOCOL_41))
+            if (driver.ClientCapability.HasFlag(Capability.CLIENT_PROTOCOL_41))
             {
                 StatusFlags = (Status)reader.ReadMyInt2();
                 NumberOfWarnings = reader.ReadMyInt2();
             }
-            else if (clientCapability.HasFlag(Capability.CLIENT_TRANSACTIONS))
+            else if (driver.ClientCapability.HasFlag(Capability.CLIENT_TRANSACTIONS))
             {
                 StatusFlags = (Status)reader.ReadMyInt2();
             }
 
-            if (clientCapability.HasFlag(Capability.CLIENT_SESSION_TRACK))
+            if (driver.ClientCapability.HasFlag(Capability.CLIENT_SESSION_TRACK))
             {
-                Info = reader.ReadTextLenEnc(clientEncoding);
+                Info = reader.ReadTextLenEnc(driver.ClientEncoding);
                 if (StatusFlags.HasFlag(Status.SERVER_SESSION_STATE_CHANGED))
                 {
-                    SessionStateChanges = reader.ReadTextLenEnc(clientEncoding);
+                    SessionStateChanges = reader.ReadTextLenEnc(driver.ClientEncoding);
                 }
             }
             else {
-                Info = reader.ReadTextEOF(payloadLength + (UInt32)ProtocolDriver.PACKET_HEADER_LENGTH, clientEncoding);
+                Info = reader.ReadTextEOF(payloadLength + (UInt32)ProtocolDriver.PACKET_HEADER_LENGTH, driver.ClientEncoding);
             }
+            return this;
         }
         #endregion
     }

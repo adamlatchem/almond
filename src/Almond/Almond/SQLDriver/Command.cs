@@ -71,7 +71,7 @@ namespace Almond.SQLDriver
             }
             set
             {
-                if (!(value is Connection))
+                if (value != null && !(value is Connection))
                     throw new SQLDriverException("Connection is of wrong type for this Command object");
                 _connection = value as Connection;
             }
@@ -123,7 +123,7 @@ namespace Almond.SQLDriver
 
         public void Dispose()
         {
-            throw new NotImplementedException();
+            Connection = null;
         }
 
         public int ExecuteNonQuery()

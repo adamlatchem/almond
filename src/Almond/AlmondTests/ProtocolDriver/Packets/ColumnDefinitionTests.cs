@@ -14,26 +14,18 @@
 //    limitations under the License. 
 //
 #endregion
-using Almond.ProtocolDriver.Packets;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 
-namespace Almond.ProtocolDriver.Tests
+namespace Almond.ProtocolDriver.Packets.Tests
 {
-    [TestClass]
-    public class ProtocolExceptionTests
+    [TestClass()]
+    public class ColumnDefinitionTests
     {
-        [TestMethod]
-        public void CtorTest()
+        [TestMethod()]
+        public void TODO()
         {
-            ProtocolException exception = new ProtocolException("this is a test 1");
-            Assert.IsNotNull(exception);
-
-            exception = new ProtocolException("this is a test 2", new InvalidCastException());
-            Assert.IsNotNull(exception);
-
-            exception = new ProtocolException(new ERR());
-            Assert.IsNotNull(exception);
+            throw new NotImplementedException();
         }
     }
 }

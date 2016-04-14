@@ -21,7 +21,7 @@ namespace Almond.ProtocolDriver.Packets
 {
     public class COM_QUIT : IClientPacket
     {
-        public void ToWriter(ChunkWriter writer, Capability clientCapability, Encoding clientEncoding)
+        public void ToWireFormat(ChunkWriter writer, ProtocolDriver driver)
         {
             writer.WriteMyInt1(1);
         }

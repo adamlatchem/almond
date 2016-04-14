@@ -40,9 +40,13 @@
     <Compile Include="LineDriver\ChunkReader.cs" />
     <Compile Include="LineDriver\LineDriverException.cs" />
     <Compile Include="LineDriver\TCPLineDriver.cs" />
+    <Compile Include="ProtocolDriver\Class1.cs" />
     <Compile Include="ProtocolDriver\Packets\COM_QUERY.cs" />
     <Compile Include="ProtocolDriver\Packets\COM_QUIT.cs" />
     <Compile Include="ProtocolDriver\Packets\EOF.cs" />
+    <Compile Include="ProtocolDriver\Packets\ColumnDefinition.cs" />
+    <Compile Include="ProtocolDriver\Packets\Row.cs" />
+    <Compile Include="ProtocolDriver\Packets\ResultSet.cs" />
     <Compile Include="ProtocolDriver\Status.cs" />
     <Compile Include="SQLDriver\SQLDriverException.cs" />
     <Compile Include="ProtocolDriver\Packets\OK.cs" />

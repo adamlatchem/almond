@@ -54,16 +54,17 @@ namespace Almond.ProtocolDriver.Packets
         #endregion
 
         #region IServerPacket
-        public void FromReader(ChunkReader reader, UInt32 payloadLength, Capability clientCapability, Encoding clientEncoding)
+        public IServerPacket FromWireFormat(ChunkReader reader, UInt32 payloadLength, ProtocolDriver driver)
         {
             PayloadLength = payloadLength;
-            ClientEncoding = clientEncoding;
+            ClientEncoding = driver.ClientEncoding;
             Payload = reader.ReadMyStringFix(payloadLength);
+            return this;
         }
         #endregion
 
         #region IClientPacket
-        public void ToWriter(ChunkWriter writer, Capability clientCapability, Encoding clientEncoding)
+        public void ToWireFormat(ChunkWriter writer, ProtocolDriver driver)
         {
             throw new NotImplementedException();
         }

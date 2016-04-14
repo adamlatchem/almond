@@ -23,7 +23,7 @@ namespace Almond.ProtocolDriver.Packets.Tests
     public class ServerHandshakeTests
     {
         [TestMethod]
-        public void Test()
+        public void TODO()
         {
             throw new NotImplementedException();
         }
