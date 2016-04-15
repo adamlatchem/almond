@@ -123,6 +123,7 @@ namespace Almond.SQLDriver
 
         public void Dispose()
         {
+            // We do not own the connection
             Connection = null;
         }
 

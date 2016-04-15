@@ -18,7 +18,7 @@ using Almond.SQLDriver;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 
-namespace Almond.SQLDrvier.Tests
+namespace Almond.SQLDriver.Tests
 {
     [TestClass]
     public class ConnectionStringBuilderTests

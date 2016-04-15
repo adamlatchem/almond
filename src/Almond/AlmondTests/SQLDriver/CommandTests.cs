@@ -16,10 +16,9 @@
 #endregion
 using Almond.SQLDriver;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
 using System.Data;
 
-namespace Almond.SQLDrvier.Tests
+namespace Almond.SQLDriver.Tests
 {
     [TestClass]
     public class CommandTests

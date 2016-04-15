@@ -69,18 +69,20 @@ namespace Almond.IntegrationTests
         {
             string queryString = "SELECT * FROM information_schema.USER_PRIVILEGES WHERE GRANTEE LIKE '\\'test\\'%'";
 
-            using (Connection connection =
-                new Connection(CONNECTION_STRING))
+            using (Connection connection = new Connection(CONNECTION_STRING))
             {
                 IDbCommand command = connection.CreateCommand();
                 command.CommandText = queryString;
 
                 connection.Open();
                 IDataReader reader = command.ExecuteReader();
-                while (reader.Read())
-                {
-                    Console.WriteLine("\t{0}", reader[0]);
-                }
+
+                // There should be 4 columns
+                Assert.AreEqual(4, reader.FieldCount);
+
+                // There should be at least one row
+                Assert.IsTrue(reader.Read());
+
                 reader.Close();
             }
         }

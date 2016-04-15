@@ -140,7 +140,8 @@ namespace Almond.SQLDriver
         internal IDataReader ExecuteReader(Command command)
         {
             ResultSet resultset = ProtocolDriver.ExecuteQuery(command.CommandText);
-            throw new NotImplementedException();
+            IDataReader result = new DataReader(resultset);
+            return result;
         }
 
         #region IDisposable
