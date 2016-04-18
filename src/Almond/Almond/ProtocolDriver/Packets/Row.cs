@@ -16,6 +16,7 @@
 #endregion
 using Almond.LineDriver;
 using System;
+using System.Collections.Generic;
 using System.Text;
 
 namespace Almond.ProtocolDriver.Packets
@@ -26,30 +27,19 @@ namespace Almond.ProtocolDriver.Packets
     public class Row : IServerPacket
     {
         #region Members
-        public UInt32 PayloadLength
+        private Lazy<RowReader> _reader;
+        private RowReader Reader
         {
-            get; set;
+            get { return _reader.Value; }
         }
 
-        public byte[] Payload
-        {
-            get; set;
-        }
-
-        #region Debug helpers
-        public Encoding ClientEncoding
-        {
-            get; set;
-        }
-
-        public string PayloadAsString
+        public IList<object> Values
         {
             get
             {
-                return ChunkReader.BytesToString(Payload, ClientEncoding);
+                return Reader.Values;
             }
         }
-        #endregion
         #endregion
 
         #region IServerPacket
@@ -63,11 +53,46 @@ namespace Almond.ProtocolDriver.Packets
             else if (header == 0xFE)
                 return (new EOF()).FromWireFormat(reader, payloadLength, driver);
 
-            PayloadLength = payloadLength;
-            ClientEncoding = driver.ClientEncoding;
-            Payload = reader.ReadMyStringFix(payloadLength);
+            byte[] payload = reader.ReadMyStringFix(payloadLength);
+
+            _reader = new Lazy<RowReader>(() => new RowReader(payload, driver.ClientEncoding));
             return this;
         }
         #endregion
+
+        /// <summary>
+        /// Nested class to convert buffered data to CLR objects.
+        /// </summary>
+        public class RowReader
+        {
+            public bool IsNull
+            {
+                get
+                {
+                    return Values == null;
+                }
+            }
+
+            public IList<object> Values
+            {
+                get; set;
+            }
+
+            public RowReader(byte[] rowData, Encoding encoding)
+            {
+                ChunkReader reader = new ChunkReader(rowData);
+
+                // Null row
+                if (reader.PeekByte() == 0xFB)
+                    return;
+
+                Values = new List<object>();
+                while (reader.ReadSoFar() != rowData.Length)
+                {
+                    string data = reader.ReadTextLenEnc(encoding);
+                    Values.Add(data);
+                }
+            }
+        }
     }
 }

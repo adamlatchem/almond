@@ -258,5 +258,13 @@ namespace Almond.LineDriver.Tests
             string value = _chunkReader.ReadTextEOF((UInt32)_byteArray.Length, _encoding);
             Assert.AreEqual("EFGH", value);
         }
+
+        [TestMethod()]
+        public void ChunkReaderTest()
+        {
+            ChunkReader test = new ChunkReader(new byte[] { 65, 65, 65, 65 });
+            string value = test.ReadTextEOF(4, _encoding);
+            Assert.AreEqual("AAAA", value);
+        }
     }
 }

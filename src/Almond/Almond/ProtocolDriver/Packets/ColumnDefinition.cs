@@ -16,6 +16,8 @@
 #endregion
 using Almond.LineDriver;
 using System;
+using System.Data;
+using System.Diagnostics;
 using System.Text;
 
 namespace Almond.ProtocolDriver.Packets
@@ -23,50 +25,310 @@ namespace Almond.ProtocolDriver.Packets
     /// <summary>
     /// Column definition sent as part of a result set
     /// </summary>
-    public class ColumnDefinition : IServerPacket, IClientPacket
+    public class ColumnDefinition : IServerPacket
     {
         #region Members
-        public UInt32 PayloadLength
+        private Lazy<ColumnDefinitionReader> _definition;
+        public ColumnDefinitionReader Definition
         {
-            get; set;
+            get { return _definition.Value; }
         }
-
-        public byte[] Payload
-        {
-            get; set;
-        }
-
-        #region Debug helpers
-        public Encoding ClientEncoding
-        {
-            get; set;
-        }
-
-        public string PayloadAsString
-        {
-            get
-            {
-                return ChunkReader.BytesToString(Payload, ClientEncoding);
-            }
-        }
-        #endregion
         #endregion
 
         #region IServerPacket
-        public IServerPacket FromWireFormat(ChunkReader reader, UInt32 payloadLength, ProtocolDriver driver)
+        public IServerPacket FromWireFormat(ChunkReader Reader, UInt32 payloadLength, ProtocolDriver driver)
         {
-            PayloadLength = payloadLength;
-            ClientEncoding = driver.ClientEncoding;
-            Payload = reader.ReadMyStringFix(payloadLength);
+            byte[] payload = Reader.ReadMyStringFix(payloadLength);
+
+            _definition = new Lazy<ColumnDefinitionReader>(
+                () => new ColumnDefinitionReader(payload, driver.ClientEncoding, false));
             return this;
         }
         #endregion
 
-        #region IClientPacket
-        public void ToWireFormat(ChunkWriter writer, ProtocolDriver driver)
+        /// <summary>
+        /// Nested class to extract dotNet objects from payload if required
+        /// </summary>
+        public class ColumnDefinitionReader
         {
-            throw new NotImplementedException();
+            #region Members
+            public string Catalog
+            {
+                get; set;
+            }
+
+            public string Schema
+            {
+                get; set;
+            }
+
+            public string Table
+            {
+                get; set;
+            }
+
+            public string OrgTable
+            {
+                get; set;
+            }
+
+            public string Name
+            {
+                get; set;
+            }
+
+            public string OrgName
+            {
+                get; set;
+            }
+
+            public UInt64 FieldDataLength
+            {
+                get; set;
+            }
+
+            public UInt32 CharacterSet
+            {
+                get; set;
+            }
+
+            public UInt64 ColumnLength
+            {
+                get; set;
+            }
+
+            public ColumnType Type
+            {
+                get; set;
+            }
+
+            public Flags Flags
+            {
+                get; set;
+            }
+
+            public byte Decimals
+            {
+                get; set;
+            }
+
+            public string Default
+            {
+                get; set;
+            }
+            #endregion Members
+
+            #region Properties
+            public int Precision
+            {
+                get
+                {
+                    // See chapter 11 of the MySQL reference manual
+                    if (!Flags.HasFlag(Flags.NUM_FLAG))
+                        return 255;
+
+                    bool unsigned = Flags.HasFlag(Flags.UNSIGNED_FLAG);
+
+                    switch (Type)
+                    {
+                        case ColumnType.MYSQL_TYPE_BIT:
+                        case ColumnType.MYSQL_TYPE_FLOAT:
+                        case ColumnType.MYSQL_TYPE_DOUBLE:
+                        case ColumnType.MYSQL_TYPE_DECIMAL:
+                        case ColumnType.MYSQL_TYPE_NEWDECIMAL:
+                            return (int)ColumnLength;
+                        case ColumnType.MYSQL_TYPE_TINY:
+                            return 3;
+                        case ColumnType.MYSQL_TYPE_SHORT:
+                            return 5;
+                        case ColumnType.MYSQL_TYPE_INT24:
+                            return unsigned ? 8 : 7;
+                        case ColumnType.MYSQL_TYPE_LONG:
+                            return 10;
+                        case ColumnType.MYSQL_TYPE_LONGLONG:
+                            return unsigned ? 20 : 19;
+                    }
+                    throw new ProtocolException("Unkown precision for column " + Name ?? "<unknown>");
+                }
+            }
+
+            public int Scale
+            {
+                get
+                {
+                    if (Decimals > 0)
+                        return Decimals;
+                    return 255;
+                }
+            }
+
+            public SqlDbType SqlDbType
+            {
+                get
+                {
+                    switch (Type)
+                    {
+                        case ColumnType.MYSQL_TYPE_DECIMAL:
+                            return SqlDbType.Decimal;
+                        case ColumnType.MYSQL_TYPE_TINY:
+                            return SqlDbType.TinyInt;
+                        case ColumnType.MYSQL_TYPE_SHORT:
+                            return SqlDbType.SmallInt;
+                        case ColumnType.MYSQL_TYPE_LONG:
+                            return SqlDbType.Int;
+                        case ColumnType.MYSQL_TYPE_FLOAT:
+                            return SqlDbType.Udt;
+                        case ColumnType.MYSQL_TYPE_DOUBLE:
+                            return SqlDbType.Float;
+                        case ColumnType.MYSQL_TYPE_NULL:
+                            return SqlDbType.Udt;
+                        case ColumnType.MYSQL_TYPE_TIMESTAMP:
+                            return SqlDbType.Timestamp;
+                        case ColumnType.MYSQL_TYPE_LONGLONG:
+                            return SqlDbType.BigInt;
+                        case ColumnType.MYSQL_TYPE_INT24:
+                            return SqlDbType.Udt;
+                        case ColumnType.MYSQL_TYPE_DATE:
+                            return SqlDbType.Date;
+                        case ColumnType.MYSQL_TYPE_TIME:
+                            return SqlDbType.Time;
+                        case ColumnType.MYSQL_TYPE_DATETIME:
+                            return SqlDbType.DateTime2;
+                        case ColumnType.MYSQL_TYPE_YEAR:
+                            return SqlDbType.Udt;
+                        case ColumnType.MYSQL_TYPE_NEWDATE:
+                            return SqlDbType.Udt;
+                        case ColumnType.MYSQL_TYPE_VARCHAR:
+                            return SqlDbType.VarChar;
+                        case ColumnType.MYSQL_TYPE_BIT:
+                            return SqlDbType.Bit;
+                        case ColumnType.MYSQL_TYPE_TIMESTAMP2:
+                            return SqlDbType.Udt;
+                        case ColumnType.MYSQL_TYPE_DATETIME2:
+                            return SqlDbType.DateTime2;
+                        case ColumnType.MYSQL_TYPE_TIME2:
+                            return SqlDbType.Time;
+                        case ColumnType.MYSQL_TYPE_NEWDECIMAL:
+                            return SqlDbType.Decimal;
+                        case ColumnType.MYSQL_TYPE_ENUM:
+                            return SqlDbType.Udt;
+                        case ColumnType.MYSQL_TYPE_SET:
+                            return SqlDbType.Udt;
+                        case ColumnType.MYSQL_TYPE_TINY_BLOB:
+                        case ColumnType.MYSQL_TYPE_MEDIUM_BLOB:
+                        case ColumnType.MYSQL_TYPE_LONG_BLOB:
+                        case ColumnType.MYSQL_TYPE_BLOB:
+                            return SqlDbType.VarBinary;
+                        case ColumnType.MYSQL_TYPE_VAR_STRING:
+                            return SqlDbType.VarChar;
+                        case ColumnType.MYSQL_TYPE_STRING:
+                            return SqlDbType.NChar;
+                        case ColumnType.MYSQL_TYPE_GEOMETRY:
+                            return SqlDbType.Udt;
+                    }
+                    throw new ProtocolException("Unknown data type " + Type);
+                }
+            }
+
+            public Type CLRType
+            {
+                get
+                {
+                    bool unsigned = Flags.HasFlag(Flags.UNSIGNED_FLAG);
+
+                    switch (Type)
+                    {
+                        case ColumnType.MYSQL_TYPE_DECIMAL:
+                            return typeof(decimal);
+                        case ColumnType.MYSQL_TYPE_TINY:
+                            return unsigned ? typeof(byte) : typeof(sbyte);
+                        case ColumnType.MYSQL_TYPE_SHORT:
+                            return unsigned ? typeof(UInt16) : typeof(Int16);
+                        case ColumnType.MYSQL_TYPE_LONG:
+                            return unsigned ? typeof(UInt32) : typeof(Int32);
+                        case ColumnType.MYSQL_TYPE_FLOAT:
+                            return typeof(float);
+                        case ColumnType.MYSQL_TYPE_DOUBLE:
+                            return typeof(double);
+                        case ColumnType.MYSQL_TYPE_NULL:
+                            return typeof(DBNull);
+                        case ColumnType.MYSQL_TYPE_TIMESTAMP:
+                            return typeof(DateTime);
+                        case ColumnType.MYSQL_TYPE_LONGLONG:
+                            return unsigned ? typeof(ulong) : typeof(long);
+                        case ColumnType.MYSQL_TYPE_INT24:
+                            return unsigned ? typeof(UInt32) : typeof(Int32);
+                        case ColumnType.MYSQL_TYPE_DATE:
+                            return typeof(DateTime);
+                        case ColumnType.MYSQL_TYPE_TIME:
+                            return typeof(DateTime);
+                        case ColumnType.MYSQL_TYPE_DATETIME:
+                            return typeof(DateTime);
+                        case ColumnType.MYSQL_TYPE_YEAR:
+                            return typeof(Int32);
+                        case ColumnType.MYSQL_TYPE_NEWDATE:
+                            return typeof(DateTime);
+                        case ColumnType.MYSQL_TYPE_VARCHAR:
+                            return typeof(string);
+                        case ColumnType.MYSQL_TYPE_BIT:
+                            return typeof(byte);
+                        case ColumnType.MYSQL_TYPE_TIMESTAMP2:
+                            return typeof(DateTime);
+                        case ColumnType.MYSQL_TYPE_DATETIME2:
+                            return typeof(DateTime);
+                        case ColumnType.MYSQL_TYPE_TIME2:
+                            return typeof(DateTime);
+                        case ColumnType.MYSQL_TYPE_NEWDECIMAL:
+                            return typeof(decimal);
+                        case ColumnType.MYSQL_TYPE_ENUM:
+                            return typeof(UInt64);
+                        case ColumnType.MYSQL_TYPE_SET:
+                            return typeof(object);
+                        case ColumnType.MYSQL_TYPE_TINY_BLOB:
+                        case ColumnType.MYSQL_TYPE_MEDIUM_BLOB:
+                        case ColumnType.MYSQL_TYPE_LONG_BLOB:
+                        case ColumnType.MYSQL_TYPE_BLOB:
+                            return typeof(object);
+                        case ColumnType.MYSQL_TYPE_VAR_STRING:
+                            return typeof(string);
+                        case ColumnType.MYSQL_TYPE_STRING:
+                            return typeof(string);
+                        case ColumnType.MYSQL_TYPE_GEOMETRY:
+                            return typeof(object);
+                    }
+                    throw new ProtocolException("Unknown data type " + Type);
+                }
+            }
+            #endregion
+
+            /// <summary>
+            /// Constructor
+            /// </summary>
+            /// <param name="columnDefinitionPacketPayload"></param>
+            /// <param name="encoding"></param>
+            /// <param name="FieldList"></param>
+            public ColumnDefinitionReader(byte[] columnDefinitionPacketPayload, Encoding encoding, bool FieldList)
+            {
+                ChunkReader reader = new ChunkReader(columnDefinitionPacketPayload);
+
+                Catalog = reader.ReadTextLenEnc(encoding);
+                Schema = reader.ReadTextLenEnc(encoding);
+                Table = reader.ReadTextLenEnc(encoding);
+                OrgTable = reader.ReadTextLenEnc(encoding);
+                Name = reader.ReadTextLenEnc(encoding);
+                OrgName = reader.ReadTextLenEnc(encoding);
+                FieldDataLength = reader.ReadMyIntLenEnc();
+                Debug.Assert(FieldDataLength == 12);
+                CharacterSet = reader.ReadMyInt2();
+                ColumnLength = reader.ReadMyInt4();
+                Type = (ColumnType)reader.ReadMyInt1();
+                Flags = (Flags)reader.ReadMyInt2();
+                Decimals = reader.ReadMyInt1();
+                UInt32 filler = reader.ReadMyInt2();
+
+                if (FieldList)
+                    Default = reader.ReadTextLenEnc(encoding);
+            }
         }
-        #endregion
     }
 }

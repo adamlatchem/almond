@@ -18,6 +18,7 @@ using Almond.LineDriver;
 using Almond.ProtocolDriver.Packets;
 using Almond.SQLDriver;
 using System;
+using System.Data;
 using System.Text;
 
 namespace Almond.ProtocolDriver
@@ -248,10 +249,14 @@ namespace Almond.ProtocolDriver
         /// Will throw if an error occurs or an unexpected packet is sent.
         /// Will return null if an OK response is sent.
         /// </summary>
-        /// <param name="queryText"></param>
+        /// <param name="queryText">The query to execute</param>
+        /// <param name="behavior">The behavior required of the query</param>
         /// <returns></returns>
-        public ResultSet ExecuteQuery(string queryText)
+        public ResultSet ExecuteQuery(string queryText, CommandBehavior behavior)
         {
+            if (behavior != CommandBehavior.Default)
+                throw new NotImplementedException("Unimplemented command behavior " + behavior);
+
             _sequenceNumber = 0;
             COM_QUERY packet = new COM_QUERY();
             packet.QueryText = queryText;

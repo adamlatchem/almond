@@ -83,6 +83,20 @@ namespace Almond.IntegrationTests
                 // There should be at least one row
                 Assert.IsTrue(reader.Read());
 
+                DataTable schema = reader.GetSchemaTable();
+                Assert.AreEqual<string>("USER_PRIVILEGES", schema.TableName);
+                Assert.AreEqual<string>("information_schema", schema.Namespace);
+                Assert.AreEqual<int>(4, schema.Rows.Count);
+
+                for (int i = 0; i < schema.Rows.Count; i++)
+                {
+                    string columnName = (string)schema.Rows[i]["ColumnName"];
+                    Assert.AreEqual<int>(i, reader.GetOrdinal(columnName));
+                    Assert.AreEqual<string>(columnName, reader.GetName(i));
+                }
+
+                string value = (string)reader[0];
+
                 reader.Close();
             }
         }

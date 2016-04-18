@@ -59,6 +59,15 @@ namespace Almond.LineDriver
         }
 
         /// <summary>
+        /// Convenience constructor.
+        /// </summary>
+        public ChunkReader(byte[] firstSegment)
+        {
+            _queue = new BlockingCollection<ArraySegment<byte>>();
+            AddChunk(new ArraySegment<byte>(firstSegment));
+        }
+
+        /// <summary>
         /// Reset the total byte count for the packet. This must be called
         /// only when the buffer position really is the start of a new packet
         /// as it then checks if we need to read a new chunk of data. The

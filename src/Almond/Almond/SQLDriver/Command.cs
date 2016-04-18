@@ -134,12 +134,12 @@ namespace Almond.SQLDriver
 
         public IDataReader ExecuteReader()
         {
-            return _connection.ExecuteReader(this);
+            return _connection.ExecuteReader(this, CommandBehavior.Default);
         }
 
         public IDataReader ExecuteReader(CommandBehavior behavior)
         {
-            throw new NotImplementedException();
+            return _connection.ExecuteReader(this, behavior);
         }
 
         public object ExecuteScalar()

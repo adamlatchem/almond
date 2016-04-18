@@ -32,7 +32,7 @@ namespace Almond.SQLDriver.Tests
         [ClassInitialize]
         public static void ClassInitialize(TestContext context)
         {
-            _connection = new Connection("hostname=localhost");
+            _connection = new Connection("hostname=localhost;username=test;password=test");
             Assert.IsNotNull(_connection);
         }
 
@@ -126,7 +126,13 @@ namespace Almond.SQLDriver.Tests
         [TestMethod()]
         public void ExecuteReaderTest()
         {
-            throw new NotImplementedException();
+            _connection.Open();
+            Command command = new Command("SELECT 1", _connection);
+            IDataReader result = _connection.ExecuteReader(command, CommandBehavior.Default);
+            Assert.IsNotNull(result);
+            result.Read();
+            Assert.AreEqual(1, result.RecordsAffected);
+            Assert.AreEqual(1, result.GetInt32(0));
         }
     }
 }

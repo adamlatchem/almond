@@ -42,6 +42,32 @@ namespace Almond.ProtocolDriver.Packets
         {
             get; set;
         }
+
+        /// <summary>
+        /// Return the tablename of the first column
+        /// </summary>
+        public string Tablename
+        {
+            get
+            {
+                if (Columns.Count < 1)
+                    throw new ProtocolException("There are no columns in the resultset");
+                return Columns[0].Definition.Table;
+            }
+        }
+
+        /// <summary>
+        /// Return the Schema of the first column
+        /// </summary>
+        public string Tablespace
+        {
+            get
+            {
+                if (Columns.Count < 1)
+                    throw new ProtocolException("There are no columns in the resultset");
+                return Columns[0].Definition.Schema;
+            }
+        }
         #endregion
 
         #region IServerPacket

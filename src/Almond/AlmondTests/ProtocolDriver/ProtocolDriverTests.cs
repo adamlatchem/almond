@@ -1,4 +1,5 @@
-﻿#region License
+﻿using Almond.ProtocolDriver;
+#region License
 // Copyright 2016 Adam Latchem
 // 
 //    Licensed under the Apache License, Version 2.0 (the "License"); 
@@ -14,11 +15,13 @@
 //    limitations under the License. 
 //
 #endregion
+
 using Almond.LineDriver;
 using Almond.ProtocolDriver.Packets;
 using Almond.SQLDriver;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Data;
 
 namespace Almond.ProtocolDriver.Tests
 {
@@ -59,7 +62,7 @@ namespace Almond.ProtocolDriver.Tests
         [TestMethod()]
         public void ExecuteQueryTest()
         {
-            ResultSet result = _protocolDriver.ExecuteQuery("SELECT 1");
+            ResultSet result = _protocolDriver.ExecuteQuery("SELECT 1", CommandBehavior.Default);
             throw new NotImplementedException();
         }
 
@@ -67,6 +70,12 @@ namespace Almond.ProtocolDriver.Tests
         public void DisposeTest()
         {
             _protocolDriver.Dispose();
+        }
+
+        [TestMethod()]
+        public void TODO()
+        {
+            throw new NotImplementedException();
         }
     }
 }

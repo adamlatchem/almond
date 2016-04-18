@@ -47,9 +47,32 @@ namespace Almond.SQLDriver
         /// <summary>
         /// The index of dataset in Data property we are on
         /// </summary>
+        private int _set;
         private int Set
         {
-            get; set;
+            get
+            {
+                return _set;
+            }
+            set
+            {
+                _set = value;
+                _cachedSchemaTable = null;
+            }
+        }
+
+        /// <summary>
+        /// Used to cache the schema table of the current set
+        /// </summary>
+        private DataTable _cachedSchemaTable;
+        private DataTable CachedSchema
+        {
+            get
+            {
+                if (_cachedSchemaTable == null)
+                    _cachedSchemaTable = GetSchemaTable();
+                return _cachedSchemaTable;
+            }
         }
 
         /// <summary>
@@ -59,13 +82,27 @@ namespace Almond.SQLDriver
         {
             get; set;
         }
+
+        /// <summary>
+        /// The connection that produced this dataset.
+        /// </summary>
+        private Connection Connection
+        {
+            get; set;
+        }
         #endregion
 
-        public DataReader(ResultSet resultsSetPacket)
+        internal DataReader(ResultSet resultsSetPacket, IDbConnection connection)
         {
             if (resultsSetPacket == null)
                 throw new ProtocolException("ResultSet must not be null");
+            if (connection == null)
+                throw new ProtocolException("Connection must not be null");
+            if (!(connection is Connection))
+                throw new ProtocolException("Connection must be an instance of Connection");
+
             Data = new List<ResultSet>() { resultsSetPacket };
+            Connection = (Connection)connection;
             Set = 0;
             Row = -1;
         }
@@ -115,7 +152,7 @@ namespace Almond.SQLDriver
         {
             get
             {
-                throw new NotImplementedException();
+                return Data[Set].Rows.Count;
             }
         }
 
@@ -126,17 +163,22 @@ namespace Almond.SQLDriver
 
         public bool GetBoolean(int i)
         {
-            throw new NotImplementedException();
+            return (bool)Data[Set].Rows[Row].Values[i];
         }
 
         public byte GetByte(int i)
         {
-            throw new NotImplementedException();
+            return (byte)Data[Set].Rows[Row].Values[i];
         }
 
         public long GetBytes(int i, long fieldOffset, byte[] buffer, int bufferoffset, int length)
         {
-            throw new NotImplementedException();
+            byte[] value = (byte[])Data[Set].Rows[Row].Values[i];
+            if (buffer == null)
+                return value.Length;
+            length = Math.Min(length, value.Length);
+            Array.Copy(value, 0, buffer, bufferoffset, length);
+            return length;
         }
 
         public char GetChar(int i)
@@ -154,34 +196,24 @@ namespace Almond.SQLDriver
             throw new NotImplementedException();
         }
 
-        public string GetDataTypeName(int i)
-        {
-            throw new NotImplementedException();
-        }
-
         public DateTime GetDateTime(int i)
         {
-            throw new NotImplementedException();
+            return (DateTime)Data[Set].Rows[Row].Values[i];
         }
 
         public decimal GetDecimal(int i)
         {
-            throw new NotImplementedException();
+            return (decimal)Data[Set].Rows[Row].Values[i];
         }
 
         public double GetDouble(int i)
         {
-            throw new NotImplementedException();
-        }
-
-        public Type GetFieldType(int i)
-        {
-            throw new NotImplementedException();
+            return (double)Data[Set].Rows[Row].Values[i];
         }
 
         public float GetFloat(int i)
         {
-            throw new NotImplementedException();
+            return (float)Data[Set].Rows[Row].Values[i];
         }
 
         public Guid GetGuid(int i)
@@ -191,42 +223,27 @@ namespace Almond.SQLDriver
 
         public short GetInt16(int i)
         {
-            throw new NotImplementedException();
+            return (Int16)Data[Set].Rows[Row].Values[i];
         }
 
         public int GetInt32(int i)
         {
-            throw new NotImplementedException();
+            return (Int32)Data[Set].Rows[Row].Values[i];
         }
 
         public long GetInt64(int i)
         {
-            throw new NotImplementedException();
-        }
-
-        public string GetName(int i)
-        {
-            throw new NotImplementedException();
-        }
-
-        public int GetOrdinal(string name)
-        {
-            throw new NotImplementedException();
-        }
-
-        public DataTable GetSchemaTable()
-        {
-            throw new NotImplementedException();
+            return (Int64)Data[Set].Rows[Row].Values[i];
         }
 
         public string GetString(int i)
         {
-            throw new NotImplementedException();
+            return (string)Data[Set].Rows[Row].Values[i];
         }
 
         public object GetValue(int i)
         {
-            throw new NotImplementedException();
+            return Data[Set].Rows[Row].Values[i];
         }
 
         public int GetValues(object[] values)
@@ -236,7 +253,112 @@ namespace Almond.SQLDriver
 
         public bool IsDBNull(int i)
         {
-            throw new NotImplementedException();
+            return GetValue(i) == DBNull.Value;
+        }
+
+        public string GetDataTypeName(int i)
+        {
+            return Data[Set].Columns[i].Definition.Type.ToString();
+        }
+
+        public Type GetFieldType(int i)
+        {
+            return Data[Set].Columns[i].Definition.CLRType;
+        }
+
+        public string GetName(int i)
+        {
+            return Data[Set].Columns[i].Definition.Name;
+        }
+
+        public int GetOrdinal(string name)
+        {
+            DataTable schema = CachedSchema;
+            DataRow[] rows = schema.Select(string.Format(@"[ColumnName] = '{0}'", name));
+            if (rows.Length != 1)
+                throw new IndexOutOfRangeException("No such column " + name);
+            return (int)rows[0]["ColumnOrdinal"];
+        }
+
+        public DataTable GetSchemaTable()
+        {
+            DataTable result = new DataTable(Data[Set].Tablename, Data[Set].Tablespace);
+
+            result.Columns.Add("AllowDBNull", typeof(bool));
+            result.Columns.Add("BaseCatalogName", typeof(string));
+            result.Columns.Add("BaseColumnName", typeof(string));
+            result.Columns.Add("BaseSchemaName", typeof(string));
+            result.Columns.Add("BaseServerName", typeof(string));
+            result.Columns.Add("BaseTableName", typeof(string));
+            result.Columns.Add("ColumnName", typeof(string));
+            result.Columns.Add("ColumnOrdinal", typeof(int));
+            result.Columns.Add("ColumnSize", typeof(int));
+            result.Columns.Add("DataTypeName", typeof(string));
+            result.Columns.Add("IsAliased", typeof(bool));
+            result.Columns.Add("IsAutoIncrement", typeof(bool));
+            result.Columns.Add("IsColumnSet", typeof(bool));
+            result.Columns.Add("IsExpression", typeof(bool));
+            result.Columns.Add("IsHidden", typeof(bool));
+            result.Columns.Add("IsIdentity", typeof(bool));
+            result.Columns.Add("IsKey", typeof(bool));
+            result.Columns.Add("IsLong", typeof(bool));
+            result.Columns.Add("IsReadOnly", typeof(bool));
+            result.Columns.Add("IsRowVersion", typeof(bool));
+            result.Columns.Add("IsUnique", typeof(bool));
+            result.Columns.Add("NonVersionedProviderType", typeof(SqlDbType));
+            result.Columns.Add("NumericPrecision", typeof(byte));
+            result.Columns.Add("NumericScale", typeof(byte));
+            result.Columns.Add("ProviderSpecificDataType", typeof(ColumnType));
+            result.Columns.Add("ProviderType", typeof(Type));
+            result.Columns.Add("UdtAssemblyQualifiedName", typeof(string));
+            result.Columns.Add("XmlSchemaCollectionDatabase", typeof(string));
+            result.Columns.Add("XmlSchemaCollectionName", typeof(string));
+            result.Columns.Add("XmlSchemaCollectionOwningSchema", typeof(string));
+
+            ConnectionStringBuilder csb = new ConnectionStringBuilder();
+            csb.ConnectionString = Connection.ConnectionString;
+            int ordinal = 0;
+
+            foreach (ColumnDefinition column in Data[Set].Columns)
+            {
+                ColumnDefinition.ColumnDefinitionReader definition = column.Definition;
+                DataRow row = result.NewRow();
+
+                row["AllowDBNull"] = !definition.Flags.HasFlag(Flags.NOT_NULL_FLAG);
+                row["BaseCatalogName"] = definition.Catalog;
+                row["BaseColumnName"] = definition.OrgName;
+                row["BaseSchemaName"] = definition.Schema;
+                row["BaseServerName"] = csb.Hostname;
+                row["BaseTableName"] = definition.OrgTable;
+                row["ColumnName"] = definition.Name;
+                row["ColumnOrdinal"] = ordinal;
+                row["ColumnSize"] = definition.ColumnLength;
+                row["DataTypeName"] = definition.Type.ToString();
+                row["IsAliased"] = !definition.OrgName.Equals(definition.Name);
+                row["IsAutoIncrement"] = definition.Flags.HasFlag(Flags.AUTO_INCREMENT_FLAG);
+                row["IsColumnSet"] = definition.Flags.HasFlag(Flags.SET_FLAG);
+                row["IsExpression"] = DBNull.Value;
+                row["IsHidden"] = false;
+                row["IsIdentity"] = DBNull.Value;
+                row["IsKey"] = definition.Flags.HasFlag(Flags.PRI_KEY_FLAG);
+                row["IsLong"] = definition.Flags.HasFlag(Flags.BLOB_FLAG);
+                row["IsReadOnly"] = DBNull.Value;
+                row["IsRowVersion"] = false;
+                row["IsUnique"] = definition.Flags.HasFlag(Flags.UNIQUE_KEY_FLAG);
+                row["NonVersionedProviderType"] = definition.SqlDbType;
+                row["NumericPrecision"] = definition.Precision;
+                row["NumericScale"] = definition.Scale;
+                row["ProviderSpecificDataType"] = definition.Type;
+                row["ProviderType"] = definition.CLRType;
+                row["UdtAssemblyQualifiedName"] = DBNull.Value;
+                row["XmlSchemaCollectionDatabase"] = DBNull.Value;
+                row["XmlSchemaCollectionName"] = DBNull.Value;
+                row["XmlSchemaCollectionOwningSchema"] = DBNull.Value;
+
+                result.Rows.Add(row);
+                ordinal++;
+            }
+            return result;
         }
 
         public bool NextResult()
@@ -264,6 +386,7 @@ namespace Almond.SQLDriver
         public void Dispose()
         {
             Data = null;
+            _cachedSchemaTable = null;
         }
         #endregion
     }

@@ -135,12 +135,13 @@ namespace Almond.SQLDriver
         /// <summary>
         /// Execute the given command on the server and return the results.
         /// </summary>
-        /// <param name="command"></param>
+        /// <param name="command">The command object to execute</param>
+        /// <param name="behavior">Behavior required of the command object</param>
         /// <returns></returns>
-        internal IDataReader ExecuteReader(Command command)
+        internal IDataReader ExecuteReader(Command command, CommandBehavior behavior)
         {
-            ResultSet resultset = ProtocolDriver.ExecuteQuery(command.CommandText);
-            IDataReader result = new DataReader(resultset);
+            ResultSet resultset = ProtocolDriver.ExecuteQuery(command.CommandText, behavior);
+            IDataReader result = new DataReader(resultset, command.Connection);
             return result;
         }
 
