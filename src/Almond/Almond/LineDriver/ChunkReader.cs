@@ -61,10 +61,10 @@ namespace Almond.LineDriver
         /// <summary>
         /// Convenience constructor.
         /// </summary>
-        public ChunkReader(byte[] firstSegment)
+        public ChunkReader(ArraySegment<byte> firstSegment)
         {
             _queue = new BlockingCollection<ArraySegment<byte>>();
-            AddChunk(new ArraySegment<byte>(firstSegment));
+            AddChunk(firstSegment);
         }
 
         /// <summary>
@@ -142,21 +142,31 @@ namespace Almond.LineDriver
         /// </summary>
         /// <param name="count"></param>
         /// <returns>value read</returns>
-        public byte[] ReadMyStringFix(UInt32 count)
+        public ArraySegment<byte> ReadMyStringFix(UInt32 count)
         {
-            byte[] array = new byte[count];
-            long position = 0;
-            while (position < count)
+            ArraySegment<byte> result;
+            //if (_currentChunk.Offset + _currentChunk.Count >= _position + count)
+            //{
+            //    result = new ArraySegment<byte>(_currentChunk.Array, _position, (int)count);
+            //    _position += (int)(count);
+            //}
+            //else
             {
-                AdvanceCurrentChunk();
-                long length = Math.Min(_currentChunk.Count - _position, count-position);
+                byte[] array = new byte[count];
+                long position = 0;
+                while (position < count)
+                {
+                    AdvanceCurrentChunk();
+                    long length = Math.Min(_currentChunk.Offset + _currentChunk.Count - _position, count - position);
 
-                Array.Copy(_currentChunk.Array, _position, array, position, length);
+                    Array.Copy(_currentChunk.Array, _currentChunk.Offset + _position, array, position, length);
 
-                _position += (int)(length);
-                position += length;
+                    _position += (int)(length);
+                    position += length;
+                }
+                result = new ArraySegment<byte>(array);
             }
-            return array;
+            return result;
         }
 
         /// <summary>
@@ -257,7 +267,7 @@ namespace Almond.LineDriver
         /// Extract a null terminated byte array
         /// </summary>
         /// <returns></returns>
-        public byte[] ReadMyStringNull()
+        public ArraySegment<byte> ReadMyStringNull()
         {
             List<byte> result = new List<byte>();
             while (true)
@@ -267,14 +277,14 @@ namespace Almond.LineDriver
                     break;
                 result.Add(next);
             }
-            return result.ToArray();
+            return new ArraySegment<byte>(result.ToArray());
         }
 
         /// <summary>
         /// Return a length encoded byte string
         /// </summary>
         /// <returns></returns>
-        public byte[] ReadMyStringLenEnc()
+        public ArraySegment<byte> ReadMyStringLenEnc()
         {
             UInt64 length = ReadMyIntLenEnc();
             return ReadMyStringFix((UInt32)length);
@@ -285,7 +295,7 @@ namespace Almond.LineDriver
         /// </summary>
         /// <param name="packetLength">Total length of packet</param>
         /// <returns></returns>
-        public byte[] ReadMyStringEOF(UInt32 packetLength)
+        public ArraySegment<byte> ReadMyStringEOF(UInt32 packetLength)
         {
             UInt32 readSofar = ReadSoFar();
             if (readSofar > packetLength)
@@ -299,9 +309,9 @@ namespace Almond.LineDriver
         /// <param name="bytes"></param>
         /// <param name="encoding">Encoding of text to use</param>
         /// <returns>String that was read</returns>
-        public static string BytesToString(byte[] bytes, Encoding encoding)
+        public static string BytesToString(ArraySegment<byte> bytes, Encoding encoding)
         {
-            return encoding.GetString(bytes);
+            return encoding.GetString(bytes.Array, bytes.Offset, bytes.Count);
         }
 
         /// <summary>

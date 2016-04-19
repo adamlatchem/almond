@@ -131,13 +131,12 @@ namespace Almond.ProtocolDriver.Packets
             if (!serverHandshakePacket.AuthPluginName.Equals("mysql_native_password"))
                 throw new ProtocolException("Only mysql_native_password authentication is supported at this time");
 
-            byte[] randomServerData = serverHandshakePacket.AuthPluginData;
+            List<byte> data = serverHandshakePacket.AuthPluginData;
 
             byte[] shaPassword = sha.ComputeHash(ChunkWriter.StringToBytes(password, clientEncoding));
 
             byte[] shaSquaredPassword = sha.ComputeHash(shaPassword);
 
-            List<byte> data = new List<byte>(randomServerData);
             data.RemoveAt(20);
             Debug.Assert(data.Count == 20);
             data.AddRange(shaSquaredPassword);

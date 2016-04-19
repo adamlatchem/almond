@@ -161,23 +161,36 @@ namespace Almond.SQLDriver
             Dispose();
         }
 
+        private ArraySegment<byte> RawValue(int i)
+        {
+            return Data[Set].Rows[Row].Values[i];
+        }
+
+        private string StringValue(int i)
+        {
+            return Data[Set].Rows[Row].StringValue(i);
+        }
+
         public bool GetBoolean(int i)
         {
-            return (bool)Data[Set].Rows[Row].Values[i];
+            return Boolean.Parse(StringValue(i));
         }
 
         public byte GetByte(int i)
         {
-            return (byte)Data[Set].Rows[Row].Values[i];
+            ArraySegment<byte> value = RawValue(i);
+            return value.Array[value.Offset];
         }
 
         public long GetBytes(int i, long fieldOffset, byte[] buffer, int bufferoffset, int length)
         {
-            byte[] value = (byte[])Data[Set].Rows[Row].Values[i];
+            ArraySegment<byte> value = RawValue(i);
+
+            // This is a way to query the length
             if (buffer == null)
-                return value.Length;
-            length = Math.Min(length, value.Length);
-            Array.Copy(value, 0, buffer, bufferoffset, length);
+                return value.Count;
+            length = Math.Min(length, value.Count);
+            Array.Copy(value.Array, value.Offset, buffer, bufferoffset, length);
             return length;
         }
 
@@ -198,52 +211,52 @@ namespace Almond.SQLDriver
 
         public DateTime GetDateTime(int i)
         {
-            return (DateTime)Data[Set].Rows[Row].Values[i];
+            return DateTime.Parse(StringValue(i));
         }
 
         public decimal GetDecimal(int i)
         {
-            return (decimal)Data[Set].Rows[Row].Values[i];
+            return decimal.Parse(StringValue(i));
         }
 
         public double GetDouble(int i)
         {
-            return (double)Data[Set].Rows[Row].Values[i];
+            return double.Parse(StringValue(i));
         }
 
         public float GetFloat(int i)
         {
-            return (float)Data[Set].Rows[Row].Values[i];
+            return float.Parse(StringValue(i));
         }
 
         public Guid GetGuid(int i)
         {
-            throw new NotImplementedException();
+            return Guid.Parse(GetString(i));
         }
 
         public short GetInt16(int i)
         {
-            return (Int16)Data[Set].Rows[Row].Values[i];
+            return short.Parse(StringValue(i));
         }
 
         public int GetInt32(int i)
         {
-            return (Int32)Data[Set].Rows[Row].Values[i];
+            return int.Parse(StringValue(i));
         }
 
         public long GetInt64(int i)
         {
-            return (Int64)Data[Set].Rows[Row].Values[i];
+            return long.Parse(StringValue(i));
         }
 
         public string GetString(int i)
         {
-            return (string)Data[Set].Rows[Row].Values[i];
+            return StringValue(i);
         }
 
         public object GetValue(int i)
         {
-            return Data[Set].Rows[Row].Values[i];
+            throw new NotImplementedException();
         }
 
         public int GetValues(object[] values)

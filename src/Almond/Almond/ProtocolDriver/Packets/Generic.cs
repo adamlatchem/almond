@@ -32,7 +32,7 @@ namespace Almond.ProtocolDriver.Packets
             get; set;
         }
 
-        public byte[] Payload
+        public ArraySegment<byte> Payload
         {
             get; set;
         }

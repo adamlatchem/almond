@@ -38,7 +38,7 @@ namespace Almond.ProtocolDriver.Packets
         #region IServerPacket
         public IServerPacket FromWireFormat(ChunkReader Reader, UInt32 payloadLength, ProtocolDriver driver)
         {
-            byte[] payload = Reader.ReadMyStringFix(payloadLength);
+            ArraySegment<byte> payload = Reader.ReadMyStringFix(payloadLength);
 
             _definition = new Lazy<ColumnDefinitionReader>(
                 () => new ColumnDefinitionReader(payload, driver.ClientEncoding, false));
@@ -307,7 +307,7 @@ namespace Almond.ProtocolDriver.Packets
             /// <param name="columnDefinitionPacketPayload"></param>
             /// <param name="encoding"></param>
             /// <param name="FieldList"></param>
-            public ColumnDefinitionReader(byte[] columnDefinitionPacketPayload, Encoding encoding, bool FieldList)
+            public ColumnDefinitionReader(ArraySegment<byte> columnDefinitionPacketPayload, Encoding encoding, bool FieldList)
             {
                 ChunkReader reader = new ChunkReader(columnDefinitionPacketPayload);
 

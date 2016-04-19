@@ -30,21 +30,38 @@ namespace Almond.ProtocolDriver.Packets
         private Lazy<RowReader> _reader;
         private RowReader Reader
         {
-            get { return _reader.Value; }
+            get
+            {
+                if (_reader != null)
+                    return _reader.Value;
+                throw new ProtocolException("No row data");
+            }
         }
 
-        public IList<object> Values
+        public IList<ArraySegment<byte>> Values
         {
             get
             {
                 return Reader.Values;
             }
         }
+
+        private Encoding Encoding
+        {
+            get; set;
+        }
         #endregion
+
+        public string StringValue(int i)
+        {
+            ArraySegment<byte> value = Values[i];
+            return ChunkReader.BytesToString(value, Encoding);
+        }
 
         #region IServerPacket
         public IServerPacket FromWireFormat(ChunkReader reader, UInt32 payloadLength, ProtocolDriver driver)
         {
+            Encoding = driver.ClientEncoding;
             byte header = reader.PeekByte();
             if (header == 0)
                 return (new OK()).FromWireFormat(reader, payloadLength, driver);
@@ -53,7 +70,7 @@ namespace Almond.ProtocolDriver.Packets
             else if (header == 0xFE)
                 return (new EOF()).FromWireFormat(reader, payloadLength, driver);
 
-            byte[] payload = reader.ReadMyStringFix(payloadLength);
+            ArraySegment<byte> payload = reader.ReadMyStringFix(payloadLength);
 
             _reader = new Lazy<RowReader>(() => new RowReader(payload, driver.ClientEncoding));
             return this;
@@ -73,23 +90,29 @@ namespace Almond.ProtocolDriver.Packets
                 }
             }
 
-            public IList<object> Values
+            public Encoding Encoding
+            {
+                get; private set;
+            }
+
+            public IList<ArraySegment<byte>> Values
             {
                 get; set;
             }
 
-            public RowReader(byte[] rowData, Encoding encoding)
+            public RowReader(ArraySegment<byte> rowData, Encoding encoding)
             {
+                Encoding = encoding;
                 ChunkReader reader = new ChunkReader(rowData);
 
                 // Null row
                 if (reader.PeekByte() == 0xFB)
                     return;
 
-                Values = new List<object>();
-                while (reader.ReadSoFar() != rowData.Length)
+                Values = new List<ArraySegment<byte>>();
+                while (reader.ReadSoFar() != rowData.Count)
                 {
-                    string data = reader.ReadTextLenEnc(encoding);
+                    ArraySegment<byte> data = reader.ReadMyStringLenEnc();
                     Values.Add(data);
                 }
             }

@@ -149,25 +149,25 @@ namespace Almond.LineDriver.Tests
             Assert.AreEqual((UInt64)0x0807060504030201, value);
         }
 
-        private void AssertArraysMatch<T>(T[] expected, T[] actual)
+        private void AssertArraysMatch<T>(T[] expected, ArraySegment<T> actual)
         {
-            Assert.AreEqual(expected.Length, actual.Length);
+            Assert.AreEqual(expected.Length, actual.Count);
             for (int i = 0; i < expected.Length; ++i)
-                Assert.AreEqual(expected[i], actual[i]);
+                Assert.AreEqual(expected[i], actual.Array[actual.Offset + i]);
         }
 
-        private void AssertArraysMatch<T>(T[] expected, T[] actual, int uptoIndex)
+        private void AssertArraysMatch<T>(T[] expected, ArraySegment<T> actual, int uptoIndex)
         {
-            Assert.IsTrue(expected.Length >= actual.Length);
+            Assert.IsTrue(expected.Length >= actual.Count);
             for (int i = 0; i <= uptoIndex; ++i)
-                Assert.AreEqual(expected[i], actual[i]);
+                Assert.AreEqual(expected[i], actual.Array[actual.Offset + i]);
         }
 
         [TestMethod]
         public void ReadMyStringFixTest()
         {
             SetupPacket(new byte[] { 1, 2, 3, 4 });
-            byte[] value = _chunkReader.ReadMyStringFix((UInt32)_byteArray.Length);
+            ArraySegment<byte> value = _chunkReader.ReadMyStringFix((UInt32)_byteArray.Length);
             AssertArraysMatch<byte>(_byteArray, value);
         }
 
@@ -175,7 +175,7 @@ namespace Almond.LineDriver.Tests
         public void ReadMyStringNullTest()
         {
             SetupPacket(new byte[] { 4, 5, 6, 7, 0, 1 });
-            byte[] value = _chunkReader.ReadMyStringNull();
+            ArraySegment<byte> value = _chunkReader.ReadMyStringNull();
             AssertArraysMatch<byte>(_byteArray, value, 3);
         }
 
@@ -183,12 +183,13 @@ namespace Almond.LineDriver.Tests
         public void ReadMyStringLenEncTest()
         {
             SetupPacket(new byte[] { 1, 1, 2, 2, 2 });
-            byte[] value = _chunkReader.ReadMyStringLenEnc();
-            Assert.AreEqual(1, value.Length);
-            Assert.AreEqual(1, value[0]);
+            ArraySegment<byte> value = _chunkReader.ReadMyStringLenEnc();
+            Assert.AreEqual(1, value.Count);
+            Assert.AreEqual(1, value.Array[value.Offset + 0]);
             value = _chunkReader.ReadMyStringLenEnc();
-            Assert.AreEqual(2, value.Length);
-            Assert.AreEqual(2, value[1]);
+            Assert.AreEqual(2, value.Count);
+            Assert.AreEqual(2, value.Array[value.Offset + 0]);
+            Assert.AreEqual(2, value.Array[value.Offset + 1]);
         }
 
         [TestMethod()]
@@ -197,14 +198,14 @@ namespace Almond.LineDriver.Tests
             SetupPacket(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 });
             UInt32 skipCount = 4;
             _chunkReader.Skip(skipCount);
-            byte[] value = _chunkReader.ReadMyStringEOF((UInt32)_byteArray.Length);
-            Assert.AreEqual(_byteArray.Length - skipCount, value.Length);
+            ArraySegment<byte> value = _chunkReader.ReadMyStringEOF((UInt32)_byteArray.Length);
+            Assert.AreEqual(_byteArray.Length - skipCount, value.Count);
 
             SetupPacket(new byte[] { 1 });
             _chunkReader.ReadMyInt1();
             value = _chunkReader.ReadMyStringEOF((UInt32)_byteArray.Length);
             Assert.IsTrue(value != null);
-            Assert.AreEqual(0, value.Length);
+            Assert.AreEqual(0, value.Count);
         }
 
         [ExpectedException(typeof(LineDriverException))]
@@ -213,7 +214,7 @@ namespace Almond.LineDriver.Tests
         {
             SetupPacket(new byte[] { 1, 2, 3, 4 });
             _chunkReader.Skip(3);
-            byte[] value = _chunkReader.ReadMyStringEOF(2);
+            ArraySegment<byte> value = _chunkReader.ReadMyStringEOF(2);
             Assert.Fail();
         }
 
@@ -221,7 +222,7 @@ namespace Almond.LineDriver.Tests
         public void BytesToStringTest()
         {
             byte[] byteArray = _encoding.GetBytes("hello");
-            string value = ChunkReader.BytesToString(byteArray, _encoding);
+            string value = ChunkReader.BytesToString(new ArraySegment<byte>(byteArray), _encoding);
             Assert.AreEqual("hello", value);
         }
 
@@ -262,7 +263,7 @@ namespace Almond.LineDriver.Tests
         [TestMethod()]
         public void ChunkReaderTest()
         {
-            ChunkReader test = new ChunkReader(new byte[] { 65, 65, 65, 65 });
+            ChunkReader test = new ChunkReader(new ArraySegment<byte>(new byte[] { 65, 65, 65, 65 }));
             string value = test.ReadTextEOF(4, _encoding);
             Assert.AreEqual("AAAA", value);
         }

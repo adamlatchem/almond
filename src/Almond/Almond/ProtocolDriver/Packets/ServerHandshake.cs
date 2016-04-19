@@ -43,7 +43,7 @@ namespace Almond.ProtocolDriver.Packets
             get; set;
         }
 
-        public byte[] AuthPluginData
+        public List<byte> AuthPluginData
         {
             get; set;
         }
@@ -74,6 +74,14 @@ namespace Almond.ProtocolDriver.Packets
         }
         #endregion
 
+        private void AddPluginData(ArraySegment<byte> data)
+        {
+            if (AuthPluginData == null)
+                AuthPluginData = new List<byte>();
+            for (int i = data.Offset; i < data.Offset + data.Count; i++)
+                AuthPluginData.Add(data.Array[i]);
+        }
+
         #region IServerPacket
         public IServerPacket FromWireFormat(ChunkReader reader, UInt32 payloadLength, ProtocolDriver driver)
         {
@@ -82,8 +90,8 @@ namespace Almond.ProtocolDriver.Packets
             {
                 ServerVersion = reader.ReadTextNull(System.Text.Encoding.UTF8);
                 ConnectionThreadId = reader.ReadMyInt4();
-                AuthPluginData = reader.ReadMyStringNull();
-                Debug.Assert(AuthPluginData.Length == 8);
+                AddPluginData(reader.ReadMyStringNull());
+                Debug.Assert(AuthPluginData.Count == 8);
                 Capabilities = (Capability)reader.ReadMyInt2();
                 if (17 + ServerVersion.Length < payloadLength)
                 {
@@ -99,8 +107,8 @@ namespace Almond.ProtocolDriver.Packets
                     if (Capabilities.HasFlag(Capability.CLIENT_SECURE_CONNECTION))
                     {
                         List<byte> pluginData = new List<byte>(AuthPluginData);
-                        pluginData.AddRange(reader.ReadMyStringFix((UInt32)Math.Max(13, LengthOfAuthPluginData - 8)));
-                        AuthPluginData = pluginData.ToArray();
+                        ArraySegment<byte> data = reader.ReadMyStringFix((UInt32)Math.Max(13, LengthOfAuthPluginData - 8));
+                        AddPluginData(data);
                     }
                     if (Capabilities.HasFlag(Capability.CLIENT_PLUGIN_AUTH))
                         AuthPluginName = reader.ReadTextNull(System.Text.Encoding.UTF8);

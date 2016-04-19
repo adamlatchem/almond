@@ -132,7 +132,7 @@ namespace Almond.SQLDriver.Tests
             Assert.IsNotNull(result);
             result.Read();
             Assert.AreEqual(1, result.RecordsAffected);
-            Assert.AreEqual(1, result.GetInt32(0));
+            Assert.AreEqual("1", result.GetString(0));
         }
     }
 }
