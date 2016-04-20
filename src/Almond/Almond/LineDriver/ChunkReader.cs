@@ -89,7 +89,7 @@ namespace Almond.LineDriver
         /// <returns></returns>
         internal UInt32 ReadSoFar()
         {
-            return _previousChunks + (UInt32)_position;
+            return _previousChunks + (UInt32)(_position - _currentChunk.Offset);
         }
 
         /// <summary>
@@ -145,12 +145,17 @@ namespace Almond.LineDriver
         public ArraySegment<byte> ReadMyStringFix(UInt32 count)
         {
             ArraySegment<byte> result;
-            //if (_currentChunk.Offset + _currentChunk.Count >= _position + count)
-            //{
-            //    result = new ArraySegment<byte>(_currentChunk.Array, _position, (int)count);
-            //    _position += (int)(count);
-            //}
-            //else
+            if (count == 0)
+            {
+                result = new ArraySegment<byte>(_currentChunk.Array, _position, 0);
+            }
+            else if (_currentChunk.Offset + _currentChunk.Count >= _position + count)
+            {
+                AdvanceCurrentChunk();
+                result = new ArraySegment<byte>(_currentChunk.Array, _position, (int)count);
+                _position += (int)(count);
+            }
+            else
             {
                 byte[] array = new byte[count];
                 long position = 0;
