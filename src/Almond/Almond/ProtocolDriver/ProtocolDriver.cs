@@ -102,7 +102,8 @@ namespace Almond.ProtocolDriver
                 Capability.CLIENT_DEPRECATE_EOF |
                 Capability.CLIENT_PLUGIN_AUTH;
 
-            ClientEncoding = System.Text.Encoding.ASCII;
+            byte characterSet = 11; // ascii_general_ci
+            ClientEncoding = Mapping.CharSetToEncoding(characterSet);
 
             IServerPacket packet = ReceivePacket(this);
             ServerHandshake serverHandshakePacket = Expect<ServerHandshake>(packet);
@@ -113,7 +114,7 @@ namespace Almond.ProtocolDriver
 
             HandshakeResponse handshakeResponsePacket = new HandshakeResponse();
             handshakeResponsePacket.MaxPacketSize = connectionStringBuilder.MaxPacketSize;
-            handshakeResponsePacket.CharacterSet = 11; // ascii_general_ci
+            handshakeResponsePacket.CharacterSet = characterSet;
             handshakeResponsePacket.Username = connectionStringBuilder.Username;
             handshakeResponsePacket.MySQLNativePassword(connectionStringBuilder.Password, serverHandshakePacket, ClientEncoding);
             if (!String.IsNullOrEmpty(connectionStringBuilder.Database))
@@ -156,6 +157,8 @@ namespace Almond.ProtocolDriver
             ChunkReader chunkReader = _lineDriver.ChunkReader;
             chunkReader.StartNewPacket();
             UInt32 payloadLength = StripHeader(chunkReader);
+            if (payloadLength >= 0xffffff)
+                throw new NotImplementedException("Unable to read large packets yet");
 
             IServerPacket result = factoryPacket.FromWireFormat(chunkReader, payloadLength, this);
             return result;
@@ -175,6 +178,8 @@ namespace Almond.ProtocolDriver
             chunkWriter.WriteMyInt1(_sequenceNumber);
             packet.ToWireFormat(chunkWriter, this);
             int payloadLength = chunkWriter.WrittenSoFar() - PACKET_HEADER_LENGTH;
+            if (payloadLength >= 0xffffff)
+                throw new NotImplementedException("Not able to send large packets yet");
             chunkWriter.WriteMyInt3((UInt32)payloadLength, 0);
 
             _lineDriver.SendChunk();

@@ -52,10 +52,10 @@ namespace Almond.ProtocolDriver.Packets
         }
         #endregion
 
-        public string StringValue(int i)
+        public string StringValue(int i, Encoding encodingOverride)
         {
             ArraySegment<byte> value = Values[i];
-            return ChunkReader.BytesToString(value, Encoding);
+            return ChunkReader.BytesToString(value, encodingOverride ?? Encoding);
         }
 
         #region IServerPacket

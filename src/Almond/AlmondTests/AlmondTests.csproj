@@ -68,6 +68,7 @@
     <Compile Include="SQLDriver\CommandTests.cs" />
     <Compile Include="SQLDriver\ConnectionStringBuilderTests.cs" />
     <Compile Include="SQLDriver\ConnectionTests.cs" />
+    <Compile Include="ProtocolDriver\MappingTests.cs" />
     <Compile Include="SQLDriver\SQLDriverExceptionTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ProtocolDriver\Packets\OKTests.cs" />

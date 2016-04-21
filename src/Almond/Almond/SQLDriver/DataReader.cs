@@ -19,6 +19,7 @@ using Almond.ProtocolDriver.Packets;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Text;
 
 namespace Almond.SQLDriver
 {
@@ -92,7 +93,12 @@ namespace Almond.SQLDriver
         }
         #endregion
 
-        internal DataReader(ResultSet resultsSetPacket, IDbConnection connection)
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="resultsSetPacket"></param>
+        /// <param name="connection"></param>
+        internal DataReader(ResultSet resultsSetPacket, Connection connection)
         {
             if (resultsSetPacket == null)
                 throw new ProtocolException("ResultSet must not be null");
@@ -102,7 +108,7 @@ namespace Almond.SQLDriver
                 throw new ProtocolException("Connection must be an instance of Connection");
 
             Data = new List<ResultSet>() { resultsSetPacket };
-            Connection = (Connection)connection;
+            Connection = connection;
             Set = 0;
             Row = -1;
         }
@@ -168,7 +174,9 @@ namespace Almond.SQLDriver
 
         private string StringValue(int i)
         {
-            return Data[Set].Rows[Row].StringValue(i);
+            UInt32 charSet = Data[Set].Columns[i].Definition.CharacterSet;
+            Encoding encoding = Mapping.CharSetToEncoding(charSet);
+            return Data[Set].Rows[Row].StringValue(i, encoding);
         }
 
         public bool GetBoolean(int i)
@@ -196,12 +204,17 @@ namespace Almond.SQLDriver
 
         public char GetChar(int i)
         {
-            throw new NotImplementedException();
+            string asString = GetString(i);
+            return asString[0];
         }
 
         public long GetChars(int i, long fieldoffset, char[] buffer, int bufferoffset, int length)
         {
-            throw new NotImplementedException();
+            string asString = GetString(i);
+            int len = Math.Min(length, asString.Length);
+            for (int j = 0; j < len; ++j)
+                buffer[bufferoffset + j] = asString[(int)fieldoffset + j];
+            return len;
         }
 
         public IDataReader GetData(int i)
@@ -256,12 +269,65 @@ namespace Almond.SQLDriver
 
         public object GetValue(int i)
         {
-            throw new NotImplementedException();
+            ColumnType Type = Data[Set].Columns[i].Definition.Type;
+            bool unsigned = Data[Set].Columns[i].Definition.Flags.HasFlag(Flags.UNSIGNED_FLAG);
+
+            switch (Type)
+            {
+                case ColumnType.MYSQL_TYPE_TINY:
+                    return unsigned ? (object)byte.Parse(GetString(i)) : sbyte.Parse(GetString(i));
+                case ColumnType.MYSQL_TYPE_SHORT:
+                    return unsigned ? (object)UInt16.Parse(GetString(i)) : Int16.Parse(GetString(i));
+                case ColumnType.MYSQL_TYPE_INT24:
+                case ColumnType.MYSQL_TYPE_LONG:
+                    return unsigned ? (object)UInt32.Parse(GetString(i)) : Int32.Parse(GetString(i));
+                case ColumnType.MYSQL_TYPE_FLOAT:
+                    return float.Parse(GetString(i));
+                case ColumnType.MYSQL_TYPE_DOUBLE:
+                    return double.Parse(GetString(i));
+                case ColumnType.MYSQL_TYPE_NULL:
+                    return DBNull.Value;
+                case ColumnType.MYSQL_TYPE_LONGLONG:
+                    return unsigned ? (object)ulong.Parse(GetString(i)) : (object)long.Parse(GetString(i));
+                case ColumnType.MYSQL_TYPE_YEAR:
+                    return Int32.Parse(GetString(i));
+                case ColumnType.MYSQL_TYPE_BIT:
+                    return byte.Parse(GetString(i));
+                case ColumnType.MYSQL_TYPE_TIMESTAMP:
+                case ColumnType.MYSQL_TYPE_DATE:
+                case ColumnType.MYSQL_TYPE_TIME:
+                case ColumnType.MYSQL_TYPE_DATETIME:
+                case ColumnType.MYSQL_TYPE_NEWDATE:
+                case ColumnType.MYSQL_TYPE_TIMESTAMP2:
+                case ColumnType.MYSQL_TYPE_DATETIME2:
+                case ColumnType.MYSQL_TYPE_TIME2:
+                    return DateTime.Parse(GetString(i));
+                case ColumnType.MYSQL_TYPE_DECIMAL:
+                case ColumnType.MYSQL_TYPE_NEWDECIMAL:
+                    return decimal.Parse(GetString(i));
+                case ColumnType.MYSQL_TYPE_ENUM:
+                    return UInt64.Parse(GetString(i));
+                case ColumnType.MYSQL_TYPE_VARCHAR:
+                case ColumnType.MYSQL_TYPE_VAR_STRING:
+                case ColumnType.MYSQL_TYPE_STRING:
+                    return GetString(i);
+                case ColumnType.MYSQL_TYPE_SET:
+                case ColumnType.MYSQL_TYPE_TINY_BLOB:
+                case ColumnType.MYSQL_TYPE_MEDIUM_BLOB:
+                case ColumnType.MYSQL_TYPE_LONG_BLOB:
+                case ColumnType.MYSQL_TYPE_BLOB:
+                case ColumnType.MYSQL_TYPE_GEOMETRY:
+                    return RawValue(i);
+            }
+            throw new ProtocolException("Unable to convert column data");
         }
 
         public int GetValues(object[] values)
         {
-            throw new NotImplementedException();
+            int length = Math.Min(CachedSchema.Columns.Count, values.Length);
+            for (int i = 0; i < length; ++i)
+                values[i] = GetValue(i);
+            return length;
         }
 
         public bool IsDBNull(int i)
@@ -310,23 +376,15 @@ namespace Almond.SQLDriver
             result.Columns.Add("IsAliased", typeof(bool));
             result.Columns.Add("IsAutoIncrement", typeof(bool));
             result.Columns.Add("IsColumnSet", typeof(bool));
-            result.Columns.Add("IsExpression", typeof(bool));
             result.Columns.Add("IsHidden", typeof(bool));
-            result.Columns.Add("IsIdentity", typeof(bool));
             result.Columns.Add("IsKey", typeof(bool));
             result.Columns.Add("IsLong", typeof(bool));
-            result.Columns.Add("IsReadOnly", typeof(bool));
             result.Columns.Add("IsRowVersion", typeof(bool));
             result.Columns.Add("IsUnique", typeof(bool));
-            result.Columns.Add("NonVersionedProviderType", typeof(SqlDbType));
             result.Columns.Add("NumericPrecision", typeof(byte));
             result.Columns.Add("NumericScale", typeof(byte));
             result.Columns.Add("ProviderSpecificDataType", typeof(ColumnType));
             result.Columns.Add("ProviderType", typeof(Type));
-            result.Columns.Add("UdtAssemblyQualifiedName", typeof(string));
-            result.Columns.Add("XmlSchemaCollectionDatabase", typeof(string));
-            result.Columns.Add("XmlSchemaCollectionName", typeof(string));
-            result.Columns.Add("XmlSchemaCollectionOwningSchema", typeof(string));
 
             ConnectionStringBuilder csb = new ConnectionStringBuilder();
             csb.ConnectionString = Connection.ConnectionString;
@@ -350,23 +408,15 @@ namespace Almond.SQLDriver
                 row["IsAliased"] = !definition.OrgName.Equals(definition.Name);
                 row["IsAutoIncrement"] = definition.Flags.HasFlag(Flags.AUTO_INCREMENT_FLAG);
                 row["IsColumnSet"] = definition.Flags.HasFlag(Flags.SET_FLAG);
-                row["IsExpression"] = DBNull.Value;
                 row["IsHidden"] = false;
-                row["IsIdentity"] = DBNull.Value;
                 row["IsKey"] = definition.Flags.HasFlag(Flags.PRI_KEY_FLAG);
                 row["IsLong"] = definition.Flags.HasFlag(Flags.BLOB_FLAG);
-                row["IsReadOnly"] = DBNull.Value;
                 row["IsRowVersion"] = false;
                 row["IsUnique"] = definition.Flags.HasFlag(Flags.UNIQUE_KEY_FLAG);
-                row["NonVersionedProviderType"] = definition.SqlDbType;
                 row["NumericPrecision"] = definition.Precision;
                 row["NumericScale"] = definition.Scale;
                 row["ProviderSpecificDataType"] = definition.Type;
                 row["ProviderType"] = definition.CLRType;
-                row["UdtAssemblyQualifiedName"] = DBNull.Value;
-                row["XmlSchemaCollectionDatabase"] = DBNull.Value;
-                row["XmlSchemaCollectionName"] = DBNull.Value;
-                row["XmlSchemaCollectionOwningSchema"] = DBNull.Value;
 
                 result.Rows.Add(row);
                 ordinal++;

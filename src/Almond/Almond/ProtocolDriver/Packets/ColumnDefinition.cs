@@ -162,74 +162,6 @@ namespace Almond.ProtocolDriver.Packets
                 }
             }
 
-            public SqlDbType SqlDbType
-            {
-                get
-                {
-                    switch (Type)
-                    {
-                        case ColumnType.MYSQL_TYPE_DECIMAL:
-                            return SqlDbType.Decimal;
-                        case ColumnType.MYSQL_TYPE_TINY:
-                            return SqlDbType.TinyInt;
-                        case ColumnType.MYSQL_TYPE_SHORT:
-                            return SqlDbType.SmallInt;
-                        case ColumnType.MYSQL_TYPE_LONG:
-                            return SqlDbType.Int;
-                        case ColumnType.MYSQL_TYPE_FLOAT:
-                            return SqlDbType.Udt;
-                        case ColumnType.MYSQL_TYPE_DOUBLE:
-                            return SqlDbType.Float;
-                        case ColumnType.MYSQL_TYPE_NULL:
-                            return SqlDbType.Udt;
-                        case ColumnType.MYSQL_TYPE_TIMESTAMP:
-                            return SqlDbType.Timestamp;
-                        case ColumnType.MYSQL_TYPE_LONGLONG:
-                            return SqlDbType.BigInt;
-                        case ColumnType.MYSQL_TYPE_INT24:
-                            return SqlDbType.Udt;
-                        case ColumnType.MYSQL_TYPE_DATE:
-                            return SqlDbType.Date;
-                        case ColumnType.MYSQL_TYPE_TIME:
-                            return SqlDbType.Time;
-                        case ColumnType.MYSQL_TYPE_DATETIME:
-                            return SqlDbType.DateTime2;
-                        case ColumnType.MYSQL_TYPE_YEAR:
-                            return SqlDbType.Udt;
-                        case ColumnType.MYSQL_TYPE_NEWDATE:
-                            return SqlDbType.Udt;
-                        case ColumnType.MYSQL_TYPE_VARCHAR:
-                            return SqlDbType.VarChar;
-                        case ColumnType.MYSQL_TYPE_BIT:
-                            return SqlDbType.Bit;
-                        case ColumnType.MYSQL_TYPE_TIMESTAMP2:
-                            return SqlDbType.Udt;
-                        case ColumnType.MYSQL_TYPE_DATETIME2:
-                            return SqlDbType.DateTime2;
-                        case ColumnType.MYSQL_TYPE_TIME2:
-                            return SqlDbType.Time;
-                        case ColumnType.MYSQL_TYPE_NEWDECIMAL:
-                            return SqlDbType.Decimal;
-                        case ColumnType.MYSQL_TYPE_ENUM:
-                            return SqlDbType.Udt;
-                        case ColumnType.MYSQL_TYPE_SET:
-                            return SqlDbType.Udt;
-                        case ColumnType.MYSQL_TYPE_TINY_BLOB:
-                        case ColumnType.MYSQL_TYPE_MEDIUM_BLOB:
-                        case ColumnType.MYSQL_TYPE_LONG_BLOB:
-                        case ColumnType.MYSQL_TYPE_BLOB:
-                            return SqlDbType.VarBinary;
-                        case ColumnType.MYSQL_TYPE_VAR_STRING:
-                            return SqlDbType.VarChar;
-                        case ColumnType.MYSQL_TYPE_STRING:
-                            return SqlDbType.NChar;
-                        case ColumnType.MYSQL_TYPE_GEOMETRY:
-                            return SqlDbType.Udt;
-                    }
-                    throw new ProtocolException("Unknown data type " + Type);
-                }
-            }
-
             public Type CLRType
             {
                 get
@@ -238,12 +170,11 @@ namespace Almond.ProtocolDriver.Packets
 
                     switch (Type)
                     {
-                        case ColumnType.MYSQL_TYPE_DECIMAL:
-                            return typeof(decimal);
                         case ColumnType.MYSQL_TYPE_TINY:
                             return unsigned ? typeof(byte) : typeof(sbyte);
                         case ColumnType.MYSQL_TYPE_SHORT:
                             return unsigned ? typeof(UInt16) : typeof(Int16);
+                        case ColumnType.MYSQL_TYPE_INT24:
                         case ColumnType.MYSQL_TYPE_LONG:
                             return unsigned ? typeof(UInt32) : typeof(Int32);
                         case ColumnType.MYSQL_TYPE_FLOAT:
@@ -252,47 +183,35 @@ namespace Almond.ProtocolDriver.Packets
                             return typeof(double);
                         case ColumnType.MYSQL_TYPE_NULL:
                             return typeof(DBNull);
-                        case ColumnType.MYSQL_TYPE_TIMESTAMP:
-                            return typeof(DateTime);
                         case ColumnType.MYSQL_TYPE_LONGLONG:
                             return unsigned ? typeof(ulong) : typeof(long);
-                        case ColumnType.MYSQL_TYPE_INT24:
-                            return unsigned ? typeof(UInt32) : typeof(Int32);
-                        case ColumnType.MYSQL_TYPE_DATE:
-                            return typeof(DateTime);
-                        case ColumnType.MYSQL_TYPE_TIME:
-                            return typeof(DateTime);
-                        case ColumnType.MYSQL_TYPE_DATETIME:
-                            return typeof(DateTime);
                         case ColumnType.MYSQL_TYPE_YEAR:
                             return typeof(Int32);
-                        case ColumnType.MYSQL_TYPE_NEWDATE:
-                            return typeof(DateTime);
-                        case ColumnType.MYSQL_TYPE_VARCHAR:
-                            return typeof(string);
                         case ColumnType.MYSQL_TYPE_BIT:
                             return typeof(byte);
+                        case ColumnType.MYSQL_TYPE_TIMESTAMP:
+                        case ColumnType.MYSQL_TYPE_DATE:
+                        case ColumnType.MYSQL_TYPE_TIME:
+                        case ColumnType.MYSQL_TYPE_DATETIME:
+                        case ColumnType.MYSQL_TYPE_NEWDATE:
                         case ColumnType.MYSQL_TYPE_TIMESTAMP2:
-                            return typeof(DateTime);
                         case ColumnType.MYSQL_TYPE_DATETIME2:
-                            return typeof(DateTime);
                         case ColumnType.MYSQL_TYPE_TIME2:
                             return typeof(DateTime);
+                        case ColumnType.MYSQL_TYPE_DECIMAL:
                         case ColumnType.MYSQL_TYPE_NEWDECIMAL:
                             return typeof(decimal);
                         case ColumnType.MYSQL_TYPE_ENUM:
                             return typeof(UInt64);
+                        case ColumnType.MYSQL_TYPE_VARCHAR:
+                        case ColumnType.MYSQL_TYPE_VAR_STRING:
+                        case ColumnType.MYSQL_TYPE_STRING:
+                            return typeof(string);
                         case ColumnType.MYSQL_TYPE_SET:
-                            return typeof(object);
                         case ColumnType.MYSQL_TYPE_TINY_BLOB:
                         case ColumnType.MYSQL_TYPE_MEDIUM_BLOB:
                         case ColumnType.MYSQL_TYPE_LONG_BLOB:
                         case ColumnType.MYSQL_TYPE_BLOB:
-                            return typeof(object);
-                        case ColumnType.MYSQL_TYPE_VAR_STRING:
-                            return typeof(string);
-                        case ColumnType.MYSQL_TYPE_STRING:
-                            return typeof(string);
                         case ColumnType.MYSQL_TYPE_GEOMETRY:
                             return typeof(object);
                     }

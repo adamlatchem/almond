@@ -141,7 +141,7 @@ namespace Almond.SQLDriver
         internal IDataReader ExecuteReader(Command command, CommandBehavior behavior)
         {
             ResultSet resultset = ProtocolDriver.ExecuteQuery(command.CommandText, behavior);
-            IDataReader result = new DataReader(resultset, command.Connection);
+            IDataReader result = new DataReader(resultset, (Connection)command.Connection);
             return result;
         }
 

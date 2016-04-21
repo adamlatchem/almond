@@ -95,7 +95,7 @@ namespace Almond.IntegrationTests
                     Assert.AreEqual<string>(columnName, reader.GetName(i));
                 }
 
-                string value = (string)reader[0];
+                string value = reader.GetString(0);
 
                 reader.Close();
             }

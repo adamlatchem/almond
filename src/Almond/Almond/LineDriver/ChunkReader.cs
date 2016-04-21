@@ -82,7 +82,8 @@ namespace Almond.LineDriver
         }
 
         /// <summary>
-        /// Returns the total number of bytes read to the current position.
+        /// Returns the total number of bytes read to the current position since the
+        /// last time StartNewPacket was called.
         /// 
         /// internal for unit testing
         /// </summary>
