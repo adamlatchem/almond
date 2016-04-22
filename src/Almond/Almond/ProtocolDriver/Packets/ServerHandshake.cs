@@ -83,41 +83,45 @@ namespace Almond.ProtocolDriver.Packets
         }
 
         #region IServerPacket
-        public IServerPacket FromWireFormat(ChunkReader reader, UInt32 payloadLength, ProtocolDriver driver)
+        public IServerPacket FromWireFormat(ChunkReader chunkReader, UInt32 payloadLength, ProtocolDriver driver)
         {
-            ProtocolVersion = reader.ReadMyInt1();
+            UInt32 headerLength = chunkReader.ReadSoFar();
+
+            ProtocolVersion = chunkReader.ReadMyInt1();
             if (ProtocolVersion == 10)
             {
-                ServerVersion = reader.ReadTextNull(System.Text.Encoding.UTF8);
-                ConnectionThreadId = reader.ReadMyInt4();
-                AddPluginData(reader.ReadMyStringNull());
+                ServerVersion = chunkReader.ReadTextNull(System.Text.Encoding.UTF8);
+                ConnectionThreadId = chunkReader.ReadMyInt4();
+                AddPluginData(chunkReader.ReadMyStringNull());
                 Debug.Assert(AuthPluginData.Count == 8);
-                Capabilities = (Capability)reader.ReadMyInt2();
+                Capabilities = (Capability)chunkReader.ReadMyInt2();
                 if (17 + ServerVersion.Length < payloadLength)
                 {
-                    CharacterSet = reader.ReadMyInt1();
-                    StatusFlags = (Status)reader.ReadMyInt2();
-                    Capabilities = (Capability)((UInt32)Capabilities | (((UInt32)reader.ReadMyInt2()) << 16));
+                    CharacterSet = chunkReader.ReadMyInt1();
+                    StatusFlags = (Status)chunkReader.ReadMyInt2();
+                    Capabilities = (Capability)((UInt32)Capabilities | (((UInt32)chunkReader.ReadMyInt2()) << 16));
                     if (Capabilities.HasFlag(Capability.CLIENT_PLUGIN_AUTH))
-                        LengthOfAuthPluginData = reader.ReadMyInt1();
+                        LengthOfAuthPluginData = chunkReader.ReadMyInt1();
                     else
-                        reader.Skip(1);
-                    reader.Skip(10);
+                        chunkReader.Skip(1);
+                    chunkReader.Skip(10);
 
                     if (Capabilities.HasFlag(Capability.CLIENT_SECURE_CONNECTION))
                     {
                         List<byte> pluginData = new List<byte>(AuthPluginData);
-                        ArraySegment<byte> data = reader.ReadMyStringFix((UInt32)Math.Max(13, LengthOfAuthPluginData - 8));
+                        ArraySegment<byte> data = chunkReader.ReadMyStringFix((UInt32)Math.Max(13, LengthOfAuthPluginData - 8));
                         AddPluginData(data);
                     }
                     if (Capabilities.HasFlag(Capability.CLIENT_PLUGIN_AUTH))
-                        AuthPluginName = reader.ReadTextNull(System.Text.Encoding.UTF8);
+                        AuthPluginName = chunkReader.ReadTextNull(System.Text.Encoding.UTF8);
                 }
             }
             else
             {
                 throw new NotImplementedException();
             }
+
+            Debug.Assert(chunkReader.ReadSoFar() == headerLength + payloadLength);
             return this;
         }
         #endregion

@@ -19,6 +19,7 @@ using Almond.ProtocolDriver.Packets;
 using Almond.SQLDriver;
 using System;
 using System.Data;
+using System.Diagnostics;
 using System.Text;
 
 namespace Almond.ProtocolDriver
@@ -33,7 +34,7 @@ namespace Almond.ProtocolDriver
         /// The length of the packet header - this is not truly constant as if compression is
         /// enabled the size of the header increases.
         /// </summary>
-        public static int PACKET_HEADER_LENGTH = 4;
+        private static int PACKET_HEADER_LENGTH = 4;
         #endregion
 
         #region Members
@@ -145,6 +146,8 @@ namespace Almond.ProtocolDriver
                         sequenceNumber));
             _sequenceNumber++;
 
+            Debug.WriteLine("> Recv : seq {1} len {0}", payloadLength, sequenceNumber);
+
             return payloadLength;
         }
 
@@ -161,6 +164,9 @@ namespace Almond.ProtocolDriver
                 throw new NotImplementedException("Unable to read large packets yet");
 
             IServerPacket result = factoryPacket.FromWireFormat(chunkReader, payloadLength, this);
+
+            Debug.WriteLine(">>     : {0}", result.GetType().Name, null);
+
             return result;
         }
 
@@ -181,6 +187,9 @@ namespace Almond.ProtocolDriver
             if (payloadLength >= 0xffffff)
                 throw new NotImplementedException("Not able to send large packets yet");
             chunkWriter.WriteMyInt3((UInt32)payloadLength, 0);
+
+            Debug.WriteLine("< Send : seq {1} len {0}", payloadLength, _sequenceNumber);
+            Debug.WriteLine("<<     : {0}", packet.GetType().Name, null);
 
             _lineDriver.SendChunk();
             _sequenceNumber++;
@@ -220,33 +229,6 @@ namespace Almond.ProtocolDriver
             return result;
         }
         #endregion
-
-        /// <summary>
-        /// Factory to handle the reply for COM_QUERY packet.
-        /// </summary>
-        /// <param name="reader"></param>
-        /// <param name="payloadLength"></param>
-        /// <returns></returns>
-        public IServerPacket CreateResultSet(ChunkReader reader, UInt32 payloadLength)
-        {
-            IServerPacket result = null;
-            byte possiblePacketType = reader.PeekByte();
-            switch (possiblePacketType)
-            {
-                case 0:
-                    result = new OK();
-                    break;
-                case 0xFF:
-                    result = new ERR();
-                    break;
-                default:
-                    result = new ResultSet();
-                    break;
-            }
-
-            result.FromWireFormat(reader, payloadLength, this);
-            return result;
-        }
 
         /// <summary>
         /// Execute the given query text on the server and return the result.

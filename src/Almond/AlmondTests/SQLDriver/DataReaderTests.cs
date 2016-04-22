@@ -69,7 +69,6 @@ namespace Almond.SQLDriver.Tests
         [TestMethod()]
         public void CloseTest()
         {
-            throw new NotImplementedException();
             IDataReader reader = _command.ExecuteReader();
             reader.Close();
             Assert.IsTrue(reader.IsClosed == true);

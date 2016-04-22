@@ -16,6 +16,7 @@
 #endregion
 using Almond.LineDriver;
 using System;
+using System.Diagnostics;
 using System.Text;
 
 namespace Almond.ProtocolDriver.Packets
@@ -54,11 +55,15 @@ namespace Almond.ProtocolDriver.Packets
         #endregion
 
         #region IServerPacket
-        public IServerPacket FromWireFormat(ChunkReader reader, UInt32 payloadLength, ProtocolDriver driver)
+        public IServerPacket FromWireFormat(ChunkReader chunkReader, UInt32 payloadLength, ProtocolDriver driver)
         {
+            UInt32 headerLength = chunkReader.ReadSoFar();
+
             PayloadLength = payloadLength;
             ClientEncoding = driver.ClientEncoding;
-            Payload = reader.ReadMyStringFix(payloadLength);
+            Payload = chunkReader.ReadMyStringFix(payloadLength);
+
+            Debug.Assert(chunkReader.ReadSoFar() == headerLength + payloadLength);
             return this;
         }
         #endregion

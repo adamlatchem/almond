@@ -36,12 +36,16 @@ namespace Almond.ProtocolDriver.Packets
         #endregion
 
         #region IServerPacket
-        public IServerPacket FromWireFormat(ChunkReader Reader, UInt32 payloadLength, ProtocolDriver driver)
+        public IServerPacket FromWireFormat(ChunkReader chunkReader, UInt32 payloadLength, ProtocolDriver driver)
         {
-            ArraySegment<byte> payload = Reader.ReadMyStringFix(payloadLength);
+            UInt32 headerLength = chunkReader.ReadSoFar();
+
+            ArraySegment<byte> payload = chunkReader.ReadMyStringFix(payloadLength);
 
             _definition = new Lazy<ColumnDefinitionReader>(
                 () => new ColumnDefinitionReader(payload, driver.ClientEncoding, false));
+
+            Debug.Assert(chunkReader.ReadSoFar() == headerLength + payloadLength);
             return this;
         }
         #endregion

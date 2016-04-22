@@ -78,6 +78,11 @@ namespace Almond.LineDriver
         {
             if (_position >= _currentChunk.Offset + _currentChunk.Count)
                 _currentChunk = new ArraySegment<byte>(new byte[0]);
+            else
+            {
+                int newCount = _currentChunk.Count - (_position - _currentChunk.Offset);
+                _currentChunk = new ArraySegment<byte>(_currentChunk.Array, _position, newCount);
+            }
             _previousChunks = 0;
         }
 

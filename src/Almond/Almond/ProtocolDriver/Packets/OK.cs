@@ -61,34 +61,38 @@ namespace Almond.ProtocolDriver.Packets
         #endregion
 
         #region IServerPacket
-        public IServerPacket FromWireFormat(ChunkReader reader, UInt32 payloadLength, ProtocolDriver driver)
+        public IServerPacket FromWireFormat(ChunkReader chunkReader, UInt32 payloadLength, ProtocolDriver driver)
         {
-            Header = reader.ReadMyInt1();
+            UInt32 headerLength = chunkReader.ReadSoFar();
+
+            Header = chunkReader.ReadMyInt1();
             Debug.Assert(Header == 0);
-            AffectedRows = reader.ReadMyIntLenEnc();
-            LastInsertId = reader.ReadMyIntLenEnc();
+            AffectedRows = chunkReader.ReadMyIntLenEnc();
+            LastInsertId = chunkReader.ReadMyIntLenEnc();
 
             if (driver.ClientCapability.HasFlag(Capability.CLIENT_PROTOCOL_41))
             {
-                StatusFlags = (Status)reader.ReadMyInt2();
-                NumberOfWarnings = reader.ReadMyInt2();
+                StatusFlags = (Status)chunkReader.ReadMyInt2();
+                NumberOfWarnings = chunkReader.ReadMyInt2();
             }
             else if (driver.ClientCapability.HasFlag(Capability.CLIENT_TRANSACTIONS))
             {
-                StatusFlags = (Status)reader.ReadMyInt2();
+                StatusFlags = (Status)chunkReader.ReadMyInt2();
             }
 
             if (driver.ClientCapability.HasFlag(Capability.CLIENT_SESSION_TRACK))
             {
-                Info = reader.ReadTextLenEnc(driver.ClientEncoding);
+                Info = chunkReader.ReadTextLenEnc(driver.ClientEncoding);
                 if (StatusFlags.HasFlag(Status.SERVER_SESSION_STATE_CHANGED))
                 {
-                    SessionStateChanges = reader.ReadTextLenEnc(driver.ClientEncoding);
+                    SessionStateChanges = chunkReader.ReadTextLenEnc(driver.ClientEncoding);
                 }
             }
             else {
-                Info = reader.ReadTextEOF(payloadLength + (UInt32)ProtocolDriver.PACKET_HEADER_LENGTH, driver.ClientEncoding);
+                Info = chunkReader.ReadTextEOF(payloadLength + headerLength, driver.ClientEncoding);
             }
+
+            Debug.Assert(chunkReader.ReadSoFar() ==  headerLength + payloadLength);
             return this;
         }
         #endregion

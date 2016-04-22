@@ -71,17 +71,22 @@ namespace Almond.ProtocolDriver.Packets
         #endregion
 
         #region IServerPacket
-        public IServerPacket FromWireFormat(ChunkReader reader, UInt32 payloadLength, ProtocolDriver driver)
+        public IServerPacket FromWireFormat(ChunkReader chunkReader, UInt32 payloadLength, ProtocolDriver driver)
         {
-            byte header = reader.PeekByte();
+            UInt32 headerLength = chunkReader.ReadSoFar();
+
+            byte header = chunkReader.PeekByte();
             if (header == 0)
-                return (new OK()).FromWireFormat(reader, payloadLength, driver);
+                return (new OK()).FromWireFormat(chunkReader, payloadLength, driver);
             else if (header == 0xFF)
-                return (new ERR()).FromWireFormat(reader, payloadLength, driver);
+                return (new ERR()).FromWireFormat(chunkReader, payloadLength, driver);
             else if (header == 0xFB)
                 throw new NotImplementedException("INFILE Packet not implemented");
 
-            UInt64 columns = reader.ReadMyIntLenEnc();
+            UInt64 columns = chunkReader.ReadMyIntLenEnc();
+
+            Debug.Assert(chunkReader.ReadSoFar() == headerLength + payloadLength);
+
             Columns = new List<ColumnDefinition>();
             for (UInt64 i = 0; i < columns; i++)
             {
@@ -109,14 +114,14 @@ namespace Almond.ProtocolDriver.Packets
                     OK ok = (OK)row;
                     if (ok.StatusFlags.HasFlag(Status.SERVER_MORE_RESULTS_EXISTS))
                         throw new NotImplementedException("Multi-resultset not implemented");
-                    return this;
+                    break;
                 }
                 else if (row is EOF)
                 {
                     EOF eof = (EOF)row;
                     if (eof.StatusFlags.HasFlag(Status.SERVER_MORE_RESULTS_EXISTS))
                         throw new NotImplementedException("Multi-resultset not implemented");
-                    return this;
+                    break;
                 }
                 else if (row is ERR)
                 {
@@ -127,6 +132,8 @@ namespace Almond.ProtocolDriver.Packets
                 Debug.Assert(row == rowPacket);
                 Rows.Add(rowPacket);
             }
+
+            return this;
         }
         #endregion
     }

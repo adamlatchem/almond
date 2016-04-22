@@ -47,8 +47,27 @@ namespace Almond.LineDriver.Tests
         public void StartNewPacketTest()
         {
             _chunkReader.StartNewPacket();
-            UInt32 zero = _chunkReader.ReadSoFar();
-            Assert.AreEqual((UInt32)0, zero);
+            UInt32 soFar = _chunkReader.ReadSoFar();
+            Assert.AreEqual((UInt32)0, soFar);
+
+            SetupPacket(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 });
+            soFar = _chunkReader.ReadSoFar();
+            Assert.AreEqual((UInt32)0, soFar);
+
+            _chunkReader.ReadMyStringFix(5);
+            soFar = _chunkReader.ReadSoFar();
+            Assert.AreEqual((UInt32)5, soFar);
+
+            _chunkReader.StartNewPacket();
+
+            soFar = _chunkReader.ReadSoFar();
+            Assert.AreEqual((UInt32)0, soFar);
+
+            _chunkReader.ReadMyStringFix(5);
+            soFar = _chunkReader.ReadSoFar();
+            Assert.AreEqual((UInt32)5, soFar);
+
+            _byteArray = null;
         }
 
         private void SetupPacket(byte[] byteArray)

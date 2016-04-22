@@ -67,7 +67,9 @@ namespace Almond.ProtocolDriver.Packets
                 return (new OK()).FromWireFormat(reader, payloadLength, driver);
             else if (header == 0xFF)
                 return (new ERR()).FromWireFormat(reader, payloadLength, driver);
-            else if (header == 0xFE)
+            else if (header == 0xFE && 
+                (payloadLength == 7 || 
+                (payloadLength == 5 && !driver.ClientCapability.HasFlag(Capability.CLIENT_PROTOCOL_41))))
                 return (new EOF()).FromWireFormat(reader, payloadLength, driver);
 
             ArraySegment<byte> payload = reader.ReadMyStringFix(payloadLength);

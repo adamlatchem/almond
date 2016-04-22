@@ -41,19 +41,23 @@ namespace Almond.ProtocolDriver.Packets
         #endregion
 
         #region IServerPacket
-        public IServerPacket FromWireFormat(ChunkReader reader, UInt32 payloadLength, ProtocolDriver driver)
+        public IServerPacket FromWireFormat(ChunkReader chunkReader, UInt32 payloadLength, ProtocolDriver driver)
         {
-            byte header = reader.ReadMyInt1();
-            ErrorCode = reader.ReadMyInt2();
+            UInt32 headerLength = chunkReader.ReadSoFar();
+
+            byte header = chunkReader.ReadMyInt1();
+            ErrorCode = chunkReader.ReadMyInt2();
             UInt32 stringLength = payloadLength - 3;
-            if (driver.ClientCapability.HasFlag(Capability.CLIENT_PROTOCOL_41) && reader.PeekByte() == '#')
+            if (driver.ClientCapability.HasFlag(Capability.CLIENT_PROTOCOL_41) && chunkReader.PeekByte() == '#')
             {
-                byte hashMark = reader.ReadMyInt1();
+                byte hashMark = chunkReader.ReadMyInt1();
                 Debug.Assert(hashMark == '#');
-                SQLState = reader.ReadTextFix(5, driver.ClientEncoding);
+                SQLState = chunkReader.ReadTextFix(5, driver.ClientEncoding);
                 stringLength -= 6;
             }
-            ErrorMessage = reader.ReadTextFix(stringLength, driver.ClientEncoding);
+            ErrorMessage = chunkReader.ReadTextFix(stringLength, driver.ClientEncoding);
+
+            Debug.Assert(chunkReader.ReadSoFar() == headerLength + payloadLength);
             return this;
         }
         #endregion

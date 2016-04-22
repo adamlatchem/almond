@@ -35,16 +35,27 @@ namespace Almond.ProtocolDriver.Packets
         #endregion
 
         #region IServerPacket
-        public IServerPacket FromWireFormat(ChunkReader reader, UInt32 payloadLength, ProtocolDriver driver)
+        public IServerPacket FromWireFormat(ChunkReader chunkReader, UInt32 payloadLength, ProtocolDriver driver)
         {
-            byte header = reader.ReadMyInt1();
+            UInt32 headerLength = chunkReader.ReadSoFar();
+
+            byte header = chunkReader.ReadMyInt1();
             Debug.Assert(header == 0xFE);
 
             if (driver.ClientCapability.HasFlag(Capability.CLIENT_PROTOCOL_41))
             {
-                NumberOfWarnings = reader.ReadMyInt2();
-                StatusFlags = (Status)reader.ReadMyInt2();
+                NumberOfWarnings = chunkReader.ReadMyInt2();
+                StatusFlags = (Status)chunkReader.ReadMyInt2();
+                UInt32 filler = chunkReader.ReadMyInt2();
+
+                Debug.Assert(filler == 0);
             }
+            else
+            {
+                throw new NotImplementedException("Old style EOF not supported");
+            }
+
+            Debug.Assert(chunkReader.ReadSoFar() == headerLength + payloadLength);
             return this;
         }
         #endregion

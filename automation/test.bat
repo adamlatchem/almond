@@ -11,7 +11,7 @@ SET WIKI="%~dp0..\wiki"
 SET AlmondTests="%~dp0..\src\Almond\AlmondTests\bin\Debug\AlmondTests.dll"
 SET AlmondIntegrationTests="%~dp0..\src\Almond\AlmondIntegrationTests\bin\Debug\AlmondIntegrationTests.dll"
 
-%VSTEST% %AlmondTests% %AlmondIntegrationTests% /logger:md
+%VSTEST% /Parallel %AlmondTests% %AlmondIntegrationTests% /logger:md
 MOVE Tests.md %WIKI%\Tests.md
 %GIT% add %WIKI%\Tests.md
 %GIT% status -s
