@@ -63,7 +63,11 @@ namespace Almond.ProtocolDriver.Tests
         public void ExecuteQueryTest()
         {
             ResultSet result = _protocolDriver.ExecuteQuery("SELECT 1", CommandBehavior.Default);
-            throw new NotImplementedException();
+            Assert.IsNotNull(result);
+            Assert.AreEqual(1, result.Rows.Count);
+            Assert.AreEqual(1, result.Rows[0].Values.Count);
+            Assert.AreEqual(1, result.Rows[0].Values[0].Count);
+            Assert.AreEqual(1, result.Rows[0].Values[0].Array[0]);
         }
 
         [TestMethod]

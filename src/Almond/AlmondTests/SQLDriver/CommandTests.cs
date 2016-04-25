@@ -16,6 +16,7 @@
 #endregion
 using Almond.SQLDriver;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Data;
 
 namespace Almond.SQLDriver.Tests
@@ -133,8 +134,9 @@ namespace Almond.SQLDriver.Tests
         [TestMethod]
         public void ExecuteNonQueryTest()
         {
+            _command.CommandText = "SHOW CREATE TABLE mysql.help_topic;";
             int result = _command.ExecuteNonQuery();
-            Assert.AreEqual(-42, result);
+            Assert.AreEqual(1, result);
         }
 
         [TestMethod]
@@ -162,8 +164,17 @@ namespace Almond.SQLDriver.Tests
         [TestMethod]
         public void ExecuteScalarTest()
         {
+            _command.CommandText = "SELECT 'get this'";
             object result = _command.ExecuteScalar();
-            Assert.AreEqual(result, "fix this");
+            Assert.AreEqual("get this", result);
+
+            _command.CommandText = "SELECT 4";
+            result = _command.ExecuteScalar();
+            Assert.AreEqual(4, (Int64)result);
+
+            _command.CommandText = "SELECT * FROM mysql.help_topic LIMIT 20";
+            result = _command.ExecuteScalar();
+            Assert.AreEqual(20, result);
         }
 
         [TestMethod]

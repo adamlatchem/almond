@@ -18,6 +18,44 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Data;
 
+/// <summary>
+/*
+CREATE TABLE `typeTest` (
+  `intTest` int(11) DEFAULT NULL,
+  `varcharTest` varchar(45) DEFAULT NULL,
+  `decimalTest` decimal(10,8) DEFAULT NULL,
+  `datetimeTest` datetime DEFAULT NULL,
+  `blobTest` blob,
+  `floatTest` float DEFAULT NULL,
+  `doubleTest` double DEFAULT NULL,
+  `bitTest` bit(1) DEFAULT NULL,
+  `byteTest` varchar(45) DEFAULT NULL,
+  `guidTest` varchar(36) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf16;
+
+INSERT INTO `test`.`typeTest` (
+  `intTest`,
+  `varcharTest`,
+  `decimalTest`,
+  `datetimeTest`,
+  `floatTest`,
+  `doubleTest`,
+  `bitTest`,
+  `byteTest`,
+  `guidtest`
+) VALUES (
+  1,
+  'test',
+  1.234567,
+  '1976-05-04 09:00',
+  64.125,
+  128.256,
+  true,
+  42,
+  '9f270d4b-dc68-47db-ace6-554b3bbf2333'
+)
+*/
+/// </summary>
 namespace Almond.SQLDriver.Tests
 {
     [TestClass()]
@@ -45,8 +83,9 @@ namespace Almond.SQLDriver.Tests
             _connection = new Connection("hostname=localhost;username=test;password=test");
             _connection.Open();
             _command = _connection.CreateCommand();
-            _command.CommandText = "SELECT * FROM information_schema.FILES";
+            _command.CommandText = "SELECT * FROM test.typeTest";
             _datareader = _command.ExecuteReader();
+            _datareader.Read();
         }
 
         [ClassCleanup]
@@ -63,7 +102,10 @@ namespace Almond.SQLDriver.Tests
         [TestMethod()]
         public void PropertiesTest()
         {
-            throw new NotImplementedException();
+            Assert.AreEqual(0, _datareader.Depth);
+            Assert.AreEqual(10, _datareader.FieldCount);
+            Assert.AreEqual(false, _datareader.IsClosed);
+            Assert.AreEqual(1, _datareader.RecordsAffected);
         }
 
         [TestMethod()]
@@ -77,157 +119,227 @@ namespace Almond.SQLDriver.Tests
         [TestMethod()]
         public void GetBooleanTest()
         {
-            throw new NotImplementedException();
+            int boolOrdinal = _datareader.GetOrdinal("bitTest");
+            bool testValue = _datareader.GetBoolean(boolOrdinal);
+            Assert.AreEqual(true, testValue);
         }
 
         [TestMethod()]
         public void GetByteTest()
         {
-            throw new NotImplementedException();
+            int byteOrdinal = _datareader.GetOrdinal("byteTest");
+            byte testValue = _datareader.GetByte(byteOrdinal);
+            Assert.AreEqual(42, testValue);
         }
 
         [TestMethod()]
         public void GetBytesTest()
         {
-            throw new NotImplementedException();
+            int varcharOrdinal = _datareader.GetOrdinal("varcharTest");
+            byte[] buffer = new byte[100];
+            long result = _datareader.GetBytes(varcharOrdinal, 0, buffer, 0, 100);
+            Assert.AreEqual(4, result);
+            Assert.AreEqual((byte)'t', buffer[0]);
+            Assert.AreEqual((byte)'e', buffer[1]);
+            Assert.AreEqual((byte)'s', buffer[2]);
+            Assert.AreEqual((byte)'t', buffer[3]);
         }
 
         [TestMethod()]
         public void GetCharTest()
         {
-            throw new NotImplementedException();
+            int varcharOrdinal = _datareader.GetOrdinal("varcharTest");
+            char testValue = _datareader.GetChar(varcharOrdinal);
+            Assert.AreEqual('t', testValue);
         }
 
         [TestMethod()]
         public void GetCharsTest()
         {
-            throw new NotImplementedException();
+            int varcharOrdinal = _datareader.GetOrdinal("varcharTest");
+            char[] buffer = new char[100];
+            long result = _datareader.GetChars(varcharOrdinal, 0, buffer, 0, 100);
+            Assert.AreEqual(4, result);
+            Assert.AreEqual('t', buffer[0]);
+            Assert.AreEqual('e', buffer[1]);
+            Assert.AreEqual('s', buffer[2]);
+            Assert.AreEqual('t', buffer[3]);
         }
 
+        [ExpectedException(typeof(NotImplementedException))]
         [TestMethod()]
         public void GetDataTest()
         {
-            throw new NotImplementedException();
+            _datareader.GetData(0);
         }
 
         [TestMethod()]
         public void GetDateTimeTest()
         {
-            throw new NotImplementedException();
+            int datetimeOrdinal = _datareader.GetOrdinal("datetimeTest");
+            DateTime testValue = _datareader.GetDateTime(datetimeOrdinal);
+            Assert.AreEqual(new DateTime(1976, 5, 4, 9, 0, 0), testValue);
         }
 
         [TestMethod()]
         public void GetDecimalTest()
         {
-            throw new NotImplementedException();
+            int decimalOrdinal = _datareader.GetOrdinal("decimalTest");
+            decimal testValue = _datareader.GetDecimal(decimalOrdinal);
+            Assert.AreEqual(new Decimal(1.234567), testValue);
         }
 
         [TestMethod()]
         public void GetDoubleTest()
         {
-            throw new NotImplementedException();
+            int doubleOrdinal = _datareader.GetOrdinal("doubleTest");
+            double testValue = _datareader.GetDouble(doubleOrdinal);
+            Assert.AreEqual(128.256, testValue);
         }
 
         [TestMethod()]
         public void GetFloatTest()
         {
-            throw new NotImplementedException();
+            int floatOrdinal = _datareader.GetOrdinal("floatTest");
+            float testValue = _datareader.GetFloat(floatOrdinal);
+            Assert.AreEqual(64.125, testValue);
         }
 
         [TestMethod()]
         public void GetGuidTest()
         {
-            throw new NotImplementedException();
+            int guidOrdinal = _datareader.GetOrdinal("guidTest");
+            Guid testValue = _datareader.GetGuid(guidOrdinal);
+            Guid g = new Guid("9f270d4b-dc68-47db-ace6-554b3bbf2333");
+            Assert.AreEqual(g, testValue);
         }
 
         [TestMethod()]
         public void GetInt16Test()
         {
-            throw new NotImplementedException();
+            int intOrdinal = _datareader.GetOrdinal("intTest");
+            Int16 testValue = _datareader.GetInt16(intOrdinal);
+            Assert.AreEqual(1, testValue);
         }
 
         [TestMethod()]
         public void GetInt32Test()
         {
-            throw new NotImplementedException();
+            int intOrdinal = _datareader.GetOrdinal("intTest");
+            Int32 testValue = _datareader.GetInt32(intOrdinal);
+            Assert.AreEqual(1, testValue);
         }
 
         [TestMethod()]
         public void GetInt64Test()
         {
-            throw new NotImplementedException();
+            int intOrdinal = _datareader.GetOrdinal("intTest");
+            Int64 testValue = _datareader.GetInt64(intOrdinal);
+            Assert.AreEqual(1, testValue);
         }
 
         [TestMethod()]
         public void GetStringTest()
         {
-            throw new NotImplementedException();
+            int stringOrdinal = _datareader.GetOrdinal("varcharTest");
+            string testValue = _datareader.GetString(stringOrdinal);
+            Assert.AreEqual("test", testValue);
         }
 
         [TestMethod()]
         public void GetValueTest()
         {
-            throw new NotImplementedException();
+            object value = _datareader.GetValue(2);
+            Assert.AreEqual(new decimal(1.234567), value);
         }
 
         [TestMethod()]
         public void GetValuesTest()
         {
-            throw new NotImplementedException();
+            object[] buffer = new object[100];
+            int numberOfValues = _datareader.GetValues(buffer);
+            Assert.AreEqual(10, numberOfValues);
         }
 
         [TestMethod()]
         public void IsDBNullTest()
         {
-            throw new NotImplementedException();
+            int blobOrdinal = _datareader.GetOrdinal("blobTest");
+            bool testValue = _datareader.IsDBNull(blobOrdinal);
+            Assert.IsTrue(testValue);
+
+            string stringValue = _datareader.GetString(blobOrdinal);
+            Assert.IsNull(stringValue);
         }
 
         [TestMethod()]
         public void GetDataTypeNameTest()
         {
-            throw new NotImplementedException();
+            string typeName = _datareader.GetDataTypeName(0);
+            Assert.AreEqual("MYSQL_TYPE_LONG", typeName);
         }
 
         [TestMethod()]
         public void GetFieldTypeTest()
         {
-            throw new NotImplementedException();
+            Type type = _datareader.GetFieldType(0);
+            Assert.AreEqual(typeof(int), type);
         }
 
         [TestMethod()]
         public void GetNameTest()
         {
-            throw new NotImplementedException();
+            string testName = _datareader.GetName(0);
+            Assert.AreEqual("intTest", testName);
         }
 
         [TestMethod()]
         public void GetOrdinalTest()
         {
-            throw new NotImplementedException();
+            int testOrdinal = _datareader.GetOrdinal("varcharTest");
+            Assert.AreEqual(1, testOrdinal);
         }
 
         [TestMethod()]
         public void GetSchemaTableTest()
         {
-            throw new NotImplementedException();
+            DataTable schema = _datareader.GetSchemaTable();
+            Assert.AreEqual(10, schema.Rows.Count);
         }
 
         [TestMethod()]
         public void NextResultTest()
         {
-            throw new NotImplementedException();
+            IDataReader test = _command.ExecuteReader();
+            int count = 0;
+            while (true)
+            {
+                while (test.Read())
+                    count++;
+                bool ok = test.NextResult();
+                if (!ok)
+                    break;
+            }
+            Assert.AreEqual(1, count);
+            test.Dispose();
         }
 
         [TestMethod()]
         public void ReadTest()
         {
-            throw new NotImplementedException();
+            IDataReader test = _command.ExecuteReader();
+            int count = 0;
+            while (test.Read())
+                count++;
+            Assert.AreEqual(1, count);
+            test.Dispose();
         }
 
         [TestMethod()]
         public void DisposeTest()
         {
-            throw new NotImplementedException();
+            IDataReader test = _command.ExecuteReader();
+            test.Dispose();
         }
     }
 }

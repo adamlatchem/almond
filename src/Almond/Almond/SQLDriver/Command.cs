@@ -129,7 +129,10 @@ namespace Almond.SQLDriver
 
         public int ExecuteNonQuery()
         {
-            throw new NotImplementedException();
+            using (IDataReader result = ExecuteReader())
+            {
+                return result.RecordsAffected;
+            }
         }
 
         public IDataReader ExecuteReader()
@@ -144,7 +147,15 @@ namespace Almond.SQLDriver
 
         public object ExecuteScalar()
         {
-            throw new NotImplementedException();
+            using (IDataReader result = ExecuteReader())
+            {
+                if (result.RecordsAffected == 1)
+                {
+                    result.Read();
+                    return result.GetValue(0);
+                }
+                return result.RecordsAffected;
+            }
         }
 
         public void Prepare()

@@ -50,11 +50,21 @@ namespace Almond.ProtocolDriver.Packets
         {
             get; set;
         }
+
+        internal static readonly ArraySegment<byte> NULL = new ArraySegment<byte>(new byte[0], 0, 0);
         #endregion
 
+        /// <summary>
+        /// Decode given column to a string value or null
+        /// </summary>
+        /// <param name="i"></param>
+        /// <param name="encodingOverride"></param>
+        /// <returns></returns>
         public string StringValue(int i, Encoding encodingOverride)
         {
             ArraySegment<byte> value = Values[i];
+            if (value == NULL)
+                return null;
             return ChunkReader.BytesToString(value, encodingOverride ?? Encoding);
         }
 
@@ -67,8 +77,8 @@ namespace Almond.ProtocolDriver.Packets
                 return (new OK()).FromWireFormat(reader, payloadLength, driver);
             else if (header == 0xFF)
                 return (new ERR()).FromWireFormat(reader, payloadLength, driver);
-            else if (header == 0xFE && 
-                (payloadLength == 7 || 
+            else if (header == 0xFE &&
+                (payloadLength == 7 ||
                 (payloadLength == 5 && !driver.ClientCapability.HasFlag(Capability.CLIENT_PROTOCOL_41))))
                 return (new EOF()).FromWireFormat(reader, payloadLength, driver);
 
@@ -112,9 +122,20 @@ namespace Almond.ProtocolDriver.Packets
                     return;
 
                 Values = new List<ArraySegment<byte>>();
+                ArraySegment<byte> data;
                 while (reader.ReadSoFar() != rowData.Count)
                 {
-                    ArraySegment<byte> data = reader.ReadMyStringLenEnc();
+                    byte peek = reader.PeekByte();
+                    if (peek == 0xFB)
+                    {
+                        data = NULL;
+                        reader.ReadByte();
+                    }
+                    else
+                    {
+                        data = reader.ReadMyStringLenEnc();
+                    }
+
                     Values.Add(data);
                 }
             }

@@ -172,6 +172,11 @@ namespace Almond.SQLDriver
             return Data[Set].Rows[Row].Values[i];
         }
 
+        /// <summary>
+        /// Return a string value for the column or null.
+        /// </summary>
+        /// <param name="i"></param>
+        /// <returns></returns>
         private string StringValue(int i)
         {
             UInt32 charSet = Data[Set].Columns[i].Definition.CharacterSet;
@@ -181,13 +186,16 @@ namespace Almond.SQLDriver
 
         public bool GetBoolean(int i)
         {
-            return Boolean.Parse(StringValue(i));
+            ArraySegment<byte> value = RawValue(i);
+            if (value.Count == 1)
+                return value.Array[value.Offset] != 0;
+            throw new ProtocolException("Unable to interpret value as Boolean");
         }
 
         public byte GetByte(int i)
         {
-            ArraySegment<byte> value = RawValue(i);
-            return value.Array[value.Offset];
+            string value = StringValue(i);
+            return byte.Parse(value);
         }
 
         public long GetBytes(int i, long fieldOffset, byte[] buffer, int bufferoffset, int length)
@@ -272,6 +280,9 @@ namespace Almond.SQLDriver
             ColumnType Type = Data[Set].Columns[i].Definition.Type;
             bool unsigned = Data[Set].Columns[i].Definition.Flags.HasFlag(Flags.UNSIGNED_FLAG);
 
+            if (RawValue(i) == ProtocolDriver.Packets.Row.NULL)
+                return DBNull.Value;
+
             switch (Type)
             {
                 case ColumnType.MYSQL_TYPE_TINY:
@@ -292,7 +303,7 @@ namespace Almond.SQLDriver
                 case ColumnType.MYSQL_TYPE_YEAR:
                     return Int32.Parse(GetString(i));
                 case ColumnType.MYSQL_TYPE_BIT:
-                    return byte.Parse(GetString(i));
+                    return GetString(i)[0] != '\u0000';
                 case ColumnType.MYSQL_TYPE_TIMESTAMP:
                 case ColumnType.MYSQL_TYPE_DATE:
                 case ColumnType.MYSQL_TYPE_TIME:
@@ -324,7 +335,7 @@ namespace Almond.SQLDriver
 
         public int GetValues(object[] values)
         {
-            int length = Math.Min(CachedSchema.Columns.Count, values.Length);
+            int length = Math.Min(CachedSchema.Rows.Count, values.Length);
             for (int i = 0; i < length; ++i)
                 values[i] = GetValue(i);
             return length;
@@ -429,7 +440,7 @@ namespace Almond.SQLDriver
             if (Set < Data.Count)
             {
                 Set++;
-                return true;
+                return Set < Data.Count;
             }
             return false;
         }
@@ -439,7 +450,7 @@ namespace Almond.SQLDriver
             if (Row < Data[Set].Rows.Count)
             {
                 Row++;
-                return true;
+                return Row < Data[Set].Rows.Count;
             }
             return false;
         }
