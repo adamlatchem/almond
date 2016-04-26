@@ -15,16 +15,17 @@
 //
 #endregion
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 
-namespace Almond.ProtocolDriver.Tests
+namespace Almond.ProtocolDriver.Packets.Tests
 {
     [TestClass()]
-    public class MappingTests
+    public class COM_INIT_DBTests
     {
         [TestMethod()]
-        public void CharSetToEncodingTest()
+        public void TODO()
         {
-            Assert.AreEqual(System.Text.Encoding.Default, Mapping.CharSetToEncoding(63));
+            throw new NotImplementedException();
         }
     }
 }

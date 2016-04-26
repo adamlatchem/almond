@@ -30,6 +30,11 @@ namespace Almond.SQLDriver
     public class DataReader : IDataReader
     {
         #region Members
+        private CommandBehavior Behaviour
+        {
+            get; set;
+        }
+
         private IList<ResultSet> _data;
         private IList<ResultSet> Data
         {
@@ -98,15 +103,19 @@ namespace Almond.SQLDriver
         /// </summary>
         /// <param name="resultsSetPacket"></param>
         /// <param name="connection"></param>
-        internal DataReader(ResultSet resultsSetPacket, Connection connection)
+        /// <param name="behaviour"></param>
+        internal DataReader(ResultSet resultsSetPacket, Connection connection, CommandBehavior behaviour)
         {
             if (resultsSetPacket == null)
-                throw new ProtocolException("ResultSet must not be null");
+                throw new SQLDriverException("ResultSet must not be null");
             if (connection == null)
-                throw new ProtocolException("Connection must not be null");
+                throw new SQLDriverException("Connection must not be null");
             if (!(connection is Connection))
-                throw new ProtocolException("Connection must be an instance of Connection");
+                throw new SQLDriverException("Connection must be an instance of Connection");
+            if (behaviour != CommandBehavior.Default && behaviour != CommandBehavior.CloseConnection)
+                throw new SQLDriverException("Unsupported behaviour " + behaviour);
 
+            Behaviour = behaviour;
             Data = new List<ResultSet>() { resultsSetPacket };
             Connection = connection;
             Set = 0;
@@ -164,6 +173,8 @@ namespace Almond.SQLDriver
 
         public void Close()
         {
+            if (Behaviour == CommandBehavior.CloseConnection)
+                Connection.Close();
             Dispose();
         }
 
@@ -189,7 +200,7 @@ namespace Almond.SQLDriver
             ArraySegment<byte> value = RawValue(i);
             if (value.Count == 1)
                 return value.Array[value.Offset] != 0;
-            throw new ProtocolException("Unable to interpret value as Boolean");
+            throw new SQLDriverException("Unable to interpret value as Boolean");
         }
 
         public byte GetByte(int i)
@@ -330,7 +341,7 @@ namespace Almond.SQLDriver
                 case ColumnType.MYSQL_TYPE_GEOMETRY:
                     return RawValue(i);
             }
-            throw new ProtocolException("Unable to convert column data");
+            throw new SQLDriverException("Unable to convert column data");
         }
 
         public int GetValues(object[] values)
@@ -461,6 +472,7 @@ namespace Almond.SQLDriver
         {
             Data = null;
             _cachedSchemaTable = null;
+            Connection = null;
         }
         #endregion
     }

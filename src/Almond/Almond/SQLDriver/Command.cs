@@ -49,16 +49,19 @@ namespace Almond.SQLDriver
             }
         }
 
+        private CommandType _commandType = CommandType.Text;
         public CommandType CommandType
         {
             get
             {
-                throw new NotImplementedException();
+                return _commandType;
             }
 
             set
             {
-                throw new NotImplementedException();
+                if (value != CommandType.Text)
+                    throw new SQLDriverException("Unsupported command type " + value);
+                _commandType = value;
             }
         }
 
@@ -113,7 +116,7 @@ namespace Almond.SQLDriver
 
         public void Cancel()
         {
-            throw new NotImplementedException();
+            Dispose();
         }
 
         public IDbDataParameter CreateParameter()

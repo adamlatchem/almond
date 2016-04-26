@@ -61,6 +61,7 @@
     <Compile Include="LineDriver\ChunkWriterTests.cs" />
     <Compile Include="LineDriver\LineDriverExceptionTests.cs" />
     <Compile Include="ProtocolDriver\Packets\ColumnDefinitionTests.cs" />
+    <Compile Include="ProtocolDriver\Packets\COM_INIT_DBTests.cs" />
     <Compile Include="ProtocolDriver\Packets\COM_QUERYTests.cs" />
     <Compile Include="ProtocolDriver\Packets\COM_QUITTests.cs" />
     <Compile Include="ProtocolDriver\Packets\ResultSetTests.cs" />

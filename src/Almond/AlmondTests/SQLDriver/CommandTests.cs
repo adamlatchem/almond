@@ -71,7 +71,7 @@ namespace Almond.SQLDriver.Tests
         [TestMethod]
         public void CommandTypeTest()
         {
-            CommandType commandType = System.Data.CommandType.Text;
+            CommandType commandType = CommandType.Text;
             _command.CommandType = commandType;
             Assert.AreEqual(commandType, _command.CommandType);
         }
@@ -114,7 +114,8 @@ namespace Almond.SQLDriver.Tests
         [TestMethod]
         public void CancelTest()
         {
-            _command.Cancel();
+            Command testCommand = new Command(string.Empty, _connection);
+            testCommand.Cancel();
         }
 
         [TestMethod]
@@ -142,11 +143,10 @@ namespace Almond.SQLDriver.Tests
         [TestMethod]
         public void ExecuteReaderTest()
         {
+            _command.CommandText = "SELECT 2";
             IDataReader dataReader = _command.ExecuteReader();
             Assert.IsNotNull(dataReader);
 
-            dataReader = _command.ExecuteReader(CommandBehavior.CloseConnection);
-            Assert.IsNotNull(dataReader);
             dataReader = _command.ExecuteReader(CommandBehavior.Default);
             Assert.IsNotNull(dataReader);
             dataReader = _command.ExecuteReader(CommandBehavior.KeyInfo);
@@ -159,6 +159,12 @@ namespace Almond.SQLDriver.Tests
             Assert.IsNotNull(dataReader);
             dataReader = _command.ExecuteReader(CommandBehavior.SingleRow);
             Assert.IsNotNull(dataReader);
+
+            dataReader = _command.ExecuteReader(CommandBehavior.CloseConnection);
+            Assert.IsNotNull(dataReader);
+            dataReader.Close();
+            Assert.AreEqual(ConnectionState.Closed, _connection.State);
+            _connection.Open();
         }
 
         [TestMethod]

@@ -14,9 +14,7 @@
 //    limitations under the License. 
 //
 #endregion
-using Almond.SQLDriver;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
 using System.Data;
 
 namespace Almond.SQLDriver.Tests
@@ -32,7 +30,7 @@ namespace Almond.SQLDriver.Tests
         [ClassInitialize]
         public static void ClassInitialize(TestContext context)
         {
-            _connection = new Connection("hostname=localhost;username=test;password=test");
+            _connection = new Connection("hostname=localhost;username=test;password=test;database=mysql");
             Assert.IsNotNull(_connection);
         }
 
@@ -46,9 +44,12 @@ namespace Almond.SQLDriver.Tests
         [TestMethod]
         public void ConnectionStringTest()
         {
+            string oldString = _connection.ConnectionString;
             string connectionString = "hostname=localhost;username=test;password=test";
             _connection.ConnectionString = connectionString;
             Assert.AreEqual(connectionString, _connection.ConnectionString);
+
+            _connection.ConnectionString = oldString;
         }
 
         [TestMethod]
@@ -60,13 +61,23 @@ namespace Almond.SQLDriver.Tests
         [TestMethod]
         public void DatabaseTest()
         {
-            Assert.AreEqual("test", _connection.Database);
+            _connection.Open();
+            Assert.AreEqual("mysql", _connection.Database);
         }
 
         [TestMethod]
         public void StateTest()
         {
-            Assert.AreEqual(ConnectionState.Broken, _connection.State);
+            Connection connection = new Connection(_connection.ConnectionString);
+            Assert.AreEqual(ConnectionState.Closed, connection.State);
+
+            connection.Open();
+            Assert.AreEqual(ConnectionState.Open, connection.State);
+
+            connection.Close();
+            Assert.AreEqual(ConnectionState.Closed, connection.State);
+
+            connection.Dispose();
         }
 
         [TestMethod]
@@ -93,7 +104,12 @@ namespace Almond.SQLDriver.Tests
         [TestMethod]
         public void ChangeDatabaseTest()
         {
-            _connection.ChangeDatabase("UnitTest");
+            _connection.Open();
+            _connection.ChangeDatabase("test");
+
+            IDbCommand command = new Command("SELECT DATABASE()", _connection);
+            string result = (string)command.ExecuteScalar();
+            Assert.AreEqual("test", result);
         }
 
         [TestMethod]

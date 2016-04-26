@@ -237,13 +237,9 @@ namespace Almond.ProtocolDriver
         /// Will return null if an OK response is sent.
         /// </summary>
         /// <param name="queryText">The query to execute</param>
-        /// <param name="behavior">The behavior required of the query</param>
         /// <returns></returns>
-        public ResultSet ExecuteQuery(string queryText, CommandBehavior behavior)
+        public ResultSet ExecuteQuery(string queryText)
         {
-            if (behavior != CommandBehavior.Default)
-                throw new NotImplementedException("Unimplemented command behavior " + behavior);
-
             _sequenceNumber = 0;
             COM_QUERY packet = new COM_QUERY();
             packet.QueryText = queryText;
@@ -256,6 +252,21 @@ namespace Almond.ProtocolDriver
             else if (response is ERR)
                 throw new ProtocolException((ERR)response);
             return (ResultSet)response;
+        }
+
+        /// <summary>
+        /// Change the current database
+        /// </summary>
+        /// <param name="databaseName"></param>
+        public void ChangeDatabase(string databaseName)
+        {
+            _sequenceNumber = 0;
+            COM_INIT_DB packet = new COM_INIT_DB();
+            packet.Database = databaseName;
+            SendPacket(packet);
+
+            IServerPacket response = ReceivePacket(this);
+            Expect<OK>(response);
         }
 
         #region IDisposable

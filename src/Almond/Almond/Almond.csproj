@@ -43,6 +43,7 @@
     <Compile Include="ProtocolDriver\ColumnType.cs" />
     <Compile Include="ProtocolDriver\Flags.cs" />
     <Compile Include="ProtocolDriver\Packets\COM_QUERY.cs" />
+    <Compile Include="ProtocolDriver\Packets\COM_INIT_DB.cs" />
     <Compile Include="ProtocolDriver\Packets\COM_QUIT.cs" />
     <Compile Include="ProtocolDriver\Packets\EOF.cs" />
     <Compile Include="ProtocolDriver\Packets\ColumnDefinition.cs" />

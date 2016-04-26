@@ -14,17 +14,25 @@
 //    limitations under the License. 
 //
 #endregion
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Almond.LineDriver;
 
-namespace Almond.ProtocolDriver.Tests
+namespace Almond.ProtocolDriver.Packets
 {
-    [TestClass()]
-    public class MappingTests
+    public class COM_INIT_DB : IClientPacket
     {
-        [TestMethod()]
-        public void CharSetToEncodingTest()
+        #region Members
+        public string Database
         {
-            Assert.AreEqual(System.Text.Encoding.Default, Mapping.CharSetToEncoding(63));
+            get; set;
         }
+        #endregion
+
+        #region IClientPacket
+        public void ToWireFormat(ChunkWriter writer, ProtocolDriver driver)
+        {
+            writer.WriteMyInt1(2);
+            writer.WriteTextFix(Database, driver.ClientEncoding);
+        }
+        #endregion
     }
 }

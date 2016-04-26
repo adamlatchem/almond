@@ -81,19 +81,21 @@ namespace Almond.SQLDriver
             }
         }
 
+        private string _database;
         public string Database
         {
             get
             {
-                throw new NotImplementedException();
+                return _database;
             }
         }
 
+        private ConnectionState _connectionState = ConnectionState.Closed;
         public ConnectionState State
         {
             get
             {
-                throw new NotImplementedException();
+                return _connectionState;
             }
         }
 
@@ -109,7 +111,11 @@ namespace Almond.SQLDriver
 
         public void ChangeDatabase(string databaseName)
         {
-            throw new NotImplementedException();
+            if (_protocolDriver != null)
+            {
+                _protocolDriver.ChangeDatabase(databaseName);
+                _database = databaseName;
+            }
         }
 
         public void Close()
@@ -118,6 +124,7 @@ namespace Almond.SQLDriver
             {
                 _protocolDriver.Dispose();
                 _protocolDriver = null;
+                _connectionState = ConnectionState.Closed;
             }
         }
 
@@ -128,7 +135,13 @@ namespace Almond.SQLDriver
 
         public void Open()
         {
-            ProtocolDriver = new ProtocolDriver.ProtocolDriver(_connectionStringBuilder);
+            if (_protocolDriver == null)
+            {
+                _connectionState = ConnectionState.Connecting;
+                ProtocolDriver = new ProtocolDriver.ProtocolDriver(_connectionStringBuilder);
+                _database = _connectionStringBuilder.Database;
+                _connectionState = ConnectionState.Open;
+            }
         }
         #endregion
 
@@ -140,8 +153,8 @@ namespace Almond.SQLDriver
         /// <returns></returns>
         internal IDataReader ExecuteReader(Command command, CommandBehavior behavior)
         {
-            ResultSet resultset = ProtocolDriver.ExecuteQuery(command.CommandText, behavior);
-            IDataReader result = new DataReader(resultset, (Connection)command.Connection);
+            ResultSet resultset = ProtocolDriver.ExecuteQuery(command.CommandText);
+            IDataReader result = new DataReader(resultset, (Connection)command.Connection, behavior);
             return result;
         }
 
@@ -152,6 +165,7 @@ namespace Almond.SQLDriver
             {
                 _protocolDriver.Dispose();
                 _protocolDriver = null;
+                _connectionState = ConnectionState.Closed;
             }
         }
         #endregion
