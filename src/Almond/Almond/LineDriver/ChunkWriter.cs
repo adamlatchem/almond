@@ -143,7 +143,6 @@ namespace Almond.LineDriver
             _currentChunk[offset++] = (byte)((value & 0xff0000) >> 16);
         }
 
-
         /// <summary>
         /// Write a MySQL int<4> value
         /// </summary>

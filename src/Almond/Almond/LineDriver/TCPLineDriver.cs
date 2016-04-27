@@ -88,7 +88,19 @@ namespace Almond.LineDriver
             _serverSocket.BeginConnect(_serverEndPoint,
                 new AsyncCallback(OnConnect), _serverSocket);
 
-            _connectedSignal.WaitOne();
+            bool connected = _connectedSignal.WaitOne(1000 * (int)connectionStringBuilder.ConnectionTimeout);
+            if (!connected)
+            {
+                lock (this)
+                    _serverSocket.Close();
+
+                throw new TimeoutException(
+                        string.Format(
+                            "Connection timeout after {0} seconds",
+                            connectionStringBuilder.ConnectionTimeout
+                            )
+                    );
+            }
         }
 
         /// <summary>
@@ -137,12 +149,19 @@ namespace Almond.LineDriver
         {
             lock (this)
             {
-                Debug.Assert(_serverSocket == (Socket)ar.AsyncState);
-                _serverSocket.EndConnect(ar);
+                try
+                {
+                    Debug.Assert(_serverSocket == (Socket)ar.AsyncState);
+                    _serverSocket.EndConnect(ar);
 
-                BeginReceive_Locked();
+                    BeginReceive_Locked();
 
-                _connectedSignal.Set();
+                    _connectedSignal.Set();
+                }
+                catch (ObjectDisposedException)
+                {
+                    // NOP - happens if a connection timeout occurs and disposal of the server socket has occured.
+                }
             }
         }
 

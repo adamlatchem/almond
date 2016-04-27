@@ -15,6 +15,7 @@
 //
 #endregion
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Data;
 
 namespace Almond.SQLDriver.Tests
@@ -52,10 +53,16 @@ namespace Almond.SQLDriver.Tests
             _connection.ConnectionString = oldString;
         }
 
+        [ExpectedException(typeof(TimeoutException))]
         [TestMethod]
         public void ConnectionTimeoutTest()
         {
-            Assert.AreEqual(30, _connection.ConnectionTimeout);
+            using (Connection connection = new Connection("hostname=localhost;username=test;password=test;port=1;connectiontimeout=0"))
+            {
+                Assert.AreEqual(0, connection.ConnectionTimeout);
+                connection.Open();
+            }
+            Assert.Fail();
         }
 
         [TestMethod]
@@ -144,7 +151,7 @@ namespace Almond.SQLDriver.Tests
         {
             _connection.Open();
             Command command = new Command("SELECT 1", _connection);
-            IDataReader result = _connection.ExecuteReader(command, CommandBehavior.Default);
+            IDataReader result = _connection.ExecuteReader(command, CommandBehavior.Default, /*Timeout*/0);
             Assert.IsNotNull(result);
             result.Read();
             Assert.AreEqual(1, result.RecordsAffected);

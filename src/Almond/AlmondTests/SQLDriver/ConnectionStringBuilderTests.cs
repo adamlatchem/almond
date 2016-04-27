@@ -115,6 +115,14 @@ namespace Almond.SQLDriver.Tests
         }
 
         [TestMethod]
+        public void ConnectionTimeoutTest()
+        {
+            UInt32 timeout = 5;
+            _connectionStringBuilder.ConnectionTimeout = timeout;
+            Assert.AreEqual(timeout, _connectionStringBuilder.ConnectionTimeout);
+        }
+
+        [TestMethod]
         public void DefaultsTest()
         {
             _connectionStringBuilder = new ConnectionStringBuilder();
@@ -122,6 +130,8 @@ namespace Almond.SQLDriver.Tests
             Assert.AreEqual(3306, _connectionStringBuilder.Port);
             Assert.AreEqual(String.Empty, _connectionStringBuilder.Database);
             Assert.AreEqual(Math.Pow(2, 24) - 1, _connectionStringBuilder.MaxPacketSize);
+            Assert.AreEqual("", _connectionStringBuilder.Database);
+            Assert.AreEqual((UInt32)30, _connectionStringBuilder.ConnectionTimeout);
         }
     }
 }

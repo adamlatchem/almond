@@ -77,7 +77,7 @@ namespace Almond.SQLDriver
         {
             get
             {
-                throw new NotImplementedException();
+                return (int)_connectionStringBuilder.ConnectionTimeout;
             }
         }
 
@@ -150,8 +150,9 @@ namespace Almond.SQLDriver
         /// </summary>
         /// <param name="command">The command object to execute</param>
         /// <param name="behavior">Behavior required of the command object</param>
+        /// <param name="timeout">timeout in seconds for the command</param>
         /// <returns></returns>
-        internal IDataReader ExecuteReader(Command command, CommandBehavior behavior)
+        internal IDataReader ExecuteReader(Command command, CommandBehavior behavior, int timeout)
         {
             ResultSet resultset = ProtocolDriver.ExecuteQuery(command.CommandText);
             IDataReader result = new DataReader(resultset, (Connection)command.Connection, behavior);

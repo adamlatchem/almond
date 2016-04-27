@@ -28,6 +28,7 @@ namespace Almond.SQLDriver
         {
             CommandText = commandText;
             Connection = connection;
+            CommandTimeout = 30;
         }
 
         #region IDbCommand
@@ -38,15 +39,7 @@ namespace Almond.SQLDriver
 
         public int CommandTimeout
         {
-            get
-            {
-                throw new NotImplementedException();
-            }
-
-            set
-            {
-                throw new NotImplementedException();
-            }
+            get; set;
         }
 
         private CommandType _commandType = CommandType.Text;
@@ -140,12 +133,12 @@ namespace Almond.SQLDriver
 
         public IDataReader ExecuteReader()
         {
-            return _connection.ExecuteReader(this, CommandBehavior.Default);
+            return _connection.ExecuteReader(this, CommandBehavior.Default, CommandTimeout);
         }
 
         public IDataReader ExecuteReader(CommandBehavior behavior)
         {
-            return _connection.ExecuteReader(this, behavior);
+            return _connection.ExecuteReader(this, behavior, CommandTimeout);
         }
 
         public object ExecuteScalar()

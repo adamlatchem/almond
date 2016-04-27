@@ -66,7 +66,6 @@ namespace Almond.SQLDriver
             set { this["maxpacketsize"] = value; }
         }
 
-
         /// <summary>
         /// The username to login to the server as
         /// </summary>
@@ -107,6 +106,20 @@ namespace Almond.SQLDriver
                 return (string)this["database"];
             }
             set { this["database"] = value; }
+        }
+
+        /// <summary>
+        /// The connection timeout in seconds.
+        /// </summary>
+        public UInt32 ConnectionTimeout
+        {
+            get
+            {
+                if (!this.ContainsKey("connectiontimeout"))
+                    return 30;
+                return UInt32.Parse((string)this["connectiontimeout"]);
+            }
+            set { this["connectiontimeout"] = value; }
         }
     }
 }

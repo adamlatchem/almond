@@ -60,12 +60,27 @@ namespace Almond.SQLDriver.Tests
             Assert.AreEqual(commandText, _command.CommandText);
         }
 
+        [ExpectedException(typeof(TimeoutException))]
         [TestMethod]
         public void CommandTimeoutTest()
         {
+            // Test default value
+            Assert.AreEqual(30, _command.CommandTimeout);
+
             int commandTimeout = 42;
             _command.CommandTimeout = commandTimeout;
             Assert.AreEqual(commandTimeout, _command.CommandTimeout);
+
+            try
+            {
+                _command.CommandTimeout = 0;
+                _command.CommandText = "SELECT 'timeout'";
+                _command.ExecuteNonQuery();
+            }
+            finally
+            {
+                _command.CommandTimeout = 30;
+            }
         }
 
         [TestMethod]
