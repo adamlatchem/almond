@@ -88,7 +88,10 @@ namespace Almond.LineDriver
             _serverSocket.BeginConnect(_serverEndPoint,
                 new AsyncCallback(OnConnect), _serverSocket);
 
-            bool connected = _connectedSignal.WaitOne(1000 * (int)connectionStringBuilder.ConnectionTimeout);
+            bool connected = _connectedSignal.WaitOne(
+                connectionStringBuilder.ConnectionTimeout == 0 ?
+                    System.Threading.Timeout.Infinite :
+                    1000 * (int)connectionStringBuilder.ConnectionTimeout);
             if (!connected)
             {
                 lock (this)

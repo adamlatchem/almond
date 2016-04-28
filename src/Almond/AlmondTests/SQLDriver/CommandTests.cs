@@ -73,13 +73,15 @@ namespace Almond.SQLDriver.Tests
 
             try
             {
-                _command.CommandTimeout = 0;
-                _command.CommandText = "SELECT 'timeout'";
-                _command.ExecuteNonQuery();
+                _command.CommandTimeout = 1;
+                _command.CommandText = "SELECT SLEEP (2)";
+                int result = _command.ExecuteNonQuery();
             }
             finally
             {
-                _command.CommandTimeout = 30;
+                // ADO.NET does not define the state after a timeout so the best thing to
+                // do is create a new connection for other tests to continue
+                ClassInitialize(null);
             }
         }
 

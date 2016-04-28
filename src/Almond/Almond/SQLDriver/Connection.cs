@@ -17,6 +17,8 @@
 using Almond.ProtocolDriver.Packets;
 using System;
 using System.Data;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Almond.SQLDriver
 {
@@ -35,7 +37,7 @@ namespace Almond.SQLDriver
         /// The line driver used to communicate with the server.
         /// </summary>
         private ProtocolDriver.ProtocolDriver _protocolDriver;
-            private ProtocolDriver.ProtocolDriver ProtocolDriver
+        private ProtocolDriver.ProtocolDriver ProtocolDriver
         {
             get
             {
@@ -154,9 +156,36 @@ namespace Almond.SQLDriver
         /// <returns></returns>
         internal IDataReader ExecuteReader(Command command, CommandBehavior behavior, int timeout)
         {
-            ResultSet resultset = ProtocolDriver.ExecuteQuery(command.CommandText);
-            IDataReader result = new DataReader(resultset, (Connection)command.Connection, behavior);
-            return result;
+            if (timeout < 0)
+                throw new ArgumentException("Timeout must be non negative");
+
+            ManualResetEvent completedSignal = new ManualResetEvent(false);
+            completedSignal.Reset();
+
+            object wrokerResult = null;
+            Task.Factory.StartNew(() => {
+                try
+                {
+                    ResultSet resultset = ProtocolDriver.ExecuteQuery(command.CommandText);
+                    wrokerResult = new DataReader(resultset, (Connection)command.Connection, behavior);
+                }
+                catch (Exception e)
+                {
+                    wrokerResult = e;
+                }
+                finally
+                {
+                    completedSignal.Set();
+                }
+            });
+
+            bool completed = completedSignal.WaitOne(timeout == 0 ? System.Threading.Timeout.Infinite : 1000 * (int)timeout);
+            if (!completed)
+                throw new TimeoutException(string.Format("Command timeout after {0} seconds", timeout));
+            if (wrokerResult is Exception)
+                throw (Exception)wrokerResult;
+
+            return wrokerResult as IDataReader;
         }
 
         #region IDisposable

@@ -57,9 +57,10 @@ namespace Almond.SQLDriver.Tests
         [TestMethod]
         public void ConnectionTimeoutTest()
         {
-            using (Connection connection = new Connection("hostname=localhost;username=test;password=test;port=1;connectiontimeout=0"))
+            // Connect to port 1 which is unlikely to work
+            using (Connection connection = new Connection("hostname=localhost;username=test;password=test;port=1;connectiontimeout=1"))
             {
-                Assert.AreEqual(0, connection.ConnectionTimeout);
+                Assert.AreEqual(1, connection.ConnectionTimeout);
                 connection.Open();
             }
             Assert.Fail();
