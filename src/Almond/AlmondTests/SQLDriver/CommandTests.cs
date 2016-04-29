@@ -140,6 +140,17 @@ namespace Almond.SQLDriver.Tests
         {
             IDbDataParameter parameter = _command.CreateParameter();
             Assert.IsNotNull(parameter);
+
+            Assert.AreEqual(false, parameter.IsNullable);
+            Assert.AreEqual(null, parameter.SourceColumn);
+            Assert.AreEqual(null, parameter.ParameterName);
+            Assert.AreEqual(null, parameter.Value);
+            Assert.AreEqual(0, parameter.Size);
+            Assert.AreEqual(0, parameter.Precision);
+            Assert.AreEqual(0, parameter.Scale);
+            Assert.AreEqual(ParameterDirection.InputOutput, parameter.Direction);
+            Assert.AreEqual(DataRowVersion.Default, parameter.SourceVersion);
+            Assert.AreEqual(DbType.Object, parameter.DbType);
         }
 
         [TestMethod]

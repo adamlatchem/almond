@@ -114,7 +114,7 @@ namespace Almond.SQLDriver
 
         public IDbDataParameter CreateParameter()
         {
-            throw new NotImplementedException();
+            return new DbDataParameter();
         }
 
         public void Dispose()

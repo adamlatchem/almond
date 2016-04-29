@@ -52,6 +52,7 @@
     <Compile Include="ProtocolDriver\Status.cs" />
     <Compile Include="SQLDriver\DataReader.cs" />
     <Compile Include="ProtocolDriver\Mapping.cs" />
+    <Compile Include="SQLDriver\DbDataParameter.cs" />
     <Compile Include="SQLDriver\SQLDriverException.cs" />
     <Compile Include="ProtocolDriver\Packets\OK.cs" />
     <Compile Include="ProtocolDriver\Packets\HandshakeResponse.cs" />
