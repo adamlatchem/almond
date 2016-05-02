@@ -50,6 +50,14 @@ namespace Almond.SQLDriver
                 _protocolDriver = value;
             }
         }
+
+        /// <summary>
+        /// Returns the thread id upon connected.
+        /// </summary>
+        public UInt64 ThreadId
+        {
+            get; private set;
+        }
         #endregion
 
         /// <summary>
@@ -143,6 +151,11 @@ namespace Almond.SQLDriver
                 ProtocolDriver = new ProtocolDriver.ProtocolDriver(_connectionStringBuilder);
                 _database = _connectionStringBuilder.Database;
                 _connectionState = ConnectionState.Open;
+
+                using (Command connectionID = new Command("SELECT CONNECTION_ID()", this))
+                {
+                    ThreadId = (UInt64)connectionID.ExecuteScalar();
+                }
             }
         }
         #endregion

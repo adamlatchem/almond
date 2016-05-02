@@ -109,7 +109,17 @@ namespace Almond.SQLDriver
 
         public void Cancel()
         {
-            Dispose();
+            using (Connection cancelConnection = new Connection(Connection.ConnectionString))
+            {
+                cancelConnection.Open();
+
+                string killQuery = String.Format("KILL QUERY {0}", ((Connection)Connection).ThreadId);
+                using (Command cancel = new Command(killQuery, cancelConnection))
+                {
+                    cancel.CommandTimeout = CommandTimeout;
+                    cancel.ExecuteNonQuery();
+                }
+            }
         }
 
         public IDbDataParameter CreateParameter()
