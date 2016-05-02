@@ -70,6 +70,24 @@ namespace Almond.ProtocolDriver.Packets
         }
         #endregion
 
+        /// <summary>
+        /// Deafult Ctor
+        /// </summary>
+        public ResultSet()
+        {
+            // NOP
+        }
+
+        /// <summary>
+        /// Ctor to create an empty result set
+        /// </summary>
+        /// <param name="empty"></param>
+        public ResultSet(bool empty)
+        {
+            Columns = new List<ColumnDefinition>();
+            Rows = new List<Row>();
+        }
+
         #region IServerPacket
         public IServerPacket FromWireFormat(ChunkReader chunkReader, UInt32 payloadLength, ProtocolDriver driver)
         {

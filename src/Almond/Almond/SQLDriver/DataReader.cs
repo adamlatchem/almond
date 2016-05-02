@@ -96,6 +96,11 @@ namespace Almond.SQLDriver
         {
             get; set;
         }
+
+        /// <summary>
+        /// Used to represent a NULL result from the database with no rows or data.
+        /// </summary>
+        private readonly ResultSet EMPTY_RESULTSET = new ResultSet(/*empty*/true);
         #endregion
 
         /// <summary>
@@ -106,8 +111,6 @@ namespace Almond.SQLDriver
         /// <param name="behaviour"></param>
         internal DataReader(ResultSet resultsSetPacket, Connection connection, CommandBehavior behaviour)
         {
-            if (resultsSetPacket == null)
-                throw new SQLDriverException("ResultSet must not be null");
             if (connection == null)
                 throw new SQLDriverException("Connection must not be null");
             if (!(connection is Connection))
@@ -116,7 +119,11 @@ namespace Almond.SQLDriver
                 throw new SQLDriverException("Unsupported behaviour " + behaviour);
 
             Behaviour = behaviour;
-            Data = new List<ResultSet>() { resultsSetPacket };
+            Data = new List<ResultSet>();
+            if (resultsSetPacket != null)
+                Data.Add(resultsSetPacket);
+            else
+                Data.Add(EMPTY_RESULTSET);
             Connection = connection;
             Set = 0;
             Row = -1;

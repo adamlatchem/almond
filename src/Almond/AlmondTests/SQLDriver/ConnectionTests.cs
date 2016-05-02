@@ -137,7 +137,13 @@ namespace Almond.SQLDriver.Tests
         [TestMethod]
         public void OpenTest()
         {
+            if (_connection != null)
+                _connection.Dispose();
+            ClassInitialize(null);
+
+            Assert.AreEqual<UInt64>(0, _connection.ThreadId);
             _connection.Open();
+            Assert.AreNotEqual<UInt64>(0, _connection.ThreadId);
         }
 
         [TestMethod]
