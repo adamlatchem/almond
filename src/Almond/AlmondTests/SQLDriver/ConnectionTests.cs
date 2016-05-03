@@ -115,7 +115,7 @@ namespace Almond.SQLDriver.Tests
             _connection.Open();
             _connection.ChangeDatabase("test");
 
-            IDbCommand command = new Command("SELECT DATABASE()", _connection);
+            IDbCommand command = new DbCommand("SELECT DATABASE()", _connection);
             string result = (string)command.ExecuteScalar();
             Assert.AreEqual("test", result);
         }
@@ -157,7 +157,7 @@ namespace Almond.SQLDriver.Tests
         public void ExecuteReaderTest()
         {
             _connection.Open();
-            Command command = new Command("SELECT 1", _connection);
+            DbCommand command = new DbCommand("SELECT 1", _connection);
             IDataReader result = _connection.ExecuteReader(command, CommandBehavior.Default, /*Timeout*/0);
             Assert.IsNotNull(result);
             result.Read();

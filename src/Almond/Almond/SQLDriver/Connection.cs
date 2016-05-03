@@ -140,7 +140,7 @@ namespace Almond.SQLDriver
 
         public IDbCommand CreateCommand()
         {
-            return new Command(String.Empty, this);
+            return new DbCommand(String.Empty, this);
         }
 
         public void Open()
@@ -152,7 +152,7 @@ namespace Almond.SQLDriver
                 _database = _connectionStringBuilder.Database;
                 _connectionState = ConnectionState.Open;
 
-                using (Command connectionID = new Command("SELECT CONNECTION_ID()", this))
+                using (DbCommand connectionID = new DbCommand("SELECT CONNECTION_ID()", this))
                 {
                     ThreadId = (UInt64)connectionID.ExecuteScalar();
                 }
@@ -167,7 +167,7 @@ namespace Almond.SQLDriver
         /// <param name="behavior">Behavior required of the command object</param>
         /// <param name="timeout">timeout in seconds for the command</param>
         /// <returns></returns>
-        internal IDataReader ExecuteReader(Command command, CommandBehavior behavior, int timeout)
+        internal IDataReader ExecuteReader(DbCommand command, CommandBehavior behavior, int timeout)
         {
             if (timeout < 0)
                 throw new ArgumentException("Timeout must be non negative");

@@ -132,7 +132,7 @@ namespace Almond.SQLDriver.Tests
         [TestMethod]
         public void CancelTest()
         {
-            Command testCommand = new Command(string.Empty, _connection);
+            DbCommand testCommand = new DbCommand(string.Empty, _connection);
             testCommand.Cancel();
         }
 
@@ -157,7 +157,7 @@ namespace Almond.SQLDriver.Tests
         [TestMethod]
         public void DisposeTest()
         {
-            Command testCommand = new Command(string.Empty, _connection);
+            DbCommand testCommand = new DbCommand(string.Empty, _connection);
             testCommand.Dispose();
         }
 

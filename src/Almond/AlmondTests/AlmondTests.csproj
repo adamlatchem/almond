@@ -65,8 +65,9 @@
     <Compile Include="ProtocolDriver\Packets\COM_QUERYTests.cs" />
     <Compile Include="ProtocolDriver\Packets\COM_QUITTests.cs" />
     <Compile Include="ProtocolDriver\Packets\ResultSetTests.cs" />
+    <Compile Include="SQLDriver\DataParameterCollectionTests.cs" />
     <Compile Include="SQLDriver\DataReaderTests.cs" />
-    <Compile Include="SQLDriver\CommandTests.cs" />
+    <Compile Include="SQLDriver\DbCommandTests.cs" />
     <Compile Include="SQLDriver\ConnectionStringBuilderTests.cs" />
     <Compile Include="SQLDriver\ConnectionTests.cs" />
     <Compile Include="ProtocolDriver\MappingTests.cs" />

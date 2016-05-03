@@ -22,13 +22,14 @@ namespace Almond.SQLDriver
     /// <summary>
     /// An IDbCommand implementation for MySQL.
     /// </summary>
-    public class Command : IDbCommand
+    public class DbCommand : IDbCommand
     {
-        internal Command(String commandText, IDbConnection connection)
+        internal DbCommand(String commandText, IDbConnection connection)
         {
             CommandText = commandText;
             Connection = connection;
             CommandTimeout = 30;
+            Parameters = new DataParameterCollection();
         }
 
         #region IDbCommand
@@ -75,10 +76,7 @@ namespace Almond.SQLDriver
 
         public IDataParameterCollection Parameters
         {
-            get
-            {
-                throw new NotImplementedException();
-            }
+            get; private set;
         }
 
         public IDbTransaction Transaction
@@ -114,7 +112,7 @@ namespace Almond.SQLDriver
                 cancelConnection.Open();
 
                 string killQuery = String.Format("KILL QUERY {0}", ((Connection)Connection).ThreadId);
-                using (Command cancel = new Command(killQuery, cancelConnection))
+                using (DbCommand cancel = new DbCommand(killQuery, cancelConnection))
                 {
                     cancel.CommandTimeout = CommandTimeout;
                     cancel.ExecuteNonQuery();

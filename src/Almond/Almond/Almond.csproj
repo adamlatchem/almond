@@ -50,6 +50,7 @@
     <Compile Include="ProtocolDriver\Packets\Row.cs" />
     <Compile Include="ProtocolDriver\Packets\ResultSet.cs" />
     <Compile Include="ProtocolDriver\Status.cs" />
+    <Compile Include="SQLDriver\DataParameterCollection.cs" />
     <Compile Include="SQLDriver\DataReader.cs" />
     <Compile Include="ProtocolDriver\Mapping.cs" />
     <Compile Include="SQLDriver\DbDataParameter.cs" />
@@ -59,7 +60,7 @@
     <Compile Include="ProtocolDriver\Capability.cs" />
     <Compile Include="ProtocolDriver\Packets\IClientPacket.cs" />
     <Compile Include="ProtocolDriver\Packets\IServerPacket.cs" />
-    <Compile Include="SQLDriver\Command.cs" />
+    <Compile Include="SQLDriver\DbCommand.cs" />
     <Compile Include="SQLDriver\Connection.cs" />
     <Compile Include="SQLDriver\ConnectionStringBuilder.cs" />
     <Compile Include="ProtocolDriver\Packets\ERR.cs" />
