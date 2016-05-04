@@ -179,8 +179,8 @@ namespace Almond.SQLDriver
             Task.Factory.StartNew(() => {
                 try
                 {
-                    ResultSet resultset = ProtocolDriver.ExecuteQuery(command.CommandText);
-                    wrokerResult = new DataReader(resultset, (Connection)command.Connection, behavior);
+                    ResultSet<Row> resultset = ProtocolDriver.ExecuteQuery(command.CommandText);
+                    wrokerResult = new DataReader<Row>(resultset, (Connection)command.Connection, behavior);
                 }
                 catch (Exception e)
                 {

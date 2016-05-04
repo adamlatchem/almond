@@ -24,7 +24,7 @@ namespace Almond.ProtocolDriver.Packets
     /// <summary>
     /// Represents a row paket in the result set sent by the server.
     /// </summary>
-    public class Row : IServerPacket
+    public class Row : IServerPacket, IRow
     {
         #region Members
         private Lazy<RowReader> _reader;
@@ -38,14 +38,6 @@ namespace Almond.ProtocolDriver.Packets
             }
         }
 
-        public IList<ArraySegment<byte>> Values
-        {
-            get
-            {
-                return Reader.Values;
-            }
-        }
-
         private Encoding Encoding
         {
             get; set;
@@ -54,12 +46,15 @@ namespace Almond.ProtocolDriver.Packets
         internal static readonly ArraySegment<byte> NULL = new ArraySegment<byte>(new byte[0], 0, 0);
         #endregion
 
-        /// <summary>
-        /// Decode given column to a string value or null
-        /// </summary>
-        /// <param name="i"></param>
-        /// <param name="encodingOverride"></param>
-        /// <returns></returns>
+        #region IRow
+        public IList<ArraySegment<byte>> Values
+        {
+            get
+            {
+                return Reader.Values;
+            }
+        }
+
         public string StringValue(int i, Encoding encodingOverride)
         {
             ArraySegment<byte> value = Values[i];
@@ -67,6 +62,7 @@ namespace Almond.ProtocolDriver.Packets
                 return null;
             return ChunkReader.BytesToString(value, encodingOverride ?? Encoding);
         }
+        #endregion
 
         #region IServerPacket
         public IServerPacket FromWireFormat(ChunkReader reader, UInt32 payloadLength, ProtocolDriver driver)

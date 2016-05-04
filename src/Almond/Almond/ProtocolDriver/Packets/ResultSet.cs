@@ -22,9 +22,10 @@ using System.Diagnostics;
 namespace Almond.ProtocolDriver.Packets
 {
     /// <summary>
-    /// A meta packet to read results sets from the chunk stream.
+    /// A meta packet to read results sets from the chunk stream. The result
+    /// rows may be in Row of BinaryRow format.
     /// </summary>
-    public class ResultSet : IServerPacket
+    public class ResultSet<RowT> : IServerPacket where RowT : IServerPacket, IRow, new()
     {
         #region Members
         /// <summary>
@@ -38,7 +39,7 @@ namespace Almond.ProtocolDriver.Packets
         /// <summary>
         /// The rows of the result set
         /// </summary>
-        public IList<Row> Rows
+        public IList<RowT> Rows
         {
             get; set;
         }
@@ -85,7 +86,7 @@ namespace Almond.ProtocolDriver.Packets
         public ResultSet(bool empty)
         {
             Columns = new List<ColumnDefinition>();
-            Rows = new List<Row>();
+            Rows = new List<RowT>();
         }
 
         #region IServerPacket
@@ -121,10 +122,10 @@ namespace Almond.ProtocolDriver.Packets
                 driver.Expect<EOF>(response);
             }
 
-            Rows = new List<Row>();
+            Rows = new List<RowT>();
             while (true)
             {
-                Row rowPacket = new Row();
+                RowT rowPacket = new RowT();
                 IServerPacket row = driver.ReceivePacket(rowPacket);
 
                 if (row is OK)
@@ -147,7 +148,7 @@ namespace Almond.ProtocolDriver.Packets
                     throw new ProtocolException(err);
                 }
 
-                Debug.Assert(row == rowPacket);
+                Debug.Assert(row == (IServerPacket)rowPacket);
                 Rows.Add(rowPacket);
             }
 

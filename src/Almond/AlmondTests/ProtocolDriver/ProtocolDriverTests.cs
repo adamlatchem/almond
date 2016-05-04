@@ -62,7 +62,7 @@ namespace Almond.ProtocolDriver.Tests
         [TestMethod()]
         public void ExecuteQueryTest()
         {
-            ResultSet result = _protocolDriver.ExecuteQuery("SELECT 1");
+            ResultSet<Row> result = _protocolDriver.ExecuteQuery("SELECT 1");
             Assert.IsNotNull(result);
             Assert.AreEqual(1, result.Rows.Count);
             Assert.AreEqual(1, result.Rows[0].Values.Count);

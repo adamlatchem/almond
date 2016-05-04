@@ -238,20 +238,20 @@ namespace Almond.ProtocolDriver
         /// </summary>
         /// <param name="queryText">The query to execute</param>
         /// <returns></returns>
-        public ResultSet ExecuteQuery(string queryText)
+        public ResultSet<Row> ExecuteQuery(string queryText)
         {
             _sequenceNumber = 0;
             COM_QUERY packet = new COM_QUERY();
             packet.QueryText = queryText;
             SendPacket(packet);
 
-            ResultSet result = new ResultSet();
+            ResultSet<Row> result = new ResultSet<Row>();
             IServerPacket response = ReceivePacket(result);
             if (response is OK)
                 return null;
             else if (response is ERR)
                 throw new ProtocolException((ERR)response);
-            return (ResultSet)response;
+            return (ResultSet<Row>)response;
         }
 
         /// <summary>

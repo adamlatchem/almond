@@ -25,9 +25,10 @@ namespace Almond.SQLDriver
 {
     /// <summary>
     /// Provides a dataread to extract dotNet objects from the underlying
-    /// resultsset returned from the server.
+    /// resultsset returned from the server. The underlying rows might be
+    /// Row or BinaryRow objects.
     /// </summary>
-    public class DataReader : IDataReader
+    public class DataReader<RowT> : IDataReader where RowT : IServerPacket, IRow, new()
     {
         #region Members
         private CommandBehavior Behaviour
@@ -35,8 +36,8 @@ namespace Almond.SQLDriver
             get; set;
         }
 
-        private IList<ResultSet> _data;
-        private IList<ResultSet> Data
+        private IList<ResultSet<RowT>> _data;
+        private IList<ResultSet<RowT>> Data
         {
             get
             {
@@ -100,7 +101,7 @@ namespace Almond.SQLDriver
         /// <summary>
         /// Used to represent a NULL result from the database with no rows or data.
         /// </summary>
-        private readonly ResultSet EMPTY_RESULTSET = new ResultSet(/*empty*/true);
+        private readonly ResultSet<RowT> EMPTY_RESULTSET = new ResultSet<RowT>(/*empty*/true);
         #endregion
 
         /// <summary>
@@ -109,7 +110,7 @@ namespace Almond.SQLDriver
         /// <param name="resultsSetPacket"></param>
         /// <param name="connection"></param>
         /// <param name="behaviour"></param>
-        internal DataReader(ResultSet resultsSetPacket, Connection connection, CommandBehavior behaviour)
+        internal DataReader(ResultSet<RowT> resultsSetPacket, Connection connection, CommandBehavior behaviour)
         {
             if (connection == null)
                 throw new SQLDriverException("Connection must not be null");
@@ -119,7 +120,7 @@ namespace Almond.SQLDriver
                 throw new SQLDriverException("Unsupported behaviour " + behaviour);
 
             Behaviour = behaviour;
-            Data = new List<ResultSet>();
+            Data = new List<ResultSet<RowT>>();
             if (resultsSetPacket != null)
                 Data.Add(resultsSetPacket);
             else
@@ -187,7 +188,8 @@ namespace Almond.SQLDriver
 
         private ArraySegment<byte> RawValue(int i)
         {
-            return Data[Set].Rows[Row].Values[i];
+            RowT row = Data[Set].Rows[Row];
+            return row.Values[i];
         }
 
         /// <summary>
