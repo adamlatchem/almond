@@ -16,19 +16,22 @@
 #endregion
 using Almond.LineDriver;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 
 namespace Almond.ProtocolDriver.Packets
 {
     /// <summary>
-    /// Represents a row paket in the result set sent by the server.
+    /// Represents a binary row paket in the result set sent by the server.
+    /// The binary format is used in server responses for prepared
+    /// statements.
     /// </summary>
-    public class Row : IServerPacket, IRow
+    public class BinaryRow : IServerPacket, IRow
     {
         #region Members
-        private Lazy<RowReader> _reader;
-        private RowReader Reader
+        private Lazy<BinaryRowReader> _reader;
+        private BinaryRowReader Reader
         {
             get
             {
@@ -39,6 +42,11 @@ namespace Almond.ProtocolDriver.Packets
         }
 
         private Encoding Encoding
+        {
+            get; set;
+        }
+
+        private BitArray NullMap
         {
             get; set;
         }
@@ -78,7 +86,7 @@ namespace Almond.ProtocolDriver.Packets
 
             ArraySegment<byte> payload = reader.ReadMyStringFix(payloadLength);
 
-            _reader = new Lazy<RowReader>(() => new RowReader(payload));
+            _reader = new Lazy<BinaryRowReader>(() => new BinaryRowReader(payload));
             return this;
         }
         #endregion
@@ -86,14 +94,14 @@ namespace Almond.ProtocolDriver.Packets
         /// <summary>
         /// Nested class to convert buffered data to CLR objects.
         /// </summary>
-        public class RowReader
+        public class BinaryRowReader
         {
             public IList<ArraySegment<byte>> Values
             {
                 get; set;
             }
 
-            public RowReader(ArraySegment<byte> rowData)
+            public BinaryRowReader(ArraySegment<byte> rowData)
             {
                 ChunkReader reader = new ChunkReader(rowData);
 

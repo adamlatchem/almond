@@ -201,7 +201,7 @@ namespace Almond.SQLDriver
         {
             UInt32 charSet = Data[Set].Columns[i].Definition.CharacterSet;
             Encoding encoding = Mapping.CharSetToEncoding(charSet);
-            return Data[Set].Rows[Row].StringValue(i, encoding);
+            return Data[Set].Rows[Row].StringValue(i, encoding, Data[Set].Columns);
         }
 
         public bool GetBoolean(int i)
@@ -300,7 +300,7 @@ namespace Almond.SQLDriver
             ColumnType Type = Data[Set].Columns[i].Definition.Type;
             bool unsigned = Data[Set].Columns[i].Definition.Flags.HasFlag(Flags.UNSIGNED_FLAG);
 
-            if (RawValue(i) == ProtocolDriver.Packets.Row.NULL)
+            if (RawValue(i) == LineDriver.ChunkReader.NULL)
                 return DBNull.Value;
 
             switch (Type)

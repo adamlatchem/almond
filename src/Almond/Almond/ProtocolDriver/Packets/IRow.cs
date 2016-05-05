@@ -39,7 +39,8 @@ namespace Almond.ProtocolDriver.Packets
         /// </summary>
         /// <param name="i"></param>
         /// <param name="encodingOverride"></param>
+        /// <param name="Columns"></param>
         /// <returns></returns>
-        string StringValue(int i, Encoding encodingOverride);
+        string StringValue(int i, Encoding encodingOverride, IList<ColumnDefinition> Columns);
     }
 }

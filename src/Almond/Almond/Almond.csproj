@@ -48,6 +48,7 @@
     <Compile Include="ProtocolDriver\Packets\EOF.cs" />
     <Compile Include="ProtocolDriver\Packets\ColumnDefinition.cs" />
     <Compile Include="ProtocolDriver\Packets\IRow.cs" />
+    <Compile Include="ProtocolDriver\Packets\BinaryRow.cs" />
     <Compile Include="ProtocolDriver\Packets\Row.cs" />
     <Compile Include="ProtocolDriver\Packets\ResultSet.cs" />
     <Compile Include="ProtocolDriver\Status.cs" />

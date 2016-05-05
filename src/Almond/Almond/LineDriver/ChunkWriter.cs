@@ -60,7 +60,7 @@ namespace Almond.LineDriver
         public ArraySegment<byte> ExportChunk()
         {
             if (_currentChunk == null)
-                return new ArraySegment<byte>(new byte[0]);
+                return LineDriver.ChunkReader.NULL;
             byte[] chunk = _currentChunk.ToArray();
             _currentChunk = null;
             return new ArraySegment<byte>(chunk);

@@ -48,6 +48,11 @@ namespace Almond.LineDriver
         /// Keeps running total of total amount of data read in previous chunks
         /// </summary>
         private UInt32 _previousChunks;
+
+        /// <summary>
+        /// A convenience to specify empty array segments if required
+        /// </summary>
+        internal static readonly ArraySegment<byte> NULL = new ArraySegment<byte>(new byte[0], 0, 0);
         #endregion
 
         /// <summary>
@@ -77,7 +82,7 @@ namespace Almond.LineDriver
         public void StartNewPacket()
         {
             if (_position >= _currentChunk.Offset + _currentChunk.Count)
-                _currentChunk = new ArraySegment<byte>(new byte[0]);
+                _currentChunk = NULL;
             else
             {
                 int newCount = _currentChunk.Count - (_position - _currentChunk.Offset);
