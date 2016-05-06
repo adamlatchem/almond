@@ -27,15 +27,16 @@ namespace Almond.ProtocolDriver.Packets
     public interface IRow
     {
         /// <summary>
-        /// Used to access the raw data for each column of the result.
+        /// Return wireformat raw value for given column.
         /// </summary>
-        IList<ArraySegment<byte>> Values
-        {
-            get;
-        }
+        /// <param name="i"></param>
+        /// <param name="encodingOverride"></param>
+        /// <param name="Columns"></param>
+        /// <returns></returns>
+        ArraySegment<byte> Value(int i, Encoding encodingOverride, IList<ColumnDefinition> Columns);
 
         /// <summary>
-        /// Decode given column to a string value or null
+        /// Decode given column to a string value or null.
         /// </summary>
         /// <param name="i"></param>
         /// <param name="encodingOverride"></param>

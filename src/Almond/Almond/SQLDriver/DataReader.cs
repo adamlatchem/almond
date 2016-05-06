@@ -189,7 +189,7 @@ namespace Almond.SQLDriver
         private ArraySegment<byte> RawValue(int i)
         {
             RowT row = Data[Set].Rows[Row];
-            return row.Values[i];
+            return row.Value(i, null, Data[Set].Columns);
         }
 
         /// <summary>

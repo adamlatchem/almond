@@ -45,17 +45,14 @@ namespace Almond.ProtocolDriver.Packets
         #endregion
 
         #region IRow
-        public IList<ArraySegment<byte>> Values
+        public ArraySegment<byte> Value(int i, Encoding encodingOverride, IList<ColumnDefinition> Columns)
         {
-            get
-            {
-                return Reader.Values;
-            }
+            return Reader.Values[i];
         }
 
         public string StringValue(int i, Encoding encodingOverride, IList<ColumnDefinition> Columns)
         {
-            ArraySegment<byte> value = Values[i];
+            ArraySegment<byte> value = Value(i, encodingOverride, Columns);
             if (value == LineDriver.ChunkReader.NULL)
                 return null;
             return ChunkReader.BytesToString(value, encodingOverride ?? Encoding);

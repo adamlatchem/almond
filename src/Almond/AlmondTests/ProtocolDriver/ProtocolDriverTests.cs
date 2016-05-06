@@ -65,9 +65,7 @@ namespace Almond.ProtocolDriver.Tests
             ResultSet<Row> result = _protocolDriver.ExecuteQuery("SELECT 1");
             Assert.IsNotNull(result);
             Assert.AreEqual(1, result.Rows.Count);
-            Assert.AreEqual(1, result.Rows[0].Values.Count);
-            Assert.AreEqual(1, result.Rows[0].Values[0].Count);
-            Assert.AreEqual(1, result.Rows[0].Values[0].Array[0]);
+            Assert.AreEqual(1, result.Rows[0].Value(0, null, null).Array[0]);
         }
 
         [TestMethod]
