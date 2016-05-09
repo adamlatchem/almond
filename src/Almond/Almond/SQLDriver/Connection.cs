@@ -175,16 +175,16 @@ namespace Almond.SQLDriver
             ManualResetEvent completedSignal = new ManualResetEvent(false);
             completedSignal.Reset();
 
-            object wrokerResult = null;
+            object workerResult = null;
             Task.Factory.StartNew(() => {
                 try
                 {
                     ResultSet<Row> resultset = ProtocolDriver.ExecuteQuery(command.CommandText);
-                    wrokerResult = new DataReader<Row>(resultset, (Connection)command.Connection, behavior);
+                    workerResult = new DataReader<Row>(resultset, (Connection)command.Connection, behavior);
                 }
                 catch (Exception e)
                 {
-                    wrokerResult = e;
+                    workerResult = e;
                 }
                 finally
                 {
@@ -195,10 +195,49 @@ namespace Almond.SQLDriver
             bool completed = completedSignal.WaitOne(timeout == 0 ? System.Threading.Timeout.Infinite : 1000 * (int)timeout);
             if (!completed)
                 throw new TimeoutException(string.Format("Command timeout after {0} seconds", timeout));
-            if (wrokerResult is Exception)
-                throw (Exception)wrokerResult;
+            if (workerResult is Exception)
+                throw (Exception)workerResult;
 
-            return wrokerResult as IDataReader;
+            return workerResult as IDataReader;
+        }
+
+        /// <summary>
+        /// Prepare the given command and return the prepared statement id
+        /// </summary>
+        /// <param name="command"></param>
+        /// <param name="timeout"></param>
+        /// <returns></returns>
+        public int PrepareStatement(DbCommand command, int timeout)
+        {
+            if (timeout < 0)
+                throw new ArgumentException("Timeout must be non negative");
+
+            ManualResetEvent completedSignal = new ManualResetEvent(false);
+            completedSignal.Reset();
+
+            object workerResult = -1;
+            Task.Factory.StartNew(() => {
+                try
+                {
+                    workerResult = ProtocolDriver.PrepareStatement(command.CommandText);
+                }
+                catch (Exception e)
+                {
+                    workerResult = e;
+                }
+                finally
+                {
+                    completedSignal.Set();
+                }
+            });
+
+            bool completed = completedSignal.WaitOne(timeout == 0 ? System.Threading.Timeout.Infinite : 1000 * (int)timeout);
+            if (!completed)
+                throw new TimeoutException(string.Format("Command timeout after {0} seconds", timeout));
+            if (workerResult is Exception)
+                throw (Exception)workerResult;
+
+            return (int)workerResult;
         }
 
         #region IDisposable

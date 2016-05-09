@@ -255,6 +255,29 @@ namespace Almond.ProtocolDriver
         }
 
         /// <summary>
+        /// Prepare the given query text on the server and return the prepared
+        /// statement id.
+        /// 
+        /// Will throw if an error occurs or an unexpected packet is sent.
+        /// </summary>
+        /// <param name="statementText">The query to execute</param>
+        /// <returns></returns>
+        public int PrepareStatement(string statementText)
+        {
+            _sequenceNumber = 0;
+            COM_STMT_PREPARE packet = new COM_STMT_PREPARE();
+            packet.StatmentText = statementText;
+            SendPacket(packet);
+
+            COM_STMT_PREPARE_OK result = new COM_STMT_PREPARE_OK();
+            IServerPacket response = ReceivePacket(result);
+            result = Expect<COM_STMT_PREPARE_OK>(response);
+
+            return (int)result.StatementId;
+        }
+
+
+        /// <summary>
         /// Change the current database
         /// </summary>
         /// <param name="databaseName"></param>

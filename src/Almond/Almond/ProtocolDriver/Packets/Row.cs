@@ -87,7 +87,7 @@ namespace Almond.ProtocolDriver.Packets
         {
             public IList<ArraySegment<byte>> Values
             {
-                get; set;
+                get; private set;
             }
 
             public RowReader(ArraySegment<byte> rowData)

@@ -62,6 +62,8 @@
     <Compile Include="LineDriver\LineDriverExceptionTests.cs" />
     <Compile Include="ProtocolDriver\Packets\ColumnDefinitionTests.cs" />
     <Compile Include="ProtocolDriver\Packets\COM_INIT_DBTests.cs" />
+    <Compile Include="ProtocolDriver\Packets\COM_STMT_PREPARE_OKTests.cs" />
+    <Compile Include="ProtocolDriver\Packets\COM_STMT_PREPARETests.cs" />
     <Compile Include="ProtocolDriver\Packets\COM_QUERYTests.cs" />
     <Compile Include="ProtocolDriver\Packets\COM_QUITTests.cs" />
     <Compile Include="ProtocolDriver\Packets\ResultSetTests.cs" />

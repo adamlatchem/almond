@@ -16,7 +16,6 @@
 #endregion
 using Almond.LineDriver;
 using System;
-using System.Data;
 using System.Diagnostics;
 using System.Text;
 
@@ -58,67 +57,67 @@ namespace Almond.ProtocolDriver.Packets
             #region Members
             public string Catalog
             {
-                get; set;
+                get; private set;
             }
 
             public string Schema
             {
-                get; set;
+                get; private set;
             }
 
             public string Table
             {
-                get; set;
+                get; private set;
             }
 
             public string OrgTable
             {
-                get; set;
+                get; private set;
             }
 
             public string Name
             {
-                get; set;
+                get; private set;
             }
 
             public string OrgName
             {
-                get; set;
+                get; private set;
             }
 
             public UInt64 FieldDataLength
             {
-                get; set;
+                get; private set;
             }
 
             public UInt32 CharacterSet
             {
-                get; set;
+                get; private set;
             }
 
             public UInt64 ColumnLength
             {
-                get; set;
+                get; private set;
             }
 
             public ColumnType Type
             {
-                get; set;
+                get; private set;
             }
 
             public Flags Flags
             {
-                get; set;
+                get; private set;
             }
 
             public byte Decimals
             {
-                get; set;
+                get; private set;
             }
 
             public string Default
             {
-                get; set;
+                get; private set;
             }
             #endregion Members
 

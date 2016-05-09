@@ -33,7 +33,7 @@ namespace Almond.ProtocolDriver.Packets
         /// </summary>
         public IList<ColumnDefinition> Columns
         {
-            get; set;
+            get; private set;
         }
 
         /// <summary>
@@ -41,7 +41,7 @@ namespace Almond.ProtocolDriver.Packets
         /// </summary>
         public IList<RowT> Rows
         {
-            get; set;
+            get; private set;
         }
 
         /// <summary>

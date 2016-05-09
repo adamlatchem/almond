@@ -26,37 +26,37 @@ namespace Almond.ProtocolDriver.Packets
         #region Members
         public byte Header
         {
-            get; set;
+            get; private set;
         }
 
         public UInt64 AffectedRows
         {
-            get; set;
+            get; private set;
         }
 
         public UInt64 LastInsertId
         {
-            get; set;
+            get; private set;
         }
 
         public Status StatusFlags
         {
-            get; set;
+            get; private set;
         }
 
         public UInt32 NumberOfWarnings
         {
-            get; set;
+            get; private set;
         }
 
         public string Info
         {
-            get; set;
+            get; private set;
         }
 
         public string SessionStateChanges
         {
-            get; set;
+            get; private set;
         }
         #endregion
 

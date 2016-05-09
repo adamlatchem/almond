@@ -30,47 +30,47 @@ namespace Almond.ProtocolDriver.Packets
         #region members
         public int ProtocolVersion
         {
-            get; set;
+            get; private set;
         }
 
         public string ServerVersion
         {
-            get; set;
+            get; private set;
         }
 
         public UInt32 ConnectionThreadId
         {
-            get; set;
+            get; private set;
         }
 
         public List<byte> AuthPluginData
         {
-            get; set;
+            get; private set;
         }
 
         public Capability Capabilities
         {
-            get; set;
+            get; private set;
         }
 
         public byte CharacterSet
         {
-            get; set;
+            get; private set;
         }
 
         public Status StatusFlags
         {
-            get; set;
+            get; private set;
         }
 
         public byte LengthOfAuthPluginData
         {
-            get; set;
+            get; private set;
         }
 
         public string AuthPluginName
         {
-            get; set;
+            get; private set;
         }
         #endregion
 

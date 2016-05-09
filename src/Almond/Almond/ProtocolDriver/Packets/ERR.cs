@@ -26,17 +26,17 @@ namespace Almond.ProtocolDriver.Packets
         #region Members
         public UInt32 ErrorCode
         {
-            get; set;
+            get; private set;
         }
 
         public string SQLState
         {
-            get; set;
+            get; private set;
         }
 
         public string ErrorMessage
         {
-            get; set;
+            get; private set;
         }
         #endregion
 

@@ -25,12 +25,12 @@ namespace Almond.ProtocolDriver.Packets
         #region Members
         public UInt32 NumberOfWarnings
         {
-            get; set;
+            get; private set;
         }
 
         public Status StatusFlags
         {
-            get; set;
+            get; private set;
         }
         #endregion
 

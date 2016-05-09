@@ -24,11 +24,23 @@ namespace Almond.SQLDriver
     /// </summary>
     public class DbCommand : IDbCommand
     {
+        #region Members
+        /// <summary>
+        /// If this is a prepared statement this is the non negative id of
+        /// the statement
+        /// </summary>
+        internal int PreparedStatementId
+        {
+            get; set;
+        }
+        #endregion
+
         internal DbCommand(String commandText, IDbConnection connection)
         {
             CommandText = commandText;
             Connection = connection;
             CommandTimeout = 30;
+            PreparedStatementId = -1;
             Parameters = new DataParameterCollection();
         }
 
@@ -164,7 +176,7 @@ namespace Almond.SQLDriver
 
         public void Prepare()
         {
-            throw new NotImplementedException();
+            PreparedStatementId = _connection.PrepareStatement(this, CommandTimeout);
         }
         #endregion
     }

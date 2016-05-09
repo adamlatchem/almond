@@ -42,6 +42,8 @@
     <Compile Include="LineDriver\TCPLineDriver.cs" />
     <Compile Include="ProtocolDriver\ColumnType.cs" />
     <Compile Include="ProtocolDriver\Flags.cs" />
+    <Compile Include="ProtocolDriver\Packets\COM_STMT_PREPARE_OK.cs" />
+    <Compile Include="ProtocolDriver\Packets\COM_STMT_PREPARE.cs" />
     <Compile Include="ProtocolDriver\Packets\COM_QUERY.cs" />
     <Compile Include="ProtocolDriver\Packets\COM_INIT_DB.cs" />
     <Compile Include="ProtocolDriver\Packets\COM_QUIT.cs" />

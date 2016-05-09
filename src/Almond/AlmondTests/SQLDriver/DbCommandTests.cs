@@ -14,7 +14,6 @@
 //    limitations under the License. 
 //
 #endregion
-using Almond.SQLDriver;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Data;
@@ -215,7 +214,9 @@ namespace Almond.SQLDriver.Tests
         [TestMethod]
         public void PrepareTest()
         {
+            _command.CommandText = "SELECT CONCAT(?, ?)";
             _command.Prepare();
+            Assert.AreNotEqual(-1, ((DbCommand)_command).PreparedStatementId);
         }
     }
 }
