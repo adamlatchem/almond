@@ -240,6 +240,47 @@ namespace Almond.SQLDriver
             return (int)workerResult;
         }
 
+        /// <summary>
+        /// Execute the a prepared statement on the server and return the results.
+        /// </summary>
+        /// <param name="command">The command object to execute</param>
+        /// <param name="behavior">Behavior required of the command object</param>
+        /// <param name="timeout">timeout in seconds for the command</param>
+        /// <returns></returns>
+        internal IDataReader ExecutePreparedStatement(DbCommand command, CommandBehavior behavior, int timeout)
+        {
+            if (timeout < 0)
+                throw new ArgumentException("Timeout must be non negative");
+
+            ManualResetEvent completedSignal = new ManualResetEvent(false);
+            completedSignal.Reset();
+
+            object workerResult = null;
+            Task.Factory.StartNew(() => {
+                try
+                {
+                    ResultSet<Row> resultset = ProtocolDriver.ExecutePreparedQuery(command.PreparedStatementId);
+                    workerResult = new DataReader<Row>(resultset, (Connection)command.Connection, behavior);
+                }
+                catch (Exception e)
+                {
+                    workerResult = e;
+                }
+                finally
+                {
+                    completedSignal.Set();
+                }
+            });
+
+            bool completed = completedSignal.WaitOne(timeout == 0 ? System.Threading.Timeout.Infinite : 1000 * (int)timeout);
+            if (!completed)
+                throw new TimeoutException(string.Format("Command timeout after {0} seconds", timeout));
+            if (workerResult is Exception)
+                throw (Exception)workerResult;
+
+            return workerResult as IDataReader;
+        }
+
         #region IDisposable
         public void Dispose()
         {

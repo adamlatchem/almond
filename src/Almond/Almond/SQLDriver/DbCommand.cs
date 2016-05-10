@@ -153,7 +153,14 @@ namespace Almond.SQLDriver
 
         public IDataReader ExecuteReader()
         {
-            return _connection.ExecuteReader(this, CommandBehavior.Default, CommandTimeout);
+            if (PreparedStatementId != -1)
+            {
+                return _connection.ExecutePreparedStatement(this, CommandBehavior.Default, CommandTimeout);
+            }
+            else
+            {
+                return _connection.ExecuteReader(this, CommandBehavior.Default, CommandTimeout);
+            }
         }
 
         public IDataReader ExecuteReader(CommandBehavior behavior)

@@ -217,6 +217,14 @@ namespace Almond.SQLDriver.Tests
             _command.CommandText = "SELECT CONCAT(?, ?)";
             _command.Prepare();
             Assert.AreNotEqual(-1, ((DbCommand)_command).PreparedStatementId);
+
+            string param1 = "ThisIs";
+            string param2 = "ATest";
+
+            IDataReader reader = _command.ExecuteReader();
+            reader.Read();
+            string result = reader.GetString(0);
+            Assert.AreEqual(result, param1 + param2);
         }
     }
 }

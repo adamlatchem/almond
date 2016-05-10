@@ -276,6 +276,15 @@ namespace Almond.ProtocolDriver
             return (int)result.StatementId;
         }
 
+        /// <summary>
+        /// Execute the given prepared statement on the server and return the result.
+        /// </summary>
+        /// <param name="preparedStatementId">The id of the statement to execute</param>
+        /// <returns></returns>
+        public ResultSet<Row> ExecutePreparedQuery(int preparedStatementId)
+        {
+            throw new NotImplementedException();
+        }
 
         /// <summary>
         /// Change the current database
