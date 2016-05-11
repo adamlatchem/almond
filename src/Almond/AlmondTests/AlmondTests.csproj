@@ -85,6 +85,7 @@
     <Compile Include="ProtocolDriver\Packets\GenericTests.cs" />
     <Compile Include="ProtocolDriver\Packets\ServerHandshakeTests.cs" />
     <Compile Include="ProtocolDriver\Packets\HandshakeResponseTests.cs" />
+    <Compile Include="Utility\ThreadingTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Almond\Almond.csproj">

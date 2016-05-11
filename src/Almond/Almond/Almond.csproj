@@ -72,6 +72,7 @@
     <Compile Include="ProtocolDriver\Packets\ServerHandshake.cs" />
     <Compile Include="ProtocolDriver\ProtocolDriver.cs" />
     <Compile Include="ProtocolDriver\ProtocolException.cs" />
+    <Compile Include="Utility\Threading.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />

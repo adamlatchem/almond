@@ -169,36 +169,13 @@ namespace Almond.SQLDriver
         /// <returns></returns>
         internal IDataReader ExecuteReader(DbCommand command, CommandBehavior behavior, int timeout)
         {
-            if (timeout < 0)
-                throw new ArgumentException("Timeout must be non negative");
-
-            ManualResetEvent completedSignal = new ManualResetEvent(false);
-            completedSignal.Reset();
-
-            object workerResult = null;
-            Task.Factory.StartNew(() => {
-                try
-                {
+            IDataReader workerResult = Utility.Threading.RunWithTimeout<IDataReader>(
+                () => {
                     ResultSet<Row> resultset = ProtocolDriver.ExecuteQuery(command.CommandText);
-                    workerResult = new DataReader<Row>(resultset, (Connection)command.Connection, behavior);
-                }
-                catch (Exception e)
-                {
-                    workerResult = e;
-                }
-                finally
-                {
-                    completedSignal.Set();
-                }
-            });
-
-            bool completed = completedSignal.WaitOne(timeout == 0 ? System.Threading.Timeout.Infinite : 1000 * (int)timeout);
-            if (!completed)
-                throw new TimeoutException(string.Format("Command timeout after {0} seconds", timeout));
-            if (workerResult is Exception)
-                throw (Exception)workerResult;
-
-            return workerResult as IDataReader;
+                    return new DataReader<Row>(resultset, (Connection)command.Connection, behavior);
+                },
+                timeout);
+            return workerResult;
         }
 
         /// <summary>
@@ -209,35 +186,10 @@ namespace Almond.SQLDriver
         /// <returns></returns>
         public int PrepareStatement(DbCommand command, int timeout)
         {
-            if (timeout < 0)
-                throw new ArgumentException("Timeout must be non negative");
-
-            ManualResetEvent completedSignal = new ManualResetEvent(false);
-            completedSignal.Reset();
-
-            object workerResult = -1;
-            Task.Factory.StartNew(() => {
-                try
-                {
-                    workerResult = ProtocolDriver.PrepareStatement(command.CommandText);
-                }
-                catch (Exception e)
-                {
-                    workerResult = e;
-                }
-                finally
-                {
-                    completedSignal.Set();
-                }
-            });
-
-            bool completed = completedSignal.WaitOne(timeout == 0 ? System.Threading.Timeout.Infinite : 1000 * (int)timeout);
-            if (!completed)
-                throw new TimeoutException(string.Format("Command timeout after {0} seconds", timeout));
-            if (workerResult is Exception)
-                throw (Exception)workerResult;
-
-            return (int)workerResult;
+            int workerResult = Utility.Threading.RunWithTimeout<int>(
+                () => ProtocolDriver.PrepareStatement(command.CommandText),
+                timeout);
+            return workerResult;
         }
 
         /// <summary>
@@ -249,36 +201,14 @@ namespace Almond.SQLDriver
         /// <returns></returns>
         internal IDataReader ExecutePreparedStatement(DbCommand command, CommandBehavior behavior, int timeout)
         {
-            if (timeout < 0)
-                throw new ArgumentException("Timeout must be non negative");
 
-            ManualResetEvent completedSignal = new ManualResetEvent(false);
-            completedSignal.Reset();
-
-            object workerResult = null;
-            Task.Factory.StartNew(() => {
-                try
-                {
+            IDataReader workerResult = Utility.Threading.RunWithTimeout<IDataReader>(
+                () => {
                     ResultSet<Row> resultset = ProtocolDriver.ExecutePreparedQuery(command.PreparedStatementId);
-                    workerResult = new DataReader<Row>(resultset, (Connection)command.Connection, behavior);
-                }
-                catch (Exception e)
-                {
-                    workerResult = e;
-                }
-                finally
-                {
-                    completedSignal.Set();
-                }
-            });
-
-            bool completed = completedSignal.WaitOne(timeout == 0 ? System.Threading.Timeout.Infinite : 1000 * (int)timeout);
-            if (!completed)
-                throw new TimeoutException(string.Format("Command timeout after {0} seconds", timeout));
-            if (workerResult is Exception)
-                throw (Exception)workerResult;
-
-            return workerResult as IDataReader;
+                    return new DataReader<Row>(resultset, (Connection)command.Connection, behavior);
+                },
+                timeout);
+            return workerResult;
         }
 
         #region IDisposable
