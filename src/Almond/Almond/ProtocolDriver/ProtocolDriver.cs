@@ -262,7 +262,7 @@ namespace Almond.ProtocolDriver
         /// </summary>
         /// <param name="statementText">The query to execute</param>
         /// <returns></returns>
-        public int PrepareStatement(string statementText)
+        public COM_STMT_PREPARE_OK PrepareStatement(string statementText)
         {
             _sequenceNumber = 0;
             COM_STMT_PREPARE packet = new COM_STMT_PREPARE();
@@ -273,7 +273,7 @@ namespace Almond.ProtocolDriver
             IServerPacket response = ReceivePacket(result);
             result = Expect<COM_STMT_PREPARE_OK>(response);
 
-            return (int)result.StatementId;
+            return result;
         }
 
         /// <summary>
@@ -281,9 +281,20 @@ namespace Almond.ProtocolDriver
         /// </summary>
         /// <param name="preparedStatementId">The id of the statement to execute</param>
         /// <returns></returns>
-        public ResultSet<Row> ExecutePreparedQuery(int preparedStatementId)
+        public ResultSet<BinaryRow> ExecutePreparedStatement(COM_STMT_PREPARE_OK preparedStatement)
         {
-            throw new NotImplementedException();
+            _sequenceNumber = 0;
+            COM_STMT_EXECUTE packet = new COM_STMT_EXECUTE();
+            packet.StatementId = preparedStatement.StatementId;
+            SendPacket(packet);
+
+            ResultSet<BinaryRow> result = new ResultSet<BinaryRow>();
+            IServerPacket response = ReceivePacket(result);
+            if (response is OK)
+                return null;
+            else if (response is ERR)
+                throw new ProtocolException((ERR)response);
+            return (ResultSet<BinaryRow>)response;
         }
 
         /// <summary>

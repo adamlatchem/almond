@@ -14,6 +14,7 @@
 //    limitations under the License. 
 //
 #endregion
+using Almond.ProtocolDriver.Packets;
 using System;
 using System.Data;
 
@@ -29,7 +30,7 @@ namespace Almond.SQLDriver
         /// If this is a prepared statement this is the non negative id of
         /// the statement
         /// </summary>
-        internal int PreparedStatementId
+        internal COM_STMT_PREPARE_OK PreparedStatement
         {
             get; set;
         }
@@ -40,7 +41,7 @@ namespace Almond.SQLDriver
             CommandText = commandText;
             Connection = connection;
             CommandTimeout = 30;
-            PreparedStatementId = -1;
+            PreparedStatement = null;
             Parameters = new DataParameterCollection();
         }
 
@@ -153,7 +154,7 @@ namespace Almond.SQLDriver
 
         public IDataReader ExecuteReader()
         {
-            if (PreparedStatementId != -1)
+            if (PreparedStatement != null)
             {
                 return _connection.ExecutePreparedStatement(this, CommandBehavior.Default, CommandTimeout);
             }
@@ -183,7 +184,7 @@ namespace Almond.SQLDriver
 
         public void Prepare()
         {
-            PreparedStatementId = _connection.PrepareStatement(this, CommandTimeout);
+            PreparedStatement = _connection.PrepareStatement(this, CommandTimeout);
         }
         #endregion
     }

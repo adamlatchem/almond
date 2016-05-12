@@ -179,14 +179,14 @@ namespace Almond.SQLDriver
         }
 
         /// <summary>
-        /// Prepare the given command and return the prepared statement id
+        /// Prepare the given command and return the prepared statement response packet.
         /// </summary>
         /// <param name="command"></param>
         /// <param name="timeout"></param>
         /// <returns></returns>
-        public int PrepareStatement(DbCommand command, int timeout)
+        public COM_STMT_PREPARE_OK PrepareStatement(DbCommand command, int timeout)
         {
-            int workerResult = Utility.Threading.RunWithTimeout<int>(
+            COM_STMT_PREPARE_OK workerResult = Utility.Threading.RunWithTimeout<COM_STMT_PREPARE_OK>(
                 () => ProtocolDriver.PrepareStatement(command.CommandText),
                 timeout);
             return workerResult;
@@ -201,11 +201,10 @@ namespace Almond.SQLDriver
         /// <returns></returns>
         internal IDataReader ExecutePreparedStatement(DbCommand command, CommandBehavior behavior, int timeout)
         {
-
             IDataReader workerResult = Utility.Threading.RunWithTimeout<IDataReader>(
                 () => {
-                    ResultSet<Row> resultset = ProtocolDriver.ExecutePreparedQuery(command.PreparedStatementId);
-                    return new DataReader<Row>(resultset, (Connection)command.Connection, behavior);
+                    ResultSet<BinaryRow> resultset = ProtocolDriver.ExecutePreparedStatement(command.PreparedStatement);
+                    return new DataReader<BinaryRow>(resultset, (Connection)command.Connection, behavior);
                 },
                 timeout);
             return workerResult;

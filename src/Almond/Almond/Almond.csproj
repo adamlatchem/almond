@@ -41,7 +41,9 @@
     <Compile Include="LineDriver\LineDriverException.cs" />
     <Compile Include="LineDriver\TCPLineDriver.cs" />
     <Compile Include="ProtocolDriver\ColumnType.cs" />
+    <Compile Include="ProtocolDriver\CursorFlags.cs" />
     <Compile Include="ProtocolDriver\Flags.cs" />
+    <Compile Include="ProtocolDriver\Packets\COM_STMT_EXECUTE.cs" />
     <Compile Include="ProtocolDriver\Packets\COM_STMT_PREPARE_OK.cs" />
     <Compile Include="ProtocolDriver\Packets\COM_STMT_PREPARE.cs" />
     <Compile Include="ProtocolDriver\Packets\COM_QUERY.cs" />

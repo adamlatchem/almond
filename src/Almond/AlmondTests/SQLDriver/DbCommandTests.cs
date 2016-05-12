@@ -216,7 +216,7 @@ namespace Almond.SQLDriver.Tests
         {
             _command.CommandText = "SELECT CONCAT(?, ?)";
             _command.Prepare();
-            Assert.AreNotEqual(-1, ((DbCommand)_command).PreparedStatementId);
+            Assert.AreNotEqual(null, ((DbCommand)_command).PreparedStatement);
 
             string param1 = "ThisIs";
             string param2 = "ATest";
