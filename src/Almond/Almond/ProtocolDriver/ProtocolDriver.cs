@@ -285,7 +285,7 @@ namespace Almond.ProtocolDriver
         {
             _sequenceNumber = 0;
             COM_STMT_EXECUTE packet = new COM_STMT_EXECUTE();
-            packet.StatementId = preparedStatement.StatementId;
+            packet.PrepareOK = preparedStatement;
             SendPacket(packet);
 
             ResultSet<BinaryRow> result = new ResultSet<BinaryRow>();

@@ -22,17 +22,12 @@ namespace Almond.ProtocolDriver.Packets
     public class COM_STMT_EXECUTE : IClientPacket
     {
         #region Members
-        public UInt32 StatementId
-        {
-            get; set;
-        }
-
         public CursorFlags Flags
         {
             get; set;
         }
 
-        public UInt32 IterationCount
+        public COM_STMT_PREPARE_OK PrepareOK
         {
             get; set;
         }
@@ -40,12 +35,30 @@ namespace Almond.ProtocolDriver.Packets
 
         public void ToWireFormat(ChunkWriter writer, ProtocolDriver driver)
         {
-            writer.WriteMyInt1(17);
-            writer.WriteMyInt4(StatementId);
-            writer.WriteMyInt1((byte)Flags);
-            writer.WriteMyInt4(IterationCount);
+            if (PrepareOK == null)
+                throw new ProtocolException("A COM_STMT_PREPARE_OK is required");
 
-            throw new NotImplementedException();
+            writer.WriteMyInt1(17);
+            writer.WriteMyInt4(PrepareOK.StatementId);
+            writer.WriteMyInt1((byte)Flags);
+            writer.WriteMyInt4(1 /* Iteration Count */);
+
+            byte newParamsBoundFlag = 0;
+            if (PrepareOK.NumberParameters > 0)
+            {
+                int nullBitmapLength = (newParamsBoundFlag + 7) / 8;
+                // NULL BITMAP
+                throw new NotImplementedException();
+                writer.WriteMyInt1(newParamsBoundFlag);
+            }
+            if (newParamsBoundFlag == 1)
+            {
+                /*
+                n  type of each parameter, length: num-params * 2
+                n  value of each parameter
+                */
+                throw new NotImplementedException();
+            }
         }
     }
 }
