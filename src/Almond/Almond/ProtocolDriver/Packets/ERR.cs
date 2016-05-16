@@ -48,14 +48,15 @@ namespace Almond.ProtocolDriver.Packets
             byte header = chunkReader.ReadMyInt1();
             ErrorCode = chunkReader.ReadMyInt2();
             UInt32 stringLength = payloadLength - 3;
-            if (driver.ClientCapability.HasFlag(Capability.CLIENT_PROTOCOL_41) && chunkReader.PeekByte() == '#')
+            if (payloadLength > 9 && driver.ClientCapability.HasFlag(Capability.CLIENT_PROTOCOL_41) && chunkReader.PeekByte() == '#')
             {
                 byte hashMark = chunkReader.ReadMyInt1();
                 Debug.Assert(hashMark == '#');
                 SQLState = chunkReader.ReadTextFix(5, driver.ClientEncoding);
                 stringLength -= 6;
             }
-            ErrorMessage = chunkReader.ReadTextFix(stringLength, driver.ClientEncoding);
+            if (stringLength > 0)
+                ErrorMessage = chunkReader.ReadTextFix(stringLength, driver.ClientEncoding);
 
             Debug.Assert(chunkReader.ReadSoFar() == headerLength + payloadLength);
             return this;
