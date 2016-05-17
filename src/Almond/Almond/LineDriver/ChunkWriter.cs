@@ -156,6 +156,47 @@ namespace Almond.LineDriver
         }
 
         /// <summary>
+        /// Write a MySQL int<8> value
+        /// </summary>
+        /// <param name="value">The value to write</param>
+        public void WriteMyInt8(UInt64 value)
+        {
+            WriteByte((byte)(value & 0x00000000000000ff));
+            WriteByte((byte)((value & 0x000000000000ff00) >> 8));
+            WriteByte((byte)((value & 0x0000000000ff0000) >> 16));
+            WriteByte((byte)((value & 0x00000000ff000000) >> 24));
+            WriteByte((byte)((value & 0x000000ff00000000) >> 32));
+            WriteByte((byte)((value & 0x0000ff0000000000) >> 40));
+            WriteByte((byte)((value & 0x00ff000000000000) >> 48));
+            WriteByte((byte)((value & 0xff00000000000000) >> 56));
+        }
+
+        /// <summary>
+        /// Write a MySQL int<LenEnc>.
+        /// </summary>
+        /// <param name="value"></param>
+        public void WriteMyIntLenEnc(UInt64 value)
+        {
+            if (value < 0xFBu)
+                WriteMyInt1((byte)value);
+            else if (value < 0x10000u)
+            {
+                WriteMyInt1(0xFC);
+                WriteMyInt2((ushort)value);
+            }
+            else if (value < 0x100000000u)
+            {
+                WriteMyInt1(0xFD);
+                WriteMyInt4((uint)value);
+            }
+            else
+            {
+                WriteMyInt1(0xFE);
+                WriteMyInt8((ulong)value);
+            }
+        }
+
+        /// <summary>
         /// Write a null terminated byte array
         /// </summary>
         /// <returns></returns>

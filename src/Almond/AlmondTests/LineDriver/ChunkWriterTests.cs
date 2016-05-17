@@ -1,4 +1,5 @@
-﻿#region License
+﻿using Almond.LineDriver;
+#region License
 // Copyright 2016 Adam Latchem
 // 
 //    Licensed under the Apache License, Version 2.0 (the "License"); 
@@ -14,6 +15,7 @@
 //    limitations under the License. 
 //
 #endregion
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Text;
@@ -127,6 +129,81 @@ namespace Almond.LineDriver.Tests
             Assert.AreEqual((byte)0xCA, value.Array[1]);
             Assert.AreEqual((byte)0xAD, value.Array[2]);
             Assert.AreEqual((byte)0x0B, value.Array[3]);
+        }
+
+        [TestMethod()]
+        public void WriteMyInt8Test()
+        {
+            UInt64 code = 0xDEADBEEF0BADCAFE;
+            _chunkWriter.NewChunk();
+            _chunkWriter.WriteMyInt8(code);
+            ArraySegment<byte> value = _chunkWriter.ExportChunk();
+            Assert.AreEqual((byte)0xFE, value.Array[0]);
+            Assert.AreEqual((byte)0xCA, value.Array[1]);
+            Assert.AreEqual((byte)0xAD, value.Array[2]);
+            Assert.AreEqual((byte)0x0B, value.Array[3]);
+            Assert.AreEqual((byte)0xEF, value.Array[4]);
+            Assert.AreEqual((byte)0xBE, value.Array[5]);
+            Assert.AreEqual((byte)0xAD, value.Array[6]);
+            Assert.AreEqual((byte)0xDE, value.Array[7]);
+        }
+
+        [TestMethod()]
+        public void WriteMyIntLenEncTest_Int1()
+        {
+            UInt64 code = 250;
+            _chunkWriter.NewChunk();
+            _chunkWriter.WriteMyIntLenEnc(code);
+            ArraySegment<byte> value = _chunkWriter.ExportChunk();
+            Assert.AreEqual(1, value.Count);
+            Assert.AreEqual((byte)0xFA, value.Array[0]);
+        }
+
+        [TestMethod()]
+        public void WriteMyIntLenEncTest_Int2()
+        {
+            UInt64 code = 251;
+            _chunkWriter.NewChunk();
+            _chunkWriter.WriteMyIntLenEnc(code);
+            ArraySegment<byte> value = _chunkWriter.ExportChunk();
+            Assert.AreEqual(3, value.Count);
+            Assert.AreEqual((byte)0xFC, value.Array[0]);
+            Assert.AreEqual((byte)0xFB, value.Array[1]);
+            Assert.AreEqual((byte)0x00, value.Array[2]);
+        }
+
+        [TestMethod()]
+        public void WriteMyIntLenEncTest_Int4()
+        {
+            UInt64 code = 0xFFFFFFFFu;
+            _chunkWriter.NewChunk();
+            _chunkWriter.WriteMyIntLenEnc(code);
+            ArraySegment<byte> value = _chunkWriter.ExportChunk();
+            Assert.AreEqual(5, value.Count);
+            Assert.AreEqual((byte)0xFD, value.Array[0]);
+            Assert.AreEqual((byte)0xFF, value.Array[1]);
+            Assert.AreEqual((byte)0xFF, value.Array[2]);
+            Assert.AreEqual((byte)0xFF, value.Array[3]);
+            Assert.AreEqual((byte)0xFF, value.Array[4]);
+        }
+
+        [TestMethod()]
+        public void WriteMyIntLenEncTest_Int8()
+        {
+            UInt64 code = 0xFFEEFFEEFFEEFFEEu;
+            _chunkWriter.NewChunk();
+            _chunkWriter.WriteMyIntLenEnc(code);
+            ArraySegment<byte> value = _chunkWriter.ExportChunk();
+            Assert.AreEqual(9, value.Count);
+            Assert.AreEqual((byte)0xFE, value.Array[0]);
+            Assert.AreEqual((byte)0xEE, value.Array[1]);
+            Assert.AreEqual((byte)0xFF, value.Array[2]);
+            Assert.AreEqual((byte)0xEE, value.Array[3]);
+            Assert.AreEqual((byte)0xFF, value.Array[4]);
+            Assert.AreEqual((byte)0xEE, value.Array[5]);
+            Assert.AreEqual((byte)0xFF, value.Array[6]);
+            Assert.AreEqual((byte)0xEE, value.Array[7]);
+            Assert.AreEqual((byte)0xFF, value.Array[8]);
         }
 
         [TestMethod()]
