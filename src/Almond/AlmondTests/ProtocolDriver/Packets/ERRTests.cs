@@ -54,11 +54,11 @@ namespace Almond.ProtocolDriver.Packets.Tests
         private IServerPacket MakeAndParsePacket(ERR packet, ProtocolDriver driver, bool includeMessage, bool includeState)
         {
             ChunkReader chunkReader = new ChunkReader();
-            ArraySegment<Byte> chunk = MakePacket(_moqDriver, includeMessage, includeState);
+            ArraySegment<Byte> chunk = MakePacket(driver, includeMessage, includeState);
             chunkReader.AddChunk(chunk);
 
             Assert.AreNotEqual(null, packet);
-            IServerPacket p = packet.FromWireFormat(chunkReader, (uint)chunk.Count, _moqDriver);
+            IServerPacket p = packet.FromWireFormat(chunkReader, (uint)chunk.Count, driver);
             return p;
         }
 
