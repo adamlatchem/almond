@@ -34,6 +34,17 @@ namespace Almond.IntegrationTests
             "Hostname=::1;Port=3306;Username=test;Password=test";
         #endregion
 
+        [ClassInitialize]
+        public static void ClassInitialize(TestContext context)
+        {
+            // Warm up the machines connectivity so main tests do not post exceptionally
+            // long durations.
+            using (Connection connection = new Connection(CONNECTION_STRING))
+            {
+                connection.Open();
+            }
+        }
+
         [TestMethod]
         public void ConnectionTest()
         {
