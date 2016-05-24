@@ -26,7 +26,7 @@ namespace Almond.ProtocolDriver.Packets
     public class HandshakeResponse : IClientPacket
     {
         #region Members
-        public static SHA1 sha = new SHA1CryptoServiceProvider();
+        static public SHA1 sha = new SHA1CryptoServiceProvider();
 
         public Capability Capability
         {

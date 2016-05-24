@@ -29,14 +29,14 @@ namespace Almond.LineDriver.Tests
         private static Encoding _encoding;
 
         [ClassInitialize]
-        public static void ClassInitialize(TestContext context)
+        static public void ClassInitialize(TestContext context)
         {
             _chunkWriter = new ChunkWriter();
             _encoding = System.Text.ASCIIEncoding.ASCII;
         }
 
         [ClassCleanup]
-        public static void ClassCleanup()
+        static public void ClassCleanup()
         {
             _chunkWriter = null;
         }

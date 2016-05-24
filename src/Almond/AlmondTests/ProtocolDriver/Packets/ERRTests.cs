@@ -63,7 +63,7 @@ namespace Almond.ProtocolDriver.Packets.Tests
         }
 
         [ClassInitialize]
-        public static void ClassInitialize(TestContext context)
+        static public void ClassInitialize(TestContext context)
         {
             // Create the objects to unit test
             ConnectionStringBuilder csb = new ConnectionStringBuilder();

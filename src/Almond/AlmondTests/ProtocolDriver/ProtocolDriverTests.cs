@@ -29,7 +29,7 @@ namespace Almond.ProtocolDriver.Tests
         private static Almond.ProtocolDriver.ProtocolDriver _protocolDriver;
 
         [ClassInitialize]
-        public static void ClassInitialize(TestContext context)
+        static public void ClassInitialize(TestContext context)
         {
             _connectionStringBuilder = new ConnectionStringBuilder();
             _connectionStringBuilder.ConnectionString = "hostname=localhost;port=3306;username=test;password=test";
@@ -38,7 +38,7 @@ namespace Almond.ProtocolDriver.Tests
         }
 
         [ClassCleanup]
-        public static void ClassCleanup()
+        static public void ClassCleanup()
         {
             _protocolDriver.Dispose();
             _protocolDriver = null;

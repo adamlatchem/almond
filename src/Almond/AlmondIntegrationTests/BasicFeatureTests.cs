@@ -35,7 +35,7 @@ namespace Almond.IntegrationTests
         #endregion
 
         [ClassInitialize]
-        public static void ClassInitialize(TestContext context)
+        static public void ClassInitialize(TestContext context)
         {
             // Warm up the machines connectivity so main tests do not post exceptionally
             // long durations.

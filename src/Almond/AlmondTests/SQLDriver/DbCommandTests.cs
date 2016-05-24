@@ -26,15 +26,15 @@ namespace Almond.SQLDriver.Tests
         /// <summary>
         /// Connection used for the unit test
         /// </summary>
-        public static Connection _connection;
+        static public Connection _connection;
 
         /// <summary>
         /// Command under test
         /// </summary>
-        public static IDbCommand _command;
+        static public IDbCommand _command;
 
         [ClassInitialize]
-        public static void ClassInitialize(TestContext context)
+        static public void ClassInitialize(TestContext context)
         {
             // Create the objects to unit test
             _connection = new Connection("hostname=localhost;username=test;password=test");
@@ -44,7 +44,7 @@ namespace Almond.SQLDriver.Tests
         }
 
         [ClassCleanup]
-        public static void ClassCleanup()
+        static public void ClassCleanup()
         {
             _command = null;
             _connection.Dispose();

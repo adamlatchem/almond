@@ -22,7 +22,7 @@ namespace Almond.ProtocolDriver
 {
     public class Mapping
     {
-        public static Encoding CharSetToEncoding(UInt32 characterSet)
+        static public Encoding CharSetToEncoding(UInt32 characterSet)
         {
             switch (characterSet)
             {

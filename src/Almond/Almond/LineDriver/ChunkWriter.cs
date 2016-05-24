@@ -212,7 +212,7 @@ namespace Almond.LineDriver
         /// <param name="theString">The string to convert to an array</param>
         /// <param name="encoding">Text encoding to use</param>
         /// <returns>A byte array of exact length for the string</returns>
-        public static byte[] StringToBytes(string theString, Encoding encoding)
+        static public byte[] StringToBytes(string theString, Encoding encoding)
         {
             if (theString == null)
                 return new byte[0];

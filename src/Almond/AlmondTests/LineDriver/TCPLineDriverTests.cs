@@ -27,7 +27,7 @@ namespace Almond.LineDriver.Tests
         private static TCPLineDriver _lineDriver;
 
         [ClassInitialize]
-        public static void ClassInitialize(TestContext context)
+        static public void ClassInitialize(TestContext context)
         {
             _connectionStringBuilder = new ConnectionStringBuilder();
             _connectionStringBuilder.ConnectionString = "hostname=localhost;port=3306";
@@ -35,7 +35,7 @@ namespace Almond.LineDriver.Tests
         }
 
         [ClassCleanup]
-        public static void ClassCleanup()
+        static public void ClassCleanup()
         {
             _lineDriver.Dispose();
             _lineDriver = null;

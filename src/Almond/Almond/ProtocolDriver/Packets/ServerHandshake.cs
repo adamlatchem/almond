@@ -45,7 +45,7 @@ namespace Almond.ProtocolDriver.Packets
 
         public List<byte> AuthPluginData
         {
-            get; private set;
+            get; internal set;
         }
 
         public Capability Capabilities
@@ -65,12 +65,12 @@ namespace Almond.ProtocolDriver.Packets
 
         public byte LengthOfAuthPluginData
         {
-            get; private set;
+            get; internal set;
         }
 
         public string AuthPluginName
         {
-            get; private set;
+            get; internal set;
         }
         #endregion
 

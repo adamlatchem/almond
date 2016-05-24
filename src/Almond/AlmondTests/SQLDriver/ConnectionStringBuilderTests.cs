@@ -29,14 +29,14 @@ namespace Almond.SQLDriver.Tests
         private static ConnectionStringBuilder _connectionStringBuilder;
 
         [ClassInitialize]
-        public static void ClassInitialize(TestContext context)
+        static public void ClassInitialize(TestContext context)
         {
             _connectionStringBuilder = new ConnectionStringBuilder();
             Assert.IsNotNull(_connectionStringBuilder);
         }
 
         [ClassCleanup]
-        public static void ClassCleanup()
+        static public void ClassCleanup()
         {
             _connectionStringBuilder = null;
         }

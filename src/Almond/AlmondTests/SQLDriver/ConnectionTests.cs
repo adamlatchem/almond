@@ -26,17 +26,17 @@ namespace Almond.SQLDriver.Tests
         /// <summary>
         /// The object under test
         /// </summary>
-        public static Connection _connection;
+        static public Connection _connection;
 
         [ClassInitialize]
-        public static void ClassInitialize(TestContext context)
+        static public void ClassInitialize(TestContext context)
         {
             _connection = new Connection("hostname=localhost;username=test;password=test;database=mysql");
             Assert.IsNotNull(_connection);
         }
 
         [ClassCleanup]
-        public static void ClassCleanup()
+        static public void ClassCleanup()
         {
             _connection.Dispose();
             _connection = null;

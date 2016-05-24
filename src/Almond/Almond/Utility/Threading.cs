@@ -29,7 +29,7 @@ namespace Almond.Utility
         /// <param name="codeBlock"></param>
         /// <param name="timeoutInSeconds"></param>
         /// <returns></returns>
-        public static TResult RunWithTimeout<TResult>(Func<TResult> codeBlock, int timeoutInSeconds)
+        static public TResult RunWithTimeout<TResult>(Func<TResult> codeBlock, int timeoutInSeconds)
         {
             if (timeoutInSeconds < 0)
                 throw new ArgumentException("Timeout must be non negative");

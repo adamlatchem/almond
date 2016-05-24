@@ -325,7 +325,7 @@ namespace Almond.LineDriver
         /// <param name="bytes"></param>
         /// <param name="encoding">Encoding of text to use</param>
         /// <returns>String that was read</returns>
-        public static string BytesToString(ArraySegment<byte> bytes, Encoding encoding)
+        static public string BytesToString(ArraySegment<byte> bytes, Encoding encoding)
         {
             return encoding.GetString(bytes.Array, bytes.Offset, bytes.Count);
         }
