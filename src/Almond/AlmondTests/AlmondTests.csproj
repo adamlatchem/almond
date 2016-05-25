@@ -86,6 +86,7 @@
     <Compile Include="ProtocolDriver\Packets\GenericTests.cs" />
     <Compile Include="ProtocolDriver\Packets\ServerHandshakeTests.cs" />
     <Compile Include="ProtocolDriver\Packets\HandshakeResponseTests.cs" />
+    <Compile Include="Tools.cs" />
     <Compile Include="Utility\ThreadingTests.cs" />
   </ItemGroup>
   <ItemGroup>

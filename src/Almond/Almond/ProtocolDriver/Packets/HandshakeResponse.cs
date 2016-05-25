@@ -99,7 +99,10 @@ namespace Almond.ProtocolDriver.Packets
             }
             else
             {
-                writer.WriteMyStringNull(AuthResponse, (UInt32)AuthResponse.Length);
+                if (AuthResponse == null)
+                    writer.WriteByte(0);
+                else
+                    writer.WriteMyStringNull(AuthResponse, (UInt32)AuthResponse.Length);
             }
             if (Capability.HasFlag(Capability.CLIENT_CONNECT_WITH_DB))
             {
