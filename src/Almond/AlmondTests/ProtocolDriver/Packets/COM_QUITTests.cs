@@ -14,6 +14,8 @@
 //    limitations under the License. 
 //
 #endregion
+using Almond.LineDriver;
+using Almond.SQLDriver;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 
@@ -22,10 +24,38 @@ namespace Almond.ProtocolDriver.Packets.Tests
     [TestClass()]
     public class COM_QUITTests
     {
-        [TestMethod()]
-        public void TODO()
+        #region Test Data
+        static ProtocolDriver _moqDriver;
+
+        private ArraySegment<Byte> MakePacket(ProtocolDriver driver)
         {
-            throw new NotImplementedException();
+            COM_QUIT packet = new COM_QUIT();
+            ChunkWriter chunkWriter = new ChunkWriter();
+            chunkWriter.NewChunk();
+            packet.ToWireFormat(chunkWriter, driver);
+            ArraySegment<byte> chunk = chunkWriter.ExportChunk();
+
+            return chunk;
+        }
+
+        [ClassInitialize]
+        static public void ClassInitialize(TestContext context)
+        {
+            // Create the objects to unit test
+            ConnectionStringBuilder csb = new ConnectionStringBuilder();
+            csb.ConnectionString = "hostname=localhost;username=test;password=test";
+            _moqDriver = new ProtocolDriver(csb);
+        }
+        #endregion
+
+        [TestMethod()]
+        public void ToWireFormatTest()
+        {
+            ArraySegment<byte> segment = MakePacket(_moqDriver);
+            byte[] expected = new byte[] { 1 };
+            Assert.AreEqual(expected.Length, segment.Count);
+            for (int i = 0; i < expected.Length; i++)
+                Assert.AreEqual(expected[i], segment.Array[i]);
         }
     }
 }
