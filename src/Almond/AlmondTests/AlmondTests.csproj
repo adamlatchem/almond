@@ -67,6 +67,7 @@
     <Compile Include="ProtocolDriver\Packets\COM_STMT_PREPARETests.cs" />
     <Compile Include="ProtocolDriver\Packets\COM_QUERYTests.cs" />
     <Compile Include="ProtocolDriver\Packets\COM_QUITTests.cs" />
+    <Compile Include="ProtocolDriver\Packets\EOFTests.cs" />
     <Compile Include="ProtocolDriver\Packets\ResultSetTests.cs" />
     <Compile Include="ProtocolDriver\Packets\BinaryRowTests.cs" />
     <Compile Include="ProtocolDriver\Packets\RowTests.cs" />
