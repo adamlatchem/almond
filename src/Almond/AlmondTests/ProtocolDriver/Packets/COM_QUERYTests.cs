@@ -14,6 +14,8 @@
 //    limitations under the License. 
 //
 #endregion
+using Almond.LineDriver;
+using Almond.SQLDriver;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 
@@ -22,10 +24,44 @@ namespace Almond.ProtocolDriver.Packets.Tests
     [TestClass()]
     public class COM_QUERYTests
     {
-        [TestMethod()]
-        public void TODO()
+        #region Test Data
+        static ProtocolDriver _moqDriver;
+
+        string queryText = "SELECT * FROM DUAL";
+
+        private ArraySegment<Byte> MakePacket(ProtocolDriver driver)
         {
-            throw new NotImplementedException();
+            COM_QUERY packet = new COM_QUERY();
+            packet.QueryText = queryText;
+            ChunkWriter chunkWriter = new ChunkWriter();
+            chunkWriter.NewChunk();
+            packet.ToWireFormat(chunkWriter, driver);
+            ArraySegment<byte> chunk = chunkWriter.ExportChunk();
+
+            return chunk;
+        }
+
+        [ClassInitialize]
+        static public void ClassInitialize(TestContext context)
+        {
+            // Create the objects to unit test
+            ConnectionStringBuilder csb = new ConnectionStringBuilder();
+            csb.ConnectionString = "hostname=localhost;username=test;password=test";
+            _moqDriver = new ProtocolDriver(csb);
+        }
+        #endregion
+
+        [TestMethod()]
+        public void ToWireFormatTest()
+        {
+            ArraySegment<byte> segment = MakePacket(_moqDriver);
+            byte[] expected = new byte[] {
+                0x03, 0x53, 0x45, 0x4C, 0x45, 0x43, 0x54, 0x20, 0x2A, 0x20,
+                0x46, 0x52, 0x4F, 0x4D, 0x20, 0x44, 0x55, 0x41, 0x4C,
+            };
+            Assert.AreEqual(expected.Length, segment.Count);
+            for (int i = 0; i < expected.Length; i++)
+                Assert.AreEqual(expected[i], segment.Array[i]);
         }
     }
 }
