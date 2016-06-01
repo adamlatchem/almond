@@ -1,5 +1,4 @@
-﻿using Almond.ProtocolDriver.Packets;
-#region License
+﻿#region License
 // Copyright 2016 Adam Latchem
 // 
 //    Licensed under the Apache License, Version 2.0 (the "License"); 
@@ -15,11 +14,10 @@
 //    limitations under the License. 
 //
 #endregion
-
-using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Almond.LineDriver;
 using Almond.SQLDriver;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 
 namespace Almond.ProtocolDriver.Packets.Tests
 {

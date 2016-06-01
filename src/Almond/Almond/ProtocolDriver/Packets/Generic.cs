@@ -71,7 +71,7 @@ namespace Almond.ProtocolDriver.Packets
         #region IClientPacket
         public void ToWireFormat(ChunkWriter writer, ProtocolDriver driver)
         {
-            throw new NotImplementedException();
+            writer.WriteMyStringFix(Payload.Array, (UInt32)Payload.Count);
         }
         #endregion
     }
