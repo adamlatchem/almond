@@ -14,12 +14,10 @@
 //    limitations under the License. 
 //
 #endregion
-
 using Almond.LineDriver;
 using Almond.SQLDriver;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.Linq;
 
 namespace Almond.ProtocolDriver.Packets.Tests
 {
