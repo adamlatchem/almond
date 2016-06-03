@@ -15,17 +15,71 @@
 //
 #endregion
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
+using System.Data;
 
 namespace Almond.SQLDriver.Tests
 {
     [TestClass()]
     public class DbDataParameterTests
     {
+        #region Test Data
+        string parameterName = "testParam";
+        string sourceColumn = "testSourceColumn";
+        DbType type = DbType.AnsiString;
+        object objectValue = "test";
+        bool isNullable = false;
+        int size = 24;
+        byte scale = 10;
+        byte precision = 18;
+        DataRowVersion sourceVersion = DataRowVersion.Original;
+        ParameterDirection direction = ParameterDirection.InputOutput;
+        #endregion
+
         [TestMethod()]
-        public void TODO()
+        public void DbDataParameterTest_FullCtor()
         {
-            throw new NotImplementedException();
+            DbDataParameter dbp = new DbDataParameter(
+                parameterName,
+                sourceColumn,
+                type,
+                objectValue,
+                isNullable,
+                size,
+                scale,
+                precision,
+                sourceVersion,
+                direction);
+
+            Assert.AreEqual(parameterName, dbp.ParameterName);
+            Assert.AreEqual(sourceColumn, dbp.SourceColumn);
+            Assert.AreEqual(type, dbp.DbType);
+            Assert.AreEqual(objectValue, dbp.Value);
+            Assert.AreEqual(isNullable, dbp.IsNullable);
+            Assert.AreEqual(size, dbp.Size);
+            Assert.AreEqual(scale, dbp.Scale);
+            Assert.AreEqual(precision, dbp.Precision);
+            Assert.AreEqual(sourceVersion, dbp.SourceVersion);
+            Assert.AreEqual(direction, dbp.Direction);
+        }
+
+        [TestMethod()]
+        public void DbDataParameterTest_SimpleCtor()
+        {
+            DbDataParameter dbp = new DbDataParameter(parameterName, sourceColumn, type);
+
+            Assert.AreEqual(parameterName, dbp.ParameterName);
+            Assert.AreEqual(sourceColumn, dbp.SourceColumn);
+            Assert.AreEqual(type, dbp.DbType);
+        }
+
+        [TestMethod()]
+        public void DbDataParameterTest_DefaultCtor()
+        {
+            DbDataParameter dbp = new DbDataParameter();
+
+            Assert.AreEqual(null, dbp.ParameterName);
+            Assert.AreEqual(null, dbp.SourceColumn);
+            Assert.AreEqual(DbType.Object, dbp.DbType);
         }
     }
 }
